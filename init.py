@@ -1,0 +1,31 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
+import read
+import config as c
+import sys
+import os
+
+try:
+    caseid
+except NameError:
+    print("input caseid id (3 digit)")
+    caseid = 0
+    caseid = input()
+    caseid = "d"+caseid.zfill(3)
+
+dir="../run/"+caseid+"/data/"
+casedir="../figs/"+caseid
+os.makedirs(casedir,exist_ok=True)
+
+read.read_init(dir,"3d")
+for key in c.p:
+    exec('%s = %s%s%s' % (key, 'c.p["',key,'"]'))
+
+try:
+    n0
+except NameError:
+    n0 = 0
+if  n0 > c.p["nd"]:
+    n0 = c.p["nd"]
+
