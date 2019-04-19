@@ -5,49 +5,41 @@
 def read_init(dir,dimension):
     import numpy as np
     import config as c
+    import sys
+    c.p = {"a":0}
     f = open(dir+"param/nd.dac","r")
     nn = f.read().split()
     nd = int(nn[0])
     ni = int(nn[1])
     f.close()
-
+    
+    c.p['nd'] = nd
+    c.p['ni'] = ni
+    
+    R2D2_py_ver = 1.0
     f = open(dir+"param/params.dac","r")
-    params = f.read().split()
+    line = f.readline().split()
+    if R2D2_py_ver != float(line[2]):
+        print("#######################################################")
+        print("#######################################################")
+        print("### Current R2D2 Python version is ",R2D2_py_ver,".")
+        print("### You use the data from R2D2 version ",float(line[2]),".")
+        print("### Please use the same version of fortran R2D2.")
+        print("#######################################################")
+        print("#######################################################")
+        sys.exit()
+    
+
+    line = f.readline()
+    while line:
+        if line.split()[2] == 'i':
+            c.p[line.split()[1]] = int(line.split()[0])
+        if line.split()[2] == 'd':
+            c.p[line.split()[1]] = float(line.split()[0])
+        line = f.readline()
+
     f.close()
-    c.p = {"a":0}
-    c.p["nd"] = nd
-    c.p["ni"] = ni
-    c.p["xdcheck"] = int(params[0])
-    c.p["ydcheck"] = int(params[1])
-    c.p["zdcheck"] = int(params[2])
-    c.p["margin"]  = int(params[3])
-    c.p["nx"]      = int(params[4])
-    c.p["ny"]      = int(params[5])
-    c.p["nz"]      = int(params[6])
-    c.p["npe"]     = int(params[7])
-    c.p["ix0"]     = int(params[8])
-    c.p["jx0"]     = int(params[9])
-    c.p["kx0"]     = int(params[10])
-    c.p["mtype"]   = int(params[11])
-    c.p["xmax"]    = float(params[12])
-    c.p["ymax"]    = float(params[13])
-    c.p["zmax"]    = float(params[14])
-    c.p["xmin"]    = float(params[15])
-    c.p["ymin"]    = float(params[16])
-    c.p["zmin"]    = float(params[17])
-    c.p["dtout"]   = float(params[18])
-    c.p["tend"]    = float(params[19])
-    c.p["swap"]    = int(params[20])
-    c.p["ix_e"]    = int(params[21])
-    c.p["jx_e"]    = int(params[22])
-    c.p["ixr"]     = int(params[23])
-    c.p["jxr"]     = int(params[24])
-    c.p["m_in"]    = int(params[25])
-    c.p["dtoui"]    = float(params[26])
-    c.p["ifac"]    = float(params[27])
-    c.p["jc"]    = int(params[28])
-    c.p["kc"]    = int(params[29])
-   
+            
     if c.p["swap"] == 0: # little
         c.p["endian"] = "<"
     else:
