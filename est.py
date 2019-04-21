@@ -78,7 +78,7 @@ for n in range(n0,nd+1):
         vc[c.p["cl"][m]] = vl[:,:,m]
         
     ##############################    
-    fsun = 6.3e10
+    fsun = 6.318e10
     fe = np.average(vc["fe"],axis=1)
     fd = np.average(vc["fd"],axis=1)
     fk = np.average(vc["fk"],axis=1)
@@ -138,7 +138,8 @@ for n in range(n0,nd+1):
                      ,xy=[0.01,0.01],xycoords="figure fraction",fontsize=18)
     
     xtmp = 0.5*(x[ix//2] + x[ix//2-1])
-    ax1.vlines(xtmp/rsun,-2,3)
+    if deep_top_flag == 1:
+        ax1.vlines(xtmp/rsun,-2,3)
 
     #####################
     ax2.plot(c.p["xn"],ff/fsun,color="red")
