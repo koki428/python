@@ -15,15 +15,8 @@ except NameError:
     caseid = "d"+caseid.zfill(3)
 
 dir="../run/"+caseid+"/data/"
-figdir="../figs/"
-casedir="../figs/"+caseid
 pngdir="../figs/"+caseid+"/png/"
-if not os.path.exists(figdir):
-    os.mkdir(figdir)
-if not os.path.exists(casedir):
-    os.mkdir(casedir)
-if not os.path.exists(pngdir):
-    os.mkdir(pngdir)
+os.makedirs(pngdir,exist_ok=True)
 
 read.read_init(dir,"3d")
 for key in c.p:
@@ -39,11 +32,42 @@ if  n0 > c.p["nd"]:
 print("Maximum time step= ",nd," time ="\
       ,dtout*float(nd)/3600./24.," [day]")
 
+tmp, te2 = np.meshgrid(y,te0)
 plt.close('all')
 
-xsize = 10
-ysize = 10
-fig = plt.figure(num=1,figsize=(xsize,ysize))
+vsize = 12
+
+zfac0 = 1
+xfac0 = zfac0*(xmax - xmin)/(zmax - zmin)
+marginfac_vbot0 = 0.1
+marginfac_vint0 = 0.06
+marginfac_vtop0 = 0.06
+vsize0 = zfac0 + xfac0 + marginfac_vbot0 + marginfac_vint0 + marginfac_vtop0
+xfac = xfac0/vsize0
+zfac = zfac0/vsize0
+marginfac_vbot = marginfac_vbot0/vsize0
+marginfac_vint = marginfac_vint0/vsize0
+marginfac_vtop = marginfac_vtop0/vsize0
+
+marginlen_vbot = vsize*marginfac_vbot
+marginlen_vint = vsize*marginfac_vint
+xlen = vsize*xfac
+zlen = vsize*zfac
+ylen = zlen*(ymax - ymin)/(zmax - zmin)
+marginlen_hbot = ylen*0.15
+marginlen_hint = ylen*0.02
+marginlen_htop = ylen*0.02
+
+hsize = 2*ylen + marginlen_hbot + marginlen_hint + marginlen_htop
+yfac = ylen/hsize
+
+h0 =  marginlen_hbot/hsize
+h1 = (marginlen_hbot + marginlen_hint + ylen)/hsize
+
+v0 =  marginlen_vbot/vsize
+v1 = (marginlen_vbot + marginlen_vint + xlen)/vsize
+
+fig = plt.figure(num=1,figsize=(hsize,vsize))
 
 # read time
 f = open(dir+"time/t.dac."+'{0:08d}'.format(0),"rb")
@@ -53,16 +77,8 @@ t0 = np.reshape(t0,(1),order="F")
 
 plt.rcParams["font.size"] = 15
 
-#n0 = 30
-#nd = n0
-    
-#for n in range(40,41):
-
-#jc = jx//2
-#kc = kx//2
 for n in range(n0,nd+1):
 #for n in range(0,1):
-#for n in range(n0,200):
     print(n)
     ##############################
     # read time
@@ -93,16 +109,16 @@ for n in range(n0,nd+1):
 
     lfac = 1.e-8
     
-    ax1 = fig.add_subplot(221,aspect="equal")
-    ax2 = fig.add_subplot(222,aspect="equal")
-    ax3 = fig.add_subplot(223,aspect="equal")
-    ax4 = fig.add_subplot(224,aspect="equal")
+    ax1 = fig.add_axes([h0,v1,yfac,zfac])
+    ax2 = fig.add_axes([h1,v1,yfac,zfac])
+    ax3 = fig.add_axes([h0,v0,yfac,xfac])
+    ax4 = fig.add_axes([h1,v0,yfac,xfac])
 
     ax1.tick_params(labelbottom=False)
     in0 = qq_in["in"].copy()
     in0s = np.roll(in0,[jx//2-jc,kx//2-kc],axis=[0,1])
     ax1.pcolormesh(y*lfac,z*lfac,in0s.transpose(),cmap='gist_gray',vmax=3.2e10,vmin=1.e10,shading=shading)
-    ax1.set_ylabel("z [$R_\odot$]")
+    ax1.set_ylabel("z [Mm]")
     ax1.set_title("Emergent intensity")
 
     bx = np.roll(qq_in["bx"],[jx//2-jc,kx//2-kc],axis=[0,1])
@@ -114,34 +130,31 @@ for n in range(n0,nd+1):
     ax2.pcolormesh(y*lfac,z*lfac,bx.transpose(),cmap='gist_gray',vmax=2.5e3,vmin=-2.5e3,shading=shading)
     ax2.set_title(r"LOS magnetic field@$\tau=1$")
 
-    ses = np.roll((vc["sep"]-vc["sem"])/vc["serms"],jx//2-jc,axis=1)
+    tes = np.roll(vc['tep']+te2,jx//2-jc,axis=1)
     tus = np.roll(vc["tup"],[jx//2-jc],axis=1)
-    ax3.pcolormesh(y*lfac,(x-rsun)*lfac,ses,vmax=3.,vmin=-3.,cmap='gist_heat',shading=shading)
+    ax3.pcolormesh(y*lfac,(x-rsun)*lfac,tes,vmin=3000.,vmax=18000.,cmap='gist_heat',shading=shading)
     ax3.contour(y*lfac,(x-rsun)*lfac,tus,levels=[1.],colors="w")
-    ax3.set_ylim((xmax-rsun-(ymax-ymin))*lfac,(xmax-rsun)*lfac)
+    #ax3.set_ylim((xmax-rsun-(ymax-ymin))*lfac,(xmax-rsun)*lfac)
     #ax3.pcolormesh((vc["sep"]-vc["sem"])/vc["serms"],vmax=3.,vmin=-3.,cmap='gist_heat',shading=shading)
-    ax3.set_xlabel("y [$R_\odot$]")
-    ax3.set_title(r"$(s-\langle s\rangle)/s_{rms}$")
+    ax3.set_ylabel("x [Mm]")
+    ax3.set_xlabel("y [Mm]")
+    ax3.set_title(r"$T$")
 
     bb = np.sqrt(vc["bxp"]**2 + vc["byp"]**2 + vc["bzp"]**2)
 
     bbs = np.roll(bb,[jx//2-jc],axis=1)
     ax4.tick_params(labelleft=False)
-    ax4.pcolormesh(y*lfac,(x-rsun)*lfac,bbs,vmax=1.e3,vmin=0.,cmap='gist_heat',shading=shading)
+    ax4.pcolormesh(y*lfac,(x-rsun)*lfac,bbs,vmax=2.e3,vmin=0.,cmap='gist_heat',shading=shading)
     ax4.contour(y*lfac,(x-rsun)*lfac,tus,levels=[1.],colors="w")
-    ax4.set_ylim((xmax-rsun-(ymax-ymin))*lfac,(xmax-rsun)*lfac)
-    ax4.set_xlabel("y [$R_\odot$]")
-    ax4.set_ylabel("x [$R_\odot$]")
-    ax4.set_title(r"$\langle B^2\rangle$")
+    #ax4.set_ylim((xmax-rsun-(ymax-ymin))*lfac,(xmax-rsun)*lfac)
+    ax4.set_xlabel("y [Mm]")
+    ax4.set_title(r"$|B|$")
     #ax4.pcolormesh(bb,vmax=1.e4,vmin=0.,cmap='gist_heat',shading=shading)
 
     bbox_props = dict(boxstyle="round,pad=0.3", fc="white", ec="black", lw=2,alpha=0.9)
-    ax3.annotate(s="t="+"{:.2f}".format((t[0]-t0[0])/3600.)+" [hr]"\
+    ax3.annotate(s="t="+"{:.2f}".format((t[0]-t0[0])/60.)+" [min]"\
                      ,xy=[0.02,0.02],xycoords="figure fraction"\
                      ,fontsize=18,color='black',bbox=bbox_props)
-
-    if(n == n0):
-        plt.tight_layout(pad=0.1)
 
     plt.pause(0.1)
     plt.savefig(pngdir+"py"+'{0:08d}'.format(n)+".png")
