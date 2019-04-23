@@ -89,18 +89,19 @@ for n in range(n0,nd+1):
     ##############################
 
     shading = "flat"
-    shading = "groroud"
+    #shading = "groroud"
+
+    lfac = 1.e-8
     
     ax1 = fig.add_subplot(221,aspect="equal")
     ax2 = fig.add_subplot(222,aspect="equal")
     ax3 = fig.add_subplot(223,aspect="equal")
     ax4 = fig.add_subplot(224,aspect="equal")
 
-    ax1.tick_params(labelbottom=False)#,bottom="off")
-    #ax1.tick_params(labelleft="off",left="off")
+    ax1.tick_params(labelbottom=False)
     in0 = qq_in["in"].copy()
     in0s = np.roll(in0,[jx//2-jc,kx//2-kc],axis=[0,1])
-    ax1.pcolormesh(y/rsun,z/rsun,in0s.transpose(),cmap='gist_gray',vmax=3.2e10,vmin=1.e10,shading=shading)
+    ax1.pcolormesh(y*lfac,z*lfac,in0s.transpose(),cmap='gist_gray',vmax=3.2e10,vmin=1.e10,shading=shading)
     ax1.set_ylabel("z [$R_\odot$]")
     ax1.set_title("Emergent intensity")
 
@@ -110,28 +111,25 @@ for n in range(n0,nd+1):
     #bx = qq_in[8,:,:]
     ax2.tick_params(labelbottom=False)#,bottom="off")
     ax2.tick_params(labelleft=False)#,left="off")
-    ax2.pcolormesh(y/rsun,z/rsun,bx.transpose(),cmap='gist_gray',vmax=2.5e3,vmin=-2.5e3,shading=shading)
+    ax2.pcolormesh(y*lfac,z*lfac,bx.transpose(),cmap='gist_gray',vmax=2.5e3,vmin=-2.5e3,shading=shading)
     ax2.set_title(r"LOS magnetic field@$\tau=1$")
-
-    #ax3.tick_params(labelbottom="off",bottom="off")
-    #ax3.tick_params(labelleft="off",left="off")
 
     ses = np.roll((vc["sep"]-vc["sem"])/vc["serms"],jx//2-jc,axis=1)
     tus = np.roll(vc["tup"],[jx//2-jc],axis=1)
-    ax3.pcolormesh(y/rsun,x/rsun,ses,vmax=3.,vmin=-3.,cmap='gist_heat',shading=shading)
-    ax3.contour(y/rsun,x/rsun,tus,levels=[1.],colors="w")
-    ax3.set_ylim((xmax-(ymax-ymin))/rsun,xmax/rsun)
+    ax3.pcolormesh(y*lfac,(x-rsun)*lfac,ses,vmax=3.,vmin=-3.,cmap='gist_heat',shading=shading)
+    ax3.contour(y*lfac,(x-rsun)*lfac,tus,levels=[1.],colors="w")
+    ax3.set_ylim((xmax-rsun-(ymax-ymin))*lfac,(xmax-rsun)*lfac)
     #ax3.pcolormesh((vc["sep"]-vc["sem"])/vc["serms"],vmax=3.,vmin=-3.,cmap='gist_heat',shading=shading)
     ax3.set_xlabel("y [$R_\odot$]")
     ax3.set_title(r"$(s-\langle s\rangle)/s_{rms}$")
-    bb = np.sqrt(vc["bxm"]**2 + vc["bym"]**2 + vc["bzm"]**2)
+
+    bb = np.sqrt(vc["bxp"]**2 + vc["byp"]**2 + vc["bzp"]**2)
 
     bbs = np.roll(bb,[jx//2-jc],axis=1)
-    #ax4.tick_params(labelbottom="off",bottom="off")
-    ax4.tick_params(labelleft=False)#,left=False)
-    ax4.pcolormesh(y/rsun,x/rsun,bbs,vmax=1.e3,vmin=0.,cmap='gist_heat',shading=shading)
-    ax4.contour(y/rsun,x/rsun,tus,levels=[1.],colors="w")
-    ax4.set_ylim((xmax-(ymax-ymin))/rsun,xmax/rsun)
+    ax4.tick_params(labelleft=False)
+    ax4.pcolormesh(y*lfac,(x-rsun)*lfac,bbs,vmax=1.e3,vmin=0.,cmap='gist_heat',shading=shading)
+    ax4.contour(y*lfac,(x-rsun)*lfac,tus,levels=[1.],colors="w")
+    ax4.set_ylim((xmax-rsun-(ymax-ymin))*lfac,(xmax-rsun)*lfac)
     ax4.set_xlabel("y [$R_\odot$]")
     ax4.set_ylabel("x [$R_\odot$]")
     ax4.set_title(r"$\langle B^2\rangle$")
