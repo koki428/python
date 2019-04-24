@@ -137,7 +137,7 @@ for n in range(n0,nd+1):
     ax1.annotate(s="t="+"{:.2f}".format(t[0]/3600./24.)+" [day]"\
                      ,xy=[0.01,0.01],xycoords="figure fraction",fontsize=18)
     
-    xtmp = 0.5*(x[ix//2] + x[ix//2-1])
+    xtmp = 0.5*(x[ix//4*3] + x[ix//4*3-1])
     if deep_top_flag == 1:
         ax1.vlines(xtmp/rsun,-2,3)
 
