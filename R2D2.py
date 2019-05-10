@@ -1,4 +1,4 @@
-# read.py
+# R2D2.py
 ######################################################
 ######################################################
 ######################################################
@@ -339,7 +339,7 @@ def read_tau_one(dir,n):
 
     return qq_in
 
-def time(dir,n):
+def read_time(dir,n):
     import numpy as np
     import config as c
     f = open(dir+"time/t.dac."+'{0:08d}'.format(n),"rb")
@@ -349,3 +349,20 @@ def time(dir,n):
 
     return t
     
+##############################
+# read remap_calc variable
+def read_vc(dir,n):
+    import numpy as np
+    import config as c
+
+    f = open(dir+"remap/vla.dac."+'{0:08d}'.format(n),"rb")
+    vl0 = np.fromfile(f,c.p["endian"]+'f',c.p['m2da']*c.p['ix']*c.p['jx'])
+    f.close()
+
+    vl = np.reshape(vl0,(c.p['ix'],c.p['jx'],c.p['m2da']),order="F")
+
+    vc = {'a':0}
+    for m in range(c.p["m2da"]):
+        vc[c.p["cl"][m]] = vl[:,:,m]
+    
+    return vc

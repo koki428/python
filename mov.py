@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
-import read
+import R2D2
 import config as c
 import sys
 import os
@@ -18,7 +18,7 @@ dir="../run/"+caseid+"/data/"
 pngdir="../figs/"+caseid+"/png/"
 os.makedirs(pngdir,exist_ok=True)
 
-read.read_init(dir,"3d")
+R2D2.read_init(dir,"3d")
 for key in c.p:
     exec('%s = %s%s%s' % (key, 'c.p["',key,'"]'))
     
@@ -70,7 +70,7 @@ v1 = (marginlen_vbot + marginlen_vint + xlen)/vsize
 fig = plt.figure(num=1,figsize=(hsize,vsize))
 
 # read time
-t0 = read.time(dir,0)
+t0 = R2D2.read_time(dir,0)
 
 plt.rcParams["font.size"] = 15
 
@@ -79,23 +79,16 @@ for n in range(n0,nd+1):
     print(n)
     ##############################
     # read time
-    t = read.time(dir,n)
+    t = R2D2.read_time(dir,n)
         
     ##############################
     # read time
-    qq_in = read.read_tau_one(dir,n*int(ifac))
+    qq_in = R2D2.read_tau_one(dir,n*int(ifac))
 
     ##############################
     # read value
-    f = open(dir+"remap/vla.dac."+'{0:08d}'.format(n),"rb")
-    vl0 = np.fromfile(f,c.p["endian"]+'f',m2da*ix*jx)
-    f.close()
 
-    vl = np.reshape(vl0,(ix,jx,m2da),order="F")
-
-    vc = {"a":0}
-    for m in range(c.p["m2da"]):
-        vc[c.p["cl"][m]] = vl[:,:,m]
+    vc = R2D2.read_vc(dir,n)
     ##############################
 
     shading = "flat"
