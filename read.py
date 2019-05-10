@@ -338,3 +338,14 @@ def read_tau_one(dir,n):
     qq_in["fr"] = np.reshape(qq_in0,(c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[12,:,:]
 
     return qq_in
+
+def time(dir,n):
+    import numpy as np
+    import config as c
+    f = open(dir+"time/t.dac."+'{0:08d}'.format(n),"rb")
+    t = np.fromfile(f,c.p['endian']+'d',1)
+    f.close()    
+    t = np.reshape(t,(1),order="F")[0]
+
+    return t
+    

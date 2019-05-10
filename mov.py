@@ -70,10 +70,7 @@ v1 = (marginlen_vbot + marginlen_vint + xlen)/vsize
 fig = plt.figure(num=1,figsize=(hsize,vsize))
 
 # read time
-f = open(dir+"time/t.dac."+'{0:08d}'.format(0),"rb")
-t0 = np.fromfile(f,endian+'d',1)
-f.close()    
-t0 = np.reshape(t0,(1),order="F")
+t0 = read.time(dir,0)
 
 plt.rcParams["font.size"] = 15
 
@@ -82,10 +79,7 @@ for n in range(n0,nd+1):
     print(n)
     ##############################
     # read time
-    f = open(dir+"time/t.dac."+'{0:08d}'.format(n),"rb")
-    t = np.fromfile(f,endian+'d',1)
-    f.close()    
-    t = np.reshape(t,(1),order="F")
+    t = read.time(dir,n)
         
     ##############################
     # read time
@@ -146,7 +140,7 @@ for n in range(n0,nd+1):
     ax4.set_title(r"$|B|$")
 
     bbox_props = dict(boxstyle="round,pad=0.3", fc="white", ec="black", lw=2,alpha=0.9)
-    ax3.annotate(s="t="+"{:.2f}".format((t[0]-t0[0])/60.)+" [min]"\
+    ax3.annotate(s="t="+"{:.2f}".format((t-t0)/60.)+" [min]"\
                      ,xy=[0.02,0.02],xycoords="figure fraction"\
                      ,fontsize=18,color='black',bbox=bbox_props)
         
