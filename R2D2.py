@@ -353,6 +353,7 @@ def read_time(dir,n):
 # read remap_calc variable
 def read_vc(dir,n):
     import numpy as np
+    import config as c
 
     f = open(dir+"remap/vla.dac."+'{0:08d}'.format(n),"rb")
     vl0 = np.fromfile(f,c.p["endian"]+'f',c.p['m2da']*c.p['ix']*c.p['jx'])
