@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
-import read
+import R2D2
 import config as c
 import sys
 
@@ -15,7 +15,7 @@ except NameError:
 
 dir="../run/"+caseid+"/data/"
 
-read.read_init(dir,"3d")
+R2D2.read_init(dir,"3d")
 for key in c.p:
     exec('%s = %s%s%s' % (key, 'c.p["',key,'"]'))
 
