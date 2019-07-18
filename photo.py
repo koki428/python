@@ -15,7 +15,7 @@ except NameError:
     caseid = "d"+caseid.zfill(3)
 
 dir="../run/"+caseid+"/data/"
-pngdir="../figs/"+caseid+"/png/"
+pngdir="../figs/"+caseid+"/photo/"
 os.makedirs(pngdir,exist_ok=True)
 
 R2D2.read_init(dir,"3d")
