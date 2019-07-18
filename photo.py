@@ -76,7 +76,7 @@ for n in range(n0,ni+1):
     ax1.set_ylabel("Mm")
 
     ax2.set_xlabel("Mm")
-    ax2.tick_params(labelleft="off",left="off")
+    ax2.tick_params(labelleft=False,left=False)
 
     bbox_props = dict(boxstyle="round,pad=0.3", fc="white", ec="black", lw=2,alpha=0.9)
     ax1.annotate(s="t="+"{:.2f}".format((t[0]-t0[0])/3600.)+" [hr]"\
