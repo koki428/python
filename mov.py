@@ -74,6 +74,10 @@ t0 = R2D2.read_time(dir,0)
 
 plt.rcParams["font.size"] = 15
 
+
+#n0 = 92
+#nd = n0
+
 for n in range(n0,nd+1):
 #for n in range(0,1):
     print(n)
@@ -135,7 +139,7 @@ for n in range(n0,nd+1):
     ax4.set_title(r"$|B|$")
 
     bbox_props = dict(boxstyle="round,pad=0.3", fc="white", ec="black", lw=2,alpha=0.9)
-    ax3.annotate(s="t="+"{:.2f}".format((t-t0)/60/24)+" [hour]"\
+    ax3.annotate(s="t="+"{:.2f}".format((t-t0)/60/60)+" [hour]"\
                      ,xy=[0.02,0.02],xycoords="figure fraction"\
                      ,fontsize=18,color='black',bbox=bbox_props)
         
