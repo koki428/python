@@ -15,7 +15,7 @@ except NameError:
     caseid = "d"+caseid.zfill(3)
 
 dir="../run/"+caseid+"/data/"
-pngdir="../figs/"+caseid+"/png/"
+pngdir="../figs/"+caseid+"/photo/"
 os.makedirs(pngdir,exist_ok=True)
 
 R2D2.read_init(dir,"3d")
@@ -70,13 +70,13 @@ for n in range(n0,ni+1):
     bx0 = np.roll(qq_in["bx"],[jx//2-jc,kx//2-kc],axis=(0,1))
 
     lfac = 1.e-8
-    ax1.pcolormesh(y*lfac,z*lfac,in0.transpose(),cmap='gist_gray',vmax=3.e10,vmin=0.2e10,shading=shading)
+    ax1.pcolormesh(y*lfac,z*lfac,in0.transpose(),cmap='gist_gray',vmax=3.0e10,vmin=0.2e10,shading=shading)
     ax2.pcolormesh(y*lfac,z*lfac,bx0.transpose(),cmap='gist_gray',vmax=3e3,vmin=-3.e3,shading=shading)
     ax1.set_xlabel("Mm")
     ax1.set_ylabel("Mm")
 
     ax2.set_xlabel("Mm")
-    ax2.tick_params(labelleft="off",left="off")
+    ax2.tick_params(labelleft=False,left=False)
 
     bbox_props = dict(boxstyle="round,pad=0.3", fc="white", ec="black", lw=2,alpha=0.9)
     ax1.annotate(s="t="+"{:.2f}".format((t[0]-t0[0])/3600.)+" [hr]"\
@@ -89,7 +89,8 @@ for n in range(n0,ni+1):
 
 
     plt.savefig(pngdir+"py"+'{0:08d}'.format(n)+".png")
-    plt.pause(0.1)
+
+    #plt.pause(0.1)
 
     if(n != ni):
         clf()

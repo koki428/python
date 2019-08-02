@@ -35,7 +35,7 @@ print("Maximum time step= ",nd," time ="\
 tmp, te2 = np.meshgrid(y,te0)
 plt.close('all')
 
-vsize = 12
+vsize = 8
 
 zfac0 = 1
 xfac0 = zfac0*(xmax - xmin)/(zmax - zmin)
