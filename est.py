@@ -67,22 +67,14 @@ for n in range(n0,nd+1):
     
     ##############################
     # read value
-    f = open(dir+"remap/vla.dac."+'{0:08d}'.format(n),"rb")
-    vl0 = np.fromfile(f,c.p["endian"]+'f',m2da*ix*jx)
-    f.close()
-
-    vl = np.reshape(vl0,(ix,jx,m2da),order="F")
-
-    vc = {"a":0}
-    for m in range(c.p["m2da"]):
-        vc[c.p["cl"][m]] = vl[:,:,m]
+    R2D2.read_vc(dir,n,silent=True)
         
     ##############################    
     fsun = 6.318e10
-    fe = np.average(vc["fe"],axis=1)
-    fd = np.average(vc["fd"],axis=1)
-    fk = np.average(vc["fk"],axis=1)
-    fr = np.average(vc["fr"],axis=1)
+    fe = np.average(c.vc["fe"],axis=1)
+    fd = np.average(c.vc["fd"],axis=1)
+    fk = np.average(c.vc["fk"],axis=1)
+    fr = np.average(c.vc["fr"],axis=1)
 
     xs = c.p["rsun"] - 2.e8
     ds = 2.e7
@@ -92,23 +84,23 @@ for n in range(n0,nd+1):
     ff = fd*sr + fe*(1.e0-sr)
     ft = ff + fk + fr
 
-    vxrmst[:,n-n0] = np.sqrt(np.average(vc["vxrms"]**2,axis=1))
-    vyrmst[:,n-n0] = np.sqrt(np.average(vc["vyrms"]**2,axis=1))
-    vzrmst[:,n-n0] = np.sqrt(np.average(vc["vzrms"]**2,axis=1))
+    vxrmst[:,n-n0] = np.sqrt(np.average(c.vc["vxrms"]**2,axis=1))
+    vyrmst[:,n-n0] = np.sqrt(np.average(c.vc["vyrms"]**2,axis=1))
+    vzrmst[:,n-n0] = np.sqrt(np.average(c.vc["vzrms"]**2,axis=1))
 
-    bxrmst[:,n-n0] = np.sqrt(np.average(vc["bxrms"]**2,axis=1))
-    byrmst[:,n-n0] = np.sqrt(np.average(vc["byrms"]**2,axis=1))
-    bzrmst[:,n-n0] = np.sqrt(np.average(vc["bzrms"]**2,axis=1))
+    bxrmst[:,n-n0] = np.sqrt(np.average(c.vc["bxrms"]**2,axis=1))
+    byrmst[:,n-n0] = np.sqrt(np.average(c.vc["byrms"]**2,axis=1))
+    bzrmst[:,n-n0] = np.sqrt(np.average(c.vc["bzrms"]**2,axis=1))
 
-    rormst[:,n-n0] = np.sqrt(np.average(vc["rorms"]**2,axis=1))
-    sermst[:,n-n0] = np.sqrt(np.average(vc["serms"]**2,axis=1))
-    prrmst[:,n-n0] = np.sqrt(np.average(vc["prrms"]**2,axis=1))
-    termst[:,n-n0] = np.sqrt(np.average(vc["terms"]**2,axis=1))
+    rormst[:,n-n0] = np.sqrt(np.average(c.vc["rorms"]**2,axis=1))
+    sermst[:,n-n0] = np.sqrt(np.average(c.vc["serms"]**2,axis=1))
+    prrmst[:,n-n0] = np.sqrt(np.average(c.vc["prrms"]**2,axis=1))
+    termst[:,n-n0] = np.sqrt(np.average(c.vc["terms"]**2,axis=1))
 
-    romt[:,n-n0] = np.sqrt(np.average(vc["rom"]**2,axis=1))
-    semt[:,n-n0] = np.sqrt(np.average(vc["sem"]**2,axis=1))
-    prmt[:,n-n0] = np.sqrt(np.average(vc["prm"]**2,axis=1))
-    temt[:,n-n0] = np.sqrt(np.average(vc["tem"]**2,axis=1))
+    romt[:,n-n0] = np.sqrt(np.average(c.vc["rom"]**2,axis=1))
+    semt[:,n-n0] = np.sqrt(np.average(c.vc["sem"]**2,axis=1))
+    prmt[:,n-n0] = np.sqrt(np.average(c.vc["prm"]**2,axis=1))
+    temt[:,n-n0] = np.sqrt(np.average(c.vc["tem"]**2,axis=1))
 
     fet[:,n-n0] = fe
     fdt[:,n-n0] = fd

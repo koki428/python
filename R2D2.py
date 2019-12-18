@@ -16,7 +16,7 @@ def read_init(dir,dimension):
     c.p['nd'] = nd
     c.p['ni'] = ni
     
-    R2D2_py_ver = 1.0
+    R2D2_py_ver = 1.1
     f = open(dir+"param/params.dac","r")
     line = f.readline().split()
     if R2D2_py_ver != float(line[2]):
@@ -152,7 +152,7 @@ def read_init(dir,dimension):
 ######################################################
 ### read horizontal variable
 ### prepare array qq = np.zeros((mtype+3,jx,kx))
-def read_qq_select(dir,xs,n):
+def read_qq_select(dir,xs,n,silent=False):
     import numpy as np
     import config as c
     i0 = np.argmin(np.abs(c.p["x"]-xs))
@@ -207,6 +207,9 @@ def read_qq_select(dir,xs,n):
         c.q2["te"][jss[np0]:jee[np0]+1,:] = qqq["te"].reshape((iixl[np0],jjxl[np0],kx),order="F")[i0-iss[np0],:,:]
         c.q2["op"][jss[np0]:jee[np0]+1,:] = qqq["op"].reshape((iixl[np0],jjxl[np0],kx),order="F")[i0-iss[np0],:,:]
         f.close()
+
+    if not silent:
+        print('### variales are stored in c.q2 ###')
     
     return
 
@@ -215,7 +218,7 @@ def read_qq_select(dir,xs,n):
 ######################################################
 ### read horizontal variable
 ### prepare array qq = np.zeros((mtype+3,ix,jx,kx))
-def read_qq(dir,n):
+def read_qq(dir,n,silent=False):
     import numpy as np
     import config as c
     
@@ -274,6 +277,9 @@ def read_qq(dir,n):
             c.q3["te"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["te"].reshape((iixl[np0],jjxl[np0],kx),order="F")
             c.q3["op"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["op"].reshape((iixl[np0],jjxl[np0],kx),order="F")
             f.close()
+
+    if not silent:
+        print('### variales are stored in c.q3 ###')
     
     return
 
@@ -312,32 +318,61 @@ def read_qq_2d(dir,n):
 
     return qq
     
-
 ##############################
 # read intensity related value
-def read_tau_one(dir,n):
+def read_tau_one(dir,n,silent=False):
     import numpy as np
     import config as c
     f = open(dir+"remap/qq_tu.dac."+'{0:08d}'.format(n),"rb")
-    qq_in0 = np.fromfile(f,c.p["endian"]+'f',c.p["m_in"]*c.p["jx"]*c.p["kx"])
+    qq_in0 = np.fromfile(f,c.p["endian"]+'f',c.p["m_tu"]*c.p["m_in"]*c.p["jx"]*c.p["kx"])
     f.close()
 
-    qq_in = {"a":0}
-    qq_in["in"] = np.reshape(qq_in0,(c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[0,:,:]
-    qq_in["ro"] = np.reshape(qq_in0,(c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[1,:,:]
-    qq_in["se"] = np.reshape(qq_in0,(c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[2,:,:]
-    qq_in["pr"] = np.reshape(qq_in0,(c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[3,:,:]
-    qq_in["te"] = np.reshape(qq_in0,(c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[4,:,:]
-    qq_in["vx"] = np.reshape(qq_in0,(c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[5,:,:]
-    qq_in["vy"] = np.reshape(qq_in0,(c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[6,:,:]
-    qq_in["vz"] = np.reshape(qq_in0,(c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[7,:,:]
-    qq_in["bx"] = np.reshape(qq_in0,(c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[8,:,:]
-    qq_in["by"] = np.reshape(qq_in0,(c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[9,:,:]
-    qq_in["bz"] = np.reshape(qq_in0,(c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[10,:,:]
-    qq_in["he"] = np.reshape(qq_in0,(c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[11,:,:]
-    qq_in["fr"] = np.reshape(qq_in0,(c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[12,:,:]
+    c.qi["in"] = np.reshape(qq_in0,(c.p["m_tu"],c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[0,0,:,:]
+    c.qi["ro"] = np.reshape(qq_in0,(c.p["m_tu"],c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[0,1,:,:]
+    c.qi["se"] = np.reshape(qq_in0,(c.p["m_tu"],c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[0,2,:,:]
+    c.qi["pr"] = np.reshape(qq_in0,(c.p["m_tu"],c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[0,3,:,:]
+    c.qi["te"] = np.reshape(qq_in0,(c.p["m_tu"],c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[0,4,:,:]
+    c.qi["vx"] = np.reshape(qq_in0,(c.p["m_tu"],c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[0,5,:,:]
+    c.qi["vy"] = np.reshape(qq_in0,(c.p["m_tu"],c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[0,6,:,:]
+    c.qi["vz"] = np.reshape(qq_in0,(c.p["m_tu"],c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[0,7,:,:]
+    c.qi["bx"] = np.reshape(qq_in0,(c.p["m_tu"],c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[0,8,:,:]
+    c.qi["by"] = np.reshape(qq_in0,(c.p["m_tu"],c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[0,9,:,:]
+    c.qi["bz"] = np.reshape(qq_in0,(c.p["m_tu"],c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[0,10,:,:]
+    c.qi["he"] = np.reshape(qq_in0,(c.p["m_tu"],c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[0,11,:,:]
+    c.qi["fr"] = np.reshape(qq_in0,(c.p["m_tu"],c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[0,12,:,:]
 
-    return qq_in
+    c.qi["in01"] = np.reshape(qq_in0,(c.p["m_tu"],c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[1,0,:,:]
+    c.qi["ro01"] = np.reshape(qq_in0,(c.p["m_tu"],c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[1,1,:,:]
+    c.qi["se01"] = np.reshape(qq_in0,(c.p["m_tu"],c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[1,2,:,:]
+    c.qi["pr01"] = np.reshape(qq_in0,(c.p["m_tu"],c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[1,3,:,:]
+    c.qi["te01"] = np.reshape(qq_in0,(c.p["m_tu"],c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[1,4,:,:]
+    c.qi["vx01"] = np.reshape(qq_in0,(c.p["m_tu"],c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[1,5,:,:]
+    c.qi["vy01"] = np.reshape(qq_in0,(c.p["m_tu"],c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[1,6,:,:]
+    c.qi["vz01"] = np.reshape(qq_in0,(c.p["m_tu"],c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[1,7,:,:]
+    c.qi["bx01"] = np.reshape(qq_in0,(c.p["m_tu"],c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[1,8,:,:]
+    c.qi["by01"] = np.reshape(qq_in0,(c.p["m_tu"],c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[1,9,:,:]
+    c.qi["bz01"] = np.reshape(qq_in0,(c.p["m_tu"],c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[1,10,:,:]
+    c.qi["he01"] = np.reshape(qq_in0,(c.p["m_tu"],c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[1,11,:,:]
+    c.qi["fr01"] = np.reshape(qq_in0,(c.p["m_tu"],c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[1,12,:,:]
+
+    c.qi["in001"] = np.reshape(qq_in0,(c.p["m_tu"],c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[2,0,:,:]
+    c.qi["ro001"] = np.reshape(qq_in0,(c.p["m_tu"],c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[2,1,:,:]
+    c.qi["se001"] = np.reshape(qq_in0,(c.p["m_tu"],c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[2,2,:,:]
+    c.qi["pr001"] = np.reshape(qq_in0,(c.p["m_tu"],c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[2,3,:,:]
+    c.qi["te001"] = np.reshape(qq_in0,(c.p["m_tu"],c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[2,4,:,:]
+    c.qi["vx001"] = np.reshape(qq_in0,(c.p["m_tu"],c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[2,5,:,:]
+    c.qi["vy001"] = np.reshape(qq_in0,(c.p["m_tu"],c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[2,6,:,:]
+    c.qi["vz001"] = np.reshape(qq_in0,(c.p["m_tu"],c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[2,7,:,:]
+    c.qi["bx001"] = np.reshape(qq_in0,(c.p["m_tu"],c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[2,8,:,:]
+    c.qi["by001"] = np.reshape(qq_in0,(c.p["m_tu"],c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[2,9,:,:]
+    c.qi["bz001"] = np.reshape(qq_in0,(c.p["m_tu"],c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[2,10,:,:]
+    c.qi["he001"] = np.reshape(qq_in0,(c.p["m_tu"],c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[2,11,:,:]
+    c.qi["fr001"] = np.reshape(qq_in0,(c.p["m_tu"],c.p["m_in"],c.p["jx"],c.p["kx"]),order="F")[2,12,:,:]
+
+    if not silent:
+        print('### variales are stored in c.qi ###')
+
+    return 
 
 def read_time(dir,n):
     import numpy as np
@@ -351,7 +386,7 @@ def read_time(dir,n):
     
 ##############################
 # read remap_calc variable
-def read_vc(dir,n):
+def read_vc(dir,n,silent=False):
     import numpy as np
     import config as c
 
@@ -361,8 +396,10 @@ def read_vc(dir,n):
 
     vl = np.reshape(vl0,(c.p['ix'],c.p['jx'],c.p['m2da']),order="F")
 
-    vc = {'a':0}
     for m in range(c.p["m2da"]):
-        vc[c.p["cl"][m]] = vl[:,:,m]
+        c.vc[c.p["cl"][m]] = vl[:,:,m]
+
+    if not silent:
+        print('### variales are stored in c.vc ###')
     
-    return vc
+    return
