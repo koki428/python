@@ -74,8 +74,7 @@ t0 = R2D2.read_time(dir,0)
 
 plt.rcParams["font.size"] = 15
 
-
-#n0 = 92
+#n0 = 7
 #nd = n0
 
 for n in range(n0,nd+1):
@@ -143,7 +142,7 @@ for n in range(n0,nd+1):
                      ,xy=[0.02,0.02],xycoords="figure fraction"\
                      ,fontsize=18,color='black',bbox=bbox_props)
         
-    #plt.pause(0.1)
+    plt.pause(0.1)
     plt.savefig(pngdir+"py"+'{0:08d}'.format(n)+".png")
 
     if(n != nd):
