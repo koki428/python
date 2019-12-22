@@ -150,6 +150,31 @@ def read_init(dir,dimension):
 ######################################################
 ######################################################
 ######################################################
+### read full 3D variable for checkpoint
+
+def read_qq_check(dir,n,silent=False):
+    import numpy as np
+    import config as c
+
+    mtype = c.p['mtype']
+    ix = c.p['ix']
+    jx = c.p['jx']
+    kx = c.p['kx']
+    margin = c.p['margin']
+
+    ixg = ix + 2*margin
+    jxg = jx + 2*margin
+    kxg = kx + 2*margin
+
+    #dtyp=np.dtype([("qq",c.p["endian"]+str(mtype*ixg*jxg*kxg)+"d")])
+    f = open(dir+"qq/qq.dac."+'{0:08d}'.format(n),'rb')
+    c.ch = np.fromfile(f,c.p['endian']+'d',mtype*ixg*jxg*kxg).reshape((mtype,ixg,jxg,kxg),order="F")
+    
+    f.close()
+
+######################################################
+######################################################
+######################################################
 ### read horizontal variable
 ### prepare array qq = np.zeros((mtype+3,jx,kx))
 def read_qq_select(dir,xs,n,silent=False):
