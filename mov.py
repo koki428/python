@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import R2D2
-import config as c
 import sys
 import os
 
@@ -19,15 +18,15 @@ pngdir="../figs/"+caseid+"/png/"
 os.makedirs(pngdir,exist_ok=True)
 
 R2D2.read_init(dir,"3d")
-for key in c.p:
-    exec('%s = %s%s%s' % (key, 'c.p["',key,'"]'))
+for key in R2D2.p:
+    exec('%s = %s%s%s' % (key, 'R2D2.p["',key,'"]'))
     
 try:
     n0
 except NameError:
     n0 = 0
-if  n0 > c.p["nd"]:
-    n0 = c.p["nd"]
+if  n0 > R2D2.p["nd"]:
+    n0 = R2D2.p["nd"]
 
 print("Maximum time step= ",nd," time ="\
           ,dtout*float(nd)/3600./24.," [day]")
@@ -86,7 +85,7 @@ for n in range(n0,nd+1):
         
     ##############################
     # read time
-    R2D2.read_tau_one(dir,n*int(ifac),silent=True)
+    R2D2.read_tau(dir,n*int(ifac),silent=True)
 
     ##############################
     # read value
@@ -105,31 +104,31 @@ for n in range(n0,nd+1):
     ax4 = fig.add_axes([h1,v0,yfac,xfac])
 
     ax1.tick_params(labelbottom=False)
-    in0 = c.qi["in"].copy()
+    in0 = R2D2.qi["in"].copy()
     in0s = np.roll(in0,[jx//2-jc,kx//2-kc],axis=[0,1])
     ax1.pcolormesh(y*lfac,z*lfac,in0s.transpose(),cmap='gist_gray',vmax=3.2e10,vmin=1.e10,shading=shading)
     ax1.set_ylabel("z [Mm]")
     ax1.set_title("Emergent intensity")
 
-    bx = np.roll(c.qi["bx"],[jx//2-jc,kx//2-kc],axis=[0,1])
-    by = np.roll(c.qi["by"],[jx//2-jc,kx//2-kc],axis=[0,1])
-    bz = np.roll(c.qi["bz"],[jx//2-jc,kx//2-kc],axis=[0,1])
+    bx = np.roll(R2D2.qi["bx"],[jx//2-jc,kx//2-kc],axis=[0,1])
+    by = np.roll(R2D2.qi["by"],[jx//2-jc,kx//2-kc],axis=[0,1])
+    bz = np.roll(R2D2.qi["bz"],[jx//2-jc,kx//2-kc],axis=[0,1])
     ax2.tick_params(labelbottom=False)
     ax2.tick_params(labelleft=False)
     ax2.pcolormesh(y*lfac,z*lfac,bx.transpose(),cmap='gist_gray',vmax=2.5e3,vmin=-2.5e3,shading=shading)
     ax2.set_title(r"LOS magnetic field@$\tau=1$")
 
-    #ses = np.roll(c.vc['tep']+te2,jx//2-jc,axis=1)
-    ses = np.roll((c.vc['sep']-c.vc['sem'])/c.vc['serms'],jx//2-jc,axis=1)
+    #ses = np.roll(R2D2.vc['tep']+te2,jx//2-jc,axis=1)
+    ses = np.roll((R2D2.vc['sep']-R2D2.vc['sem'])/R2D2.vc['serms'],jx//2-jc,axis=1)
     #ax3.pcolormesh(y*lfac,(x-rsun)*lfac,ses,vmin=3000.,vmax=18000.,cmap='gist_heat',shading=shading)
     ax3.pcolormesh(y*lfac,(x-rsun)*lfac,ses,vmin=-3.,vmax=3.,cmap='gist_heat',shading=shading)
-    tus = np.roll(c.vc["tup"],[jx//2-jc],axis=1)
+    tus = np.roll(R2D2.vc["tup"],[jx//2-jc],axis=1)
     ax3.contour(y*lfac,(x-rsun)*lfac,tus,levels=[1.],colors="w")
     ax3.set_ylabel("x [Mm]")
     ax3.set_xlabel("y [Mm]")
     ax3.set_title(r"$T$")
     
-    bb = np.sqrt(c.vc["bxm"]**2 + c.vc["bym"]**2 + c.vc["bzm"]**2)
+    bb = np.sqrt(R2D2.vc["bxm"]**2 + R2D2.vc["bym"]**2 + R2D2.vc["bzm"]**2)
     bbs = np.roll(bb,[jx//2-jc],axis=1)
     ax4.tick_params(labelleft=False)
     ax4.pcolormesh(y*lfac,(x-rsun)*lfac,bbs,vmax=1.e3,vmin=0.,cmap='gist_heat',shading=shading)

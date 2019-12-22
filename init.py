@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import R2D2
-import config as c
 import sys
 import os
 
@@ -19,13 +18,13 @@ casedir="../figs/"+caseid
 os.makedirs(casedir,exist_ok=True)
 
 R2D2.read_init(dir,"3d")
-for key in c.p:
-    exec('%s = %s%s%s' % (key, 'c.p["',key,'"]'))
+for key in R2D2.p:
+    exec('%s = %s%s%s' % (key, 'R2D2.p["',key,'"]'))
 
 try:
     n0
 except NameError:
     n0 = 0
-if  n0 > c.p["nd"]:
-    n0 = c.p["nd"]
+if  n0 > R2D2.p["nd"]:
+    n0 = R2D2.p["nd"]
 

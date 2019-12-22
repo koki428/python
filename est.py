@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import R2D2
-import config as c
 import sys
 
 try:
@@ -16,15 +15,15 @@ except NameError:
 dir="../run/"+caseid+"/data/"
 
 R2D2.read_init(dir,"3d")
-for key in c.p:
-    exec('%s = %s%s%s' % (key, 'c.p["',key,'"]'))
+for key in R2D2.p:
+    exec('%s = %s%s%s' % (key, 'R2D2.p["',key,'"]'))
 
 try:
     n0
 except NameError:
     n0 = 0
-if  n0 > c.p["nd"]:
-    n0 = c.p["nd"]
+if  n0 > R2D2.p["nd"]:
+    n0 = R2D2.p["nd"]
 
 print("Maximum time step= ",nd," time ="\
       ,dtout*float(nd)/3600./24.," [day]")
@@ -71,36 +70,36 @@ for n in range(n0,nd+1):
         
     ##############################    
     fsun = 6.318e10
-    fe = np.average(c.vc["fe"],axis=1)
-    fd = np.average(c.vc["fd"],axis=1)
-    fk = np.average(c.vc["fk"],axis=1)
-    fr = np.average(c.vc["fr"],axis=1)
+    fe = np.average(R2D2.vc["fe"],axis=1)
+    fd = np.average(R2D2.vc["fd"],axis=1)
+    fk = np.average(R2D2.vc["fk"],axis=1)
+    fr = np.average(R2D2.vc["fr"],axis=1)
 
-    xs = c.p["rsun"] - 2.e8
+    xs = rsun - 2.e8
     ds = 2.e7
-    sr = 0.5e0*(1.e0 + np.tanh((c.p["x"]-xs)/ds))
+    sr = 0.5e0*(1.e0 + np.tanh((R2D2.p["x"]-xs)/ds))
     SR, sry = np.meshgrid(sr,y,indexing="ij")
     
     ff = fd*sr + fe*(1.e0-sr)
     ft = ff + fk + fr
 
-    vxrmst[:,n-n0] = np.sqrt(np.average(c.vc["vxrms"]**2,axis=1))
-    vyrmst[:,n-n0] = np.sqrt(np.average(c.vc["vyrms"]**2,axis=1))
-    vzrmst[:,n-n0] = np.sqrt(np.average(c.vc["vzrms"]**2,axis=1))
+    vxrmst[:,n-n0] = np.sqrt(np.average(R2D2.vc["vxrms"]**2,axis=1))
+    vyrmst[:,n-n0] = np.sqrt(np.average(R2D2.vc["vyrms"]**2,axis=1))
+    vzrmst[:,n-n0] = np.sqrt(np.average(R2D2.vc["vzrms"]**2,axis=1))
 
-    bxrmst[:,n-n0] = np.sqrt(np.average(c.vc["bxrms"]**2,axis=1))
-    byrmst[:,n-n0] = np.sqrt(np.average(c.vc["byrms"]**2,axis=1))
-    bzrmst[:,n-n0] = np.sqrt(np.average(c.vc["bzrms"]**2,axis=1))
+    bxrmst[:,n-n0] = np.sqrt(np.average(R2D2.vc["bxrms"]**2,axis=1))
+    byrmst[:,n-n0] = np.sqrt(np.average(R2D2.vc["byrms"]**2,axis=1))
+    bzrmst[:,n-n0] = np.sqrt(np.average(R2D2.vc["bzrms"]**2,axis=1))
 
-    rormst[:,n-n0] = np.sqrt(np.average(c.vc["rorms"]**2,axis=1))
-    sermst[:,n-n0] = np.sqrt(np.average(c.vc["serms"]**2,axis=1))
-    prrmst[:,n-n0] = np.sqrt(np.average(c.vc["prrms"]**2,axis=1))
-    termst[:,n-n0] = np.sqrt(np.average(c.vc["terms"]**2,axis=1))
+    rormst[:,n-n0] = np.sqrt(np.average(R2D2.vc["rorms"]**2,axis=1))
+    sermst[:,n-n0] = np.sqrt(np.average(R2D2.vc["serms"]**2,axis=1))
+    prrmst[:,n-n0] = np.sqrt(np.average(R2D2.vc["prrms"]**2,axis=1))
+    termst[:,n-n0] = np.sqrt(np.average(R2D2.vc["terms"]**2,axis=1))
 
-    romt[:,n-n0] = np.sqrt(np.average(c.vc["rom"]**2,axis=1))
-    semt[:,n-n0] = np.sqrt(np.average(c.vc["sem"]**2,axis=1))
-    prmt[:,n-n0] = np.sqrt(np.average(c.vc["prm"]**2,axis=1))
-    temt[:,n-n0] = np.sqrt(np.average(c.vc["tem"]**2,axis=1))
+    romt[:,n-n0] = np.sqrt(np.average(R2D2.vc["rom"]**2,axis=1))
+    semt[:,n-n0] = np.sqrt(np.average(R2D2.vc["sem"]**2,axis=1))
+    prmt[:,n-n0] = np.sqrt(np.average(R2D2.vc["prm"]**2,axis=1))
+    temt[:,n-n0] = np.sqrt(np.average(R2D2.vc["tem"]**2,axis=1))
 
     fet[:,n-n0] = fe
     fdt[:,n-n0] = fd
@@ -116,11 +115,11 @@ for n in range(n0,nd+1):
     fig1 = plt.figure(num=1,figsize=(12,5))
     ax1 = fig1.add_subplot(121)
     ax2 = fig1.add_subplot(122)
-    ax1.plot(c.p["xr"],ff/fsun,color="red",label="$F_\mathrm{e}$")
-    ax1.plot(c.p["xr"],fk/fsun,color="green",label="$F_\mathrm{k}$")
-    ax1.plot(c.p["xr"],fr/fsun,color="blue",label="$F_\mathrm{r}$")
-    ax1.plot(c.p["xr"],ft/fsun,color="black",label="$F_\mathrm{t}$")
-    ax1.set_xlim(c.p["xmin"]/c.p["rsun"],c.p["xmax"]/c.p["rsun"])
+    ax1.plot(R2D2.p["xr"],ff/fsun,color="red",label="$F_\mathrm{e}$")
+    ax1.plot(R2D2.p["xr"],fk/fsun,color="green",label="$F_\mathrm{k}$")
+    ax1.plot(R2D2.p["xr"],fr/fsun,color="blue",label="$F_\mathrm{r}$")
+    ax1.plot(R2D2.p["xr"],ft/fsun,color="black",label="$F_\mathrm{t}$")
+    ax1.set_xlim(R2D2.p["xmin"]/R2D2.p["rsun"],R2D2.p["xmax"]/R2D2.p["rsun"])
     ax1.set_ylim(fmin,fmax)
     ax1.set_xlabel("$x/R_{\odot}$")
     ax1.set_ylabel("$F/F_{\odot}$")
@@ -134,10 +133,10 @@ for n in range(n0,nd+1):
         ax1.vlines(xtmp/rsun,-2,3)
 
     #####################
-    ax2.plot(c.p["xn"],ff/fsun,color="red")
-    ax2.plot(c.p["xn"],fk/fsun,color="green")
-    ax2.plot(c.p["xn"],fr/fsun,color="blue")
-    ax2.plot(c.p["xn"],ft/fsun,color="black")
+    ax2.plot(R2D2.p["xn"],ff/fsun,color="red")
+    ax2.plot(R2D2.p["xn"],fk/fsun,color="green")
+    ax2.plot(R2D2.p["xn"],fr/fsun,color="blue")
+    ax2.plot(R2D2.p["xn"],ft/fsun,color="black")
     ax2.set_xlim(-20,1)
     ax2.set_ylim(fmin,fmax)
     ax2.set_xlabel("$x - R_{\odot} \ [\mathrm{Mm}]$")
