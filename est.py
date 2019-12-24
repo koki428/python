@@ -12,9 +12,9 @@ except NameError:
     caseid = input()
     caseid = "d"+caseid.zfill(3)
 
-dir="../run/"+caseid+"/data/"
+R2D2.datadir="../run/"+caseid+"/data/"
 
-R2D2.read_init(dir,"3d")
+R2D2.init("3d")
 for key in R2D2.p:
     exec('%s = %s%s%s' % (key, 'R2D2.p["',key,'"]'))
 
@@ -59,14 +59,11 @@ for n in range(n0,nd+1):
     print(n)
     ##############################
     # read time
-    f = open(dir+"time/t.dac."+'{0:08d}'.format(n),"rb")
-    t = np.fromfile(f,endian+'d',1)
-    f.close()    
-    t = np.reshape(t,(1),order="F")
+    t = R2D2.read_time(n)
     
     ##############################
     # read value
-    R2D2.read_vc(dir,n,silent=True)
+    R2D2.read_vc(n,silent=True)
         
     ##############################    
     fsun = 6.318e10
@@ -125,7 +122,7 @@ for n in range(n0,nd+1):
     ax1.set_ylabel("$F/F_{\odot}$")
     ax1.set_title("Full convection zone")
     ax1.legend(loc='upper left',prop={'size': 10})
-    ax1.annotate(s="t="+"{:.2f}".format(t[0]/3600./24.)+" [day]"\
+    ax1.annotate(s="t="+"{:.2f}".format(t/3600./24.)+" [day]"\
                      ,xy=[0.01,0.01],xycoords="figure fraction",fontsize=18)
     
     xtmp = 0.5*(x[ix//4*3] + x[ix//4*3-1])
@@ -183,7 +180,7 @@ fk = np.average(fkt,axis=1)
 fr = np.average(frt,axis=1)
 ft = ff + fk + fr
 
-np.savez(dir+"est.npz"\
+np.savez(R2D2.datadir+"est.npz"\
              ,x=x,y=y,z=z,rsun=rsun\
              ,ro0=ro0,pr0=pr0,te0=te0,se0=se0\
              ,vxrms=vxrms,vyrms=vyrms,vzrms=vzrms\

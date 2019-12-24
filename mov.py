@@ -13,11 +13,11 @@ except NameError:
     caseid = input()
     caseid = "d"+caseid.zfill(3)
     
-dir="../run/"+caseid+"/data/"
+datadir="../run/"+caseid+"/data/"
 pngdir="../figs/"+caseid+"/png/"
 os.makedirs(pngdir,exist_ok=True)
 
-R2D2.read_init(dir,"3d")
+R2D2.init(datadir,"3d")
 for key in R2D2.p:
     exec('%s = %s%s%s' % (key, 'R2D2.p["',key,'"]'))
     
@@ -69,7 +69,7 @@ v1 = (marginlen_vbot + marginlen_vint + xlen)/vsize
 fig = plt.figure(num=1,figsize=(hsize,vsize))
 
 # read time
-t0 = R2D2.read_time(dir,0)
+t0 = R2D2.read_time(0)
 
 plt.rcParams["font.size"] = 15
 
@@ -81,16 +81,16 @@ for n in range(n0,nd+1):
     print(n)
     ##############################
     # read time
-    t = R2D2.read_time(dir,n)
+    t = R2D2.read_time(n)
         
     ##############################
     # read time
-    R2D2.read_tau(dir,n*int(ifac),silent=True)
+    R2D2.read_tau(n*int(ifac),silent=True)
 
     ##############################
     # read value
 
-    R2D2.read_vc(dir,n,silent=True)
+    R2D2.read_vc(n,silent=True)
     ##############################
 
     shading = "flat"

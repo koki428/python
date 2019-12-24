@@ -1,5 +1,7 @@
+'''
+R2D2 python module provides functions for reading R2D2 simulation results.
+'''
 
-# R2D2.py
 # Global variables
 p = {}
 qc = {}
@@ -8,101 +10,35 @@ q3 = {}
 qi = {}
 vc = {}
 
-def help():
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
-    END = '\033[0m'
-
-    print("")
-    print("===========================================================")
-    print("R2D2 is library to read data calculated with R2D2 code.")
-    print("This help provides explanations for functions.")
-    print("===========================================================")
-    
-    print("")
-    print("----------")
-    print(BOLD+"GLOBAL VARIABLES"+END)
-    print("R2D2 defines several global variables which can be accessed")
-    print("from any routines.")
-    print("")
-    print("    p: basic parameter such as number of grid")
-    print("    q2: 2D MHD data at certain height")
-    print("    q3: 3D MHD data for analysis")
-    print("    qi: 2D data at certain optical depth")
-    print("    vc: analysed data on the fly")
-    print("    qc: 3D MHD data for checkpoint")
-    
-
-    print("")
-    print("----------")
-    print(BOLD+"FUNCITONS"+END)
-    print("R2D2 defines functions for reading data")
-    print("")
-    print("    "+UNDERLINE+"read_init(dir,dimension)"+END)
-    print("    This function read basic data.")
-    print("    Parameters:")
-    print("      - dir: (str) location of data dir")
-    print("      - dimension: (str) '2D' or '3D'")
-    print("    Return values:")
-    print("      - none")
-    
-    print("")
-    print("    "+UNDERLINE+"read_qq_select(dir,xs,n,silent=False,out=False)"+END)
-    print("    This function read data at a certain height")
-    print("    Parameters:")
-    print("      - dir: (str) location of data dir")
-    print("      - xs: (float) height for read")
-    print("      - n: (integer) time step for read")
-    print("    Return values:")
-    print("      - R2D2.q2: (float) read value (if out=True is specified)")
-    print("    Note:")
-    print("      - If out=False is specified, data is stored only in R2D2.q2")
-    
-    print("")
-    print("    "+UNDERLINE+"read_qq(dir,n,silent=False,out=False)"+END)
-    print("    This function read full 3D data at a certain height")
-    print("    Parameters:")
-    print("      - dir: (str) location of data dir")
-    print("      - n: (integer) time step for read")
-    print("    Return values:")
-    print("      - R2D2.q3: (float) read value (if out=True is specified)")
-    print("    Note:")
-    print("      - If out=False is specified, data is stored only in R2D2.q3")
-
-    print("")
-    print("    "+UNDERLINE+"read_tau(dir,silent=False,out=False)"+END)
-    print("    This function read 2D data at certain optical depths")
-    print("    Parameters:")
-    print("      - dir: (str) location of data dir")
-    print("      - n: (integer) time step for read")
-    print("    Return values:")
-    print("      - R2D2.qi: (float) read value (if out=True is specified)")
-    print("    Note:")
-    print("      - If out=False is specified, data is stored only in R2D2.qi")
-    
-    print("")
-    print("    "+UNDERLINE+"read_vc(dir,silent=False,out=False)"+END)
-    print("    This function read on the fly analysis data")
-    print("    Parameters:")
-    print("      - dir: (str) location of data dir")
-    print("      - n: (integer) time step for read")
-    print("    Return values:")
-    print("      - R2D2.vc: (float) read value (if out=True is specified)")
-    print("    Note:")
-    print("      - If out=False is specified, data is stored only in R2D2.vc")
-    
-
-    
-
 ######################################################
-######################################################
-######################################################
-def read_init(dir,dimension):
+def init(datadir,dimension):
+    '''
+    Thie function reads basic data for the calculation setting.
+    The data is stored in R2D2.p dictionary
+
+    Parameters:
+        datadir (str): data location
+        dimension (str): 2D or 3D
+
+    Returnes:
+        None
+
+    Examples:
+        >>> import R2D2
+        >>> datadir = 'data'
+        >>> dimension = '3D'
+        >>> R2D2.read_init(dir,dimension)
+        >>> print(R2D2.p['ix'])
+
+    '''
+
     import numpy as np
-
     import sys
 
-    f = open(dir+"param/nd.dac","r")
+    
+    p['datadir'] = datadir
+
+    f = open(p['datadir']+"param/nd.dac","r")
     nn = f.read().split()
     nd = int(nn[0])
     ni = int(nn[1])
@@ -112,7 +48,7 @@ def read_init(dir,dimension):
     p['ni'] = ni
     
     R2D2_py_ver = 1.1
-    f = open(dir+"param/params.dac","r")
+    f = open(p['datadir']+"param/params.dac","r")
     line = f.readline().split()
     if R2D2_py_ver != float(line[2]):
         print("#######################################################")
@@ -181,7 +117,7 @@ def read_init(dir,dimension):
                     ("xi",endian+str(ixg)+"d"),\
                     ("tail",endian+"i")\
     ])
-    f = open(dir+"back.dac",'rb')
+    f = open(p['datadir']+"back.dac",'rb')
     back = np.fromfile(f,dtype=dtyp,count=1)
     f.close()
 
@@ -200,7 +136,7 @@ def read_init(dir,dimension):
     ##############################
     # read value information
     if dimension == "3d":
-        f = open(dir+"remap/c.dac","r")
+        f = open(p['datadir']+"remap/c.dac","r")
         value = f.read().split('\n')
         p["m2da"] = int(value[0])
         del value[0]
@@ -224,7 +160,7 @@ def read_init(dir,dimension):
                     ("j2jr",endian+str(jxg)+"i4"),\
                     ])
         
-        f = open(dir+"remap/remap_info.dac",'rb')
+        f = open(datadir+"remap/remap_info.dac",'rb')
         mpi = np.fromfile(f,dtype=dtyp,count=1)    
         f.close()
 
@@ -243,10 +179,22 @@ def read_init(dir,dimension):
         p["jee"] = p["jee"] - 1
 
 ######################################################
-######################################################
-######################################################
-### read horizontal variable
-def read_qq_select(dir,xs,n,silent=False,out=False):
+def read_qq_select(xs,n,silent=False,out=False):
+    '''
+    This funcition read 2D slice data at a selected height.
+    The data is stored in R2D2.q2 dictionary
+
+    Parameters:
+        xs (float): a selected height for data
+        n (int): a setected time step for data
+        silent (logic): True suppresses a message of store
+        out (logic): True returns stored data, otherwise stored only in R2D2.q2
+
+    Returnes:
+        None, but data dictionary is returned when out=False is specified
+
+    '''
+
     import numpy as np
     i0 = np.argmin(np.abs(p["x"]-xs))
     ir0 = p["i2ir"][i0]
@@ -286,7 +234,7 @@ def read_qq_select(dir,xs,n,silent=False,out=False):
                 ("te",p["endian"]+str(iixl[np0]*jjxl[np0]*kx)+"f"),\
                 ("op",p["endian"]+str(iixl[np0]*jjxl[np0]*kx)+"f"),\
                     ])
-        f = open(dir+"remap/qq.dac."+'{0:08d}'.format(n)+"."+'{0:08d}'.format(np0),'rb')
+        f = open(p['datadir']+"remap/qq.dac."+'{0:08d}'.format(n)+"."+'{0:08d}'.format(np0),'rb')
         qqq = np.fromfile(f,dtype=dtyp,count=1)
         q2["ro"][jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((mtype,iixl[np0],jjxl[np0],kx),order="F")[0,i0-iss[np0],:,:]
         q2["vx"][jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((mtype,iixl[np0],jjxl[np0],kx),order="F")[1,i0-iss[np0],:,:]
@@ -311,7 +259,21 @@ def read_qq_select(dir,xs,n,silent=False,out=False):
 ######################################################
 ######################################################
 ### read horizontal variable
-def read_qq(dir,n,silent=False,out=False):
+def read_qq(n,silent=False,out=False):
+    '''
+    This funcition read 3D full data.
+    The data is stored in R2D2.q3 dictionary
+
+    Parameters:
+        n (int): a setected time step for data
+        silent (logic): True suppresses a message of store
+        out (logic): True returns stored data, otherwise stored only in R2D2.q3
+
+    Returnes:
+        None, but data dictionary is returned when out=False is specified
+
+    '''
+
     import numpy as np
     
     mtype = p["mtype"]
@@ -355,7 +317,7 @@ def read_qq(dir,n,silent=False,out=False):
                         ("te",p["endian"]+str(iixl[np0]*jjxl[np0]*kx)+"f"),\
                         ("op",p["endian"]+str(iixl[np0]*jjxl[np0]*kx)+"f"),\
                         ])
-            f = open(dir+"remap/qq.dac."+'{0:08d}'.format(n)+"."+'{0:08d}'.format(np0),'rb')
+            f = open(p['datadir']+"remap/qq.dac."+'{0:08d}'.format(n)+"."+'{0:08d}'.format(np0),'rb')
             qqq = np.fromfile(f,dtype=dtyp,count=1)
             q3["ro"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((mtype,iixl[np0],jjxl[np0],kx),order="F")[0,:,:,:]
             q3["vx"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((mtype,iixl[np0],jjxl[np0],kx),order="F")[1,:,:,:]
@@ -383,7 +345,17 @@ def read_qq(dir,n,silent=False,out=False):
 ######################################################
 ######################################################
 ### read all 2D variable
-def read_qq_2d(dir,n):
+def read_qq_2d(n):
+    '''
+    This funcition read result of 2D simulation.
+
+    Parameters:
+        n (int): a setected time step for data
+
+    Returnes:
+        (dictionary): full 2D data
+
+    '''
     import numpy as np
 
     ix = p["ix"]
@@ -391,7 +363,7 @@ def read_qq_2d(dir,n):
 
     qq1 = np.zeros((p["mtype"]+5,ix,jx))
 
-    f = open(dir+"remap/qq.dac."+'{0:08d}'.format(n),"rb")
+    f = open(p['datadir']+"remap/qq.dac."+'{0:08d}'.format(n),"rb")
     qq0 = np.fromfile(f,p["endian"]+'f',(p["mtype"]+5)*p["ix"]*p["jx"])
     f.close()
     qq1 = np.reshape(qq0,(p["mtype"]+5,p["ix"],p["jx"]),order="F")
@@ -415,10 +387,24 @@ def read_qq_2d(dir,n):
     
 ##############################
 # read intensity related value
-def read_tau(dir,n,silent=False,out=False):
+def read_tau(n,silent=False,out=False):
+    '''
+    This funcition read 2D data at certain optical depths.
+    The data is stored in R2D2.qi dictionary.
+    In this version the selected optical depth is 1, 0.1, and 0.01
+
+    Parameters:
+        n (int): a setected time step for data
+        silent (logic): True suppresses a message of store
+        out (logic): True returns stored data, otherwise stored only in R2D2.qi
+
+    Returnes:
+        None, but data dictionary is returned when out=False is specified
+
+    '''
     import numpy as np
 
-    f = open(dir+"remap/qq_tu.dac."+'{0:08d}'.format(n),"rb")
+    f = open(p['datadir']+"remap/qq_tu.dac."+'{0:08d}'.format(n),"rb")
     qq_in0 = np.fromfile(f,p["endian"]+'f',p["m_tu"]*p["m_in"]*p["jx"]*p["kx"])
     f.close()
 
@@ -470,10 +456,22 @@ def read_tau(dir,n,silent=False,out=False):
     if out:
         return qi
 
-def read_time(dir,n):
+##############################
+def read_time(n):
+    '''
+    This funcition read time at a selected time step
+
+    Parameters:
+        n (int): a setected time step for data
+
+    Returnes:
+        (float): time at a selected time step
+
+    '''
+
     import numpy as np
 
-    f = open(dir+"time/t.dac."+'{0:08d}'.format(n),"rb")
+    f = open(p['datadir']+"time/t.dac."+'{0:08d}'.format(n),"rb")
     t = np.fromfile(f,p['endian']+'d',1)
     f.close()    
     t = np.reshape(t,(1),order="F")[0]
@@ -482,10 +480,23 @@ def read_time(dir,n):
     
 ##############################
 # read remap_calc variable
-def read_vc(dir,n,silent=False,out=True):
+def read_vc(n,silent=False,out=True):
+    '''
+    Thie function reads on the fly analysis data from fortran.
+    The data is stored in R2D2.vc dictionary
+
+    Parameters:
+        dimension (str): 2D or 3D
+        silent (logic): True suppresses a message of store
+        out (logic): True returns stored data, otherwise stored only in R2D2.vc
+
+    Returnes:
+        None, but data dictionary is returned when out=False is specified
+
+    '''
     import numpy as np
 
-    f = open(dir+"remap/vla.dac."+'{0:08d}'.format(n),"rb")
+    f = open(p['datadir']+"remap/vla.dac."+'{0:08d}'.format(n),"rb")
     vl0 = np.fromfile(f,p["endian"]+'f',p['m2da']*p['ix']*p['jx'])
     f.close()
 
@@ -507,7 +518,20 @@ def read_vc(dir,n,silent=False,out=True):
 ######################################################
 ### read full 3D variable for checkpoint
 
-def read_qq_check(dir,n,silent=False,out=False):
+def read_qq_check(n,silent=False,out=False):
+    '''
+    Thie function reads 3D full data for checkpoint
+    The data is stored in R2D2.qc dictionary
+
+    Parameters:
+        n (int): a setected time step for data
+        silent (logic): True suppresses a message of store
+        out (logic): True returns stored data, otherwise stored only in R2D2.qc
+
+    Returnes:
+        None, but data dictionary is returned when out=False is specified
+
+    '''
     import numpy as np
 
     mtype = p['mtype']
@@ -520,7 +544,7 @@ def read_qq_check(dir,n,silent=False,out=False):
     jxg = jx + 2*margin
     kxg = kx + 2*margin
 
-    f = open(dir+"qq/qq.dac."+'{0:08d}'.format(n),'rb')
+    f = open(p['datadir']+"qq/qq.dac."+'{0:08d}'.format(n),'rb')
     qc = np.fromfile(f,p['endian']+'d',mtype*ixg*jxg*kxg).reshape((mtype,ixg,jxg,kxg),order="F")
     
     f.close()

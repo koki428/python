@@ -13,11 +13,11 @@ except NameError:
     caseid = input()
     caseid = "d"+caseid.zfill(3)
 
-dir="../run/"+caseid+"/data/"
+datadir="../run/"+caseid+"/data/"
 casedir="../figs/"+caseid
 os.makedirs(casedir,exist_ok=True)
 
-R2D2.read_init(dir,"3d")
+R2D2.init(datadir,"3d")
 for key in R2D2.p:
     exec('%s = %s%s%s' % (key, 'R2D2.p["',key,'"]'))
 
