@@ -12,9 +12,9 @@ except NameError:
     caseid = input()
     caseid = "d"+caseid.zfill(3)
 
-R2D2.datadir="../run/"+caseid+"/data/"
+datadir="../run/"+caseid+"/data/"
 
-R2D2.init("3d")
+R2D2.init(datadir,"3d")
 for key in R2D2.p:
     exec('%s = %s%s%s' % (key, 'R2D2.p["',key,'"]'))
 
@@ -204,7 +204,7 @@ ax3.set_xlabel("$x/R_{\odot}$")
 ax3.set_ylabel("$F/F_{\odot}$")
 ax3.set_title("Full convection zone")
 ax3.legend(loc='upper left',prop={'size': 15})
-ax3.annotate(s="t="+"{:.2f}".format(t[0]/3600./24.)+" [day]"\
+ax3.annotate(s="t="+"{:.2f}".format(t/3600./24.)+" [day]"\
                  ,xy=[0.01,0.01],xycoords="figure fraction",fontsize=18)
 
 ax4.plot(xn,ff/fsun,color="red")
