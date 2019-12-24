@@ -11,14 +11,13 @@ qi = {}
 vc = {}
 
 ######################################################
-def init(datadir,dimension):
+def init(datadir):
     '''
     Thie function reads basic data for the calculation setting.
     The data is stored in R2D2.p dictionary
 
     Parameters:
         datadir (str): data location
-        dimension (str): 2D or 3D
 
     Returnes:
         None
@@ -26,8 +25,7 @@ def init(datadir,dimension):
     Examples:
         >>> import R2D2
         >>> datadir = 'data'
-        >>> dimension = '3D'
-        >>> R2D2.read_init(dir,dimension)
+        >>> R2D2.read_init(dir)
         >>> print(R2D2.p['ix'])
 
     '''
@@ -133,6 +131,11 @@ def init(datadir,dimension):
     p["xr"] = p["x"]/p["rsun"]
     p["xn"] = (p["x"]-p["rsun"])*1.e-8
     
+    if p['zdcheck'] == 2:
+        dimension = '3d'
+    else:
+        dimension = '2d'
+
     ##############################
     # read value information
     if dimension == "3d":

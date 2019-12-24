@@ -17,7 +17,7 @@ datadir="../run/"+caseid+"/data/"
 casedir="../figs/"+caseid
 os.makedirs(casedir,exist_ok=True)
 
-R2D2.init(datadir,"3d")
+R2D2.init(datadir)
 for key in R2D2.p:
     exec('%s = %s%s%s' % (key, 'R2D2.p["',key,'"]'))
 
