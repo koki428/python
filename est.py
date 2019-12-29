@@ -14,7 +14,7 @@ except NameError:
 
 datadir="../run/"+caseid+"/data/"
 
-R2D2.init(datadir,"3d")
+R2D2.init(datadir)
 for key in R2D2.p:
     exec('%s = %s%s%s' % (key, 'R2D2.p["',key,'"]'))
 
@@ -180,7 +180,7 @@ fk = np.average(fkt,axis=1)
 fr = np.average(frt,axis=1)
 ft = ff + fk + fr
 
-np.savez(R2D2.datadir+"est.npz"\
+np.savez(R2D2.p['datadir']+"est.npz"\
              ,x=x,y=y,z=z,rsun=rsun\
              ,ro0=ro0,pr0=pr0,te0=te0,se0=se0\
              ,vxrms=vxrms,vyrms=vyrms,vzrms=vzrms\
