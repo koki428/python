@@ -54,8 +54,10 @@ fkt = np.zeros((ix,nd-n0+1))
 frt = np.zeros((ix,nd-n0+1))
 ftt = np.zeros((ix,nd-n0+1))
 
+plt.close('all')
+plt.clf()
+
 for n in range(n0,nd+1):
-#for n in range(0,1):
     print(n)
     ##############################
     # read time
@@ -105,45 +107,58 @@ for n in range(n0,nd+1):
     ftt[:,n-n0] = ft
 
     fontsize = 12
-    fmax = 3.0
-    fmin = -2.0
+    fmax = 2.0
+    fmin = -1.0
 
     plt.rcParams["font.size"] = 15
-    fig1 = plt.figure(num=1,figsize=(12,5))
-    ax1 = fig1.add_subplot(121)
-    ax2 = fig1.add_subplot(122)
-    ax1.plot(R2D2.p["xr"],ff/fsun,color="red",label="$F_\mathrm{e}$")
-    ax1.plot(R2D2.p["xr"],fk/fsun,color="green",label="$F_\mathrm{k}$")
-    ax1.plot(R2D2.p["xr"],fr/fsun,color="blue",label="$F_\mathrm{r}$")
-    ax1.plot(R2D2.p["xr"],ft/fsun,color="black",label="$F_\mathrm{t}$")
-    ax1.set_xlim(R2D2.p["xmin"]/R2D2.p["rsun"],R2D2.p["xmax"]/R2D2.p["rsun"])
-    ax1.set_ylim(fmin,fmax)
-    ax1.set_xlabel("$x/R_{\odot}$")
-    ax1.set_ylabel("$F/F_{\odot}$")
-    ax1.set_title("Full convection zone")
-    ax1.legend(loc='upper left',prop={'size': 10})
-    ax1.annotate(s="t="+"{:.2f}".format(t/3600./24.)+" [day]"\
-                     ,xy=[0.01,0.01],xycoords="figure fraction",fontsize=18)
-    
-    xtmp = 0.5*(x[ix//4*3] + x[ix//4*3-1])
-    if deep_top_flag == 1:
-        ax1.vlines(xtmp/rsun,-2,3)
+    fig1 = plt.figure(200,figsize=(12,8))
+    ax1 = fig1.add_subplot(221)
+    ax2 = fig1.add_subplot(222)
+    ax3 = fig1.add_subplot(223)
+    ax4 = fig1.add_subplot(224)
+
 
     #####################
-    ax2.plot(R2D2.p["xn"],ff/fsun,color="red")
-    ax2.plot(R2D2.p["xn"],fk/fsun,color="green")
-    ax2.plot(R2D2.p["xn"],fr/fsun,color="blue")
-    ax2.plot(R2D2.p["xn"],ft/fsun,color="black")
-    ax2.set_xlim(-20,1)
-    ax2.set_ylim(fmin,fmax)
-    ax2.set_xlabel("$x - R_{\odot} \ [\mathrm{Mm}]$")
-    ax2.set_ylabel("$F/F_{\odot}$")
-    ax2.set_title("Around photosphere")
+    ax1.plot(R2D2.p["xn"],ff/fsun,label=r'$F_\mathrm{e}$',color="red")
+    ax1.plot(R2D2.p["xn"],fk/fsun,label=r'$F_\mathrm{k}$',color="green")
+    ax1.plot(R2D2.p["xn"],fr/fsun,label=r'$F_\mathrm{r}$',color="blue")
+    ax1.plot(R2D2.p["xn"],ft/fsun,label=r'$F_\mathrm{t}$',color="black")
+    ax1.set_ylim(fmin,fmax)
+    ax1.set_xlabel("$x - R_{\odot} \ [\mathrm{Mm}]$")
+    ax1.set_ylabel("$F/F_{\odot}$")
+    ax1.set_title("Energy fluxes")
+    ax1.legend()
 
+    #####################
+    vxrms = np.sqrt((R2D2.vc['vxrms']**2).mean(axis=1))
+    vhrms = np.sqrt((R2D2.vc['vyrms']**2 + R2D2.vc['vzrms']**2).mean(axis=1))
+    ax2.plot(R2D2.p['xn'],vxrms*1.e-5,label=r'$v_{x\mathrm{(rms)}}$',color='blue')
+    ax2.plot(R2D2.p['xn'],vhrms*1.e-5,label=r'$v_\mathrm{h(rms)}$',color='red')
+    ax2.set_xlabel(r"$x - R_{\odot} \ [\mathrm{Mm}]$")
+    ax2.set_ylabel(r"velocities [km/s]")
+    ax2.set_label('RMS velocities')
+    ax2.set_yscale('log')
+    ax2.legend()
+
+    #####################
+    bxrms = np.sqrt((R2D2.vc['bxrms']**2).mean(axis=1))
+    bhrms = np.sqrt((R2D2.vc['byrms']**2 + R2D2.vc['bzrms']**2).mean(axis=1))
+    ax3.plot(R2D2.p['xn'],bxrms,label=r'$B_{x\mathrm{(rms)}}$',color='blue')
+    ax3.plot(R2D2.p['xn'],bhrms,label=r'$B_\mathrm{h(rms)}$',color='red')
+    ax3.set_xlabel(r"$x - R_{\odot} \ [\mathrm{Mm}]$")
+    ax3.set_ylabel(r"Magnetic field [G]")
+    ax3.set_label('RMS magnetic field')
+    ax3.set_yscale('log')
+    ax3.legend()
+    
     if n == n0:
         plt.tight_layout()
+
+    ax3.annotate(s="t="+"{:.2f}".format(t/3600./24.)+" [day]"\
+                     ,xy=[0.01,0.01],xycoords="figure fraction",fontsize=18)
+
     plt.pause(0.001)
-    #plt.draw()
+
     
     if n != nd:
         plt.clf() # clear figure
@@ -190,33 +205,33 @@ np.savez(R2D2.p['datadir']+"est.npz"\
              ,ff=ff,fk=fk,fr=fr,ft=ft\
              )
          
-plt.rcParams["font.size"] = 15
-fig2 = plt.figure(num=2,figsize=(12,5))
-ax3 = fig2.add_subplot(121)
-ax4 = fig2.add_subplot(122)
-ax3.plot(xr,ff/fsun,color="red",label="$F_\mathrm{e}$")
-ax3.plot(xr,fk/fsun,color="green",label="$F_\mathrm{k}$")
-ax3.plot(xr,fr/fsun,color="blue",label="$F_\mathrm{r}$")
-ax3.plot(xr,ft/fsun,color="black",label="$F_\mathrm{t}$")
-ax3.set_xlim(xmin/rsun,xmax/rsun)
-ax3.set_ylim(fmin,fmax)
-ax3.set_xlabel("$x/R_{\odot}$")
-ax3.set_ylabel("$F/F_{\odot}$")
-ax3.set_title("Full convection zone")
-ax3.legend(loc='upper left',prop={'size': 15})
-ax3.annotate(s="t="+"{:.2f}".format(t/3600./24.)+" [day]"\
-                 ,xy=[0.01,0.01],xycoords="figure fraction",fontsize=18)
+#plt.rcParams["font.size"] = 15
+#fig2 = plt.figure(num=2,figsize=(12,5))
+#ax23 = fig2.add_subplot(121)
+#ax24 = fig2.add_subplot(122)
+#ax23.plot(xr,ff/fsun,color="red",label="$F_\mathrm{e}$")
+#ax23.plot(xr,fk/fsun,color="green",label="$F_\mathrm{k}$")
+#ax23.plot(xr,fr/fsun,color="blue",label="$F_\mathrm{r}$")
+#ax23.plot(xr,ft/fsun,color="black",label="$F_\mathrm{t}$")
+#ax23.set_xlim(xmin/rsun,xmax/rsun)
+#ax23.set_ylim(fmin,fmax)
+#ax23.set_xlabel("$x/R_{\odot}$")
+#ax23.set_ylabel("$F/F_{\odot}$")
+#ax23.set_title("Full convection zone")
+#ax23.legend(loc='upper left',prop={'size': 15})
+#ax23.annotate(s="t="+"{:.2f}".format(t/3600./24.)+" [day]"\
+#                 ,xy=[0.01,0.01],xycoords="figure fraction",fontsize=18)
 
-ax4.plot(xn,ff/fsun,color="red")
-ax4.plot(xn,fk/fsun,color="green")
-ax4.plot(xn,fr/fsun,color="blue")
-ax4.plot(xn,ft/fsun,color="black")
-ax4.set_xlim(-20,1)
-ax4.set_ylim(fmin,fmax)
-ax4.set_xlabel("$x - R_{\odot} \ [\mathrm{Mm}]$")
-ax4.set_ylabel("$F/F_{\odot}$")
-ax4.set_title("Around photosphere")
-fig2.tight_layout()
-plt.pause(0.001)
-plt.ion()
+#ax24.plot(xn,ff/fsun,color="red")
+#ax24.plot(xn,fk/fsun,color="green")
+#ax24.plot(xn,fr/fsun,color="blue")
+#ax24.plot(xn,ft/fsun,color="black")
+#ax24.set_xlim(-20,1)
+#ax24.set_ylim(fmin,fmax)
+#ax24.set_xlabel("$x - R_{\odot} \ [\mathrm{Mm}]$")
+#ax24.set_ylabel("$F/F_{\odot}$")
+#ax24.set_title("Around photosphere")
+#fig2.tight_layout()
+#plt.pause(0.001)
+#plt.ion()
     
