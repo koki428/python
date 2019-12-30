@@ -45,7 +45,7 @@ def init(datadir):
     p['nd'] = nd
     p['ni'] = ni
     
-    R2D2_py_ver = 1.1
+    R2D2_py_ver = 1.2
     f = open(p['datadir']+"param/params.dac","r")
     line = f.readline().split()
     if R2D2_py_ver != float(line[2]):
@@ -115,7 +115,7 @@ def init(datadir):
                     ("xi",endian+str(ixg)+"d"),\
                     ("tail",endian+"i")\
     ])
-    f = open(p['datadir']+"back.dac",'rb')
+    f = open(p['datadir']+"param/back.dac",'rb')
     back = np.fromfile(f,dtype=dtyp,count=1)
     f.close()
 
@@ -139,7 +139,7 @@ def init(datadir):
     ##############################
     # read value information
     if dimension == "3d":
-        f = open(p['datadir']+"remap/c.dac","r")
+        f = open(p['datadir']+"remap/vl/c.dac","r")
         value = f.read().split('\n')
         p["m2da"] = int(value[0])
         del value[0]
@@ -237,7 +237,7 @@ def read_qq_select(xs,n,silent=False,out=False):
                 ("te",p["endian"]+str(iixl[np0]*jjxl[np0]*kx)+"f"),\
                 ("op",p["endian"]+str(iixl[np0]*jjxl[np0]*kx)+"f"),\
                     ])
-        f = open(p['datadir']+"remap/qq.dac."+'{0:08d}'.format(n)+"."+'{0:08d}'.format(np0),'rb')
+        f = open(p['datadir']+"remap/qq/qq.dac."+'{0:08d}'.format(n)+"."+'{0:08d}'.format(np0),'rb')
         qqq = np.fromfile(f,dtype=dtyp,count=1)
         q2["ro"][jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((mtype,iixl[np0],jjxl[np0],kx),order="F")[0,i0-iss[np0],:,:]
         q2["vx"][jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((mtype,iixl[np0],jjxl[np0],kx),order="F")[1,i0-iss[np0],:,:]
@@ -320,7 +320,7 @@ def read_qq(n,silent=False,out=False):
                         ("te",p["endian"]+str(iixl[np0]*jjxl[np0]*kx)+"f"),\
                         ("op",p["endian"]+str(iixl[np0]*jjxl[np0]*kx)+"f"),\
                         ])
-            f = open(p['datadir']+"remap/qq.dac."+'{0:08d}'.format(n)+"."+'{0:08d}'.format(np0),'rb')
+            f = open(p['datadir']+"remap/qq/qq.dac."+'{0:08d}'.format(n)+"."+'{0:08d}'.format(np0),'rb')
             qqq = np.fromfile(f,dtype=dtyp,count=1)
             q3["ro"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((mtype,iixl[np0],jjxl[np0],kx),order="F")[0,:,:,:]
             q3["vx"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((mtype,iixl[np0],jjxl[np0],kx),order="F")[1,:,:,:]
@@ -407,7 +407,7 @@ def read_tau(n,silent=False,out=False):
     '''
     import numpy as np
 
-    f = open(p['datadir']+"remap/qq_tu.dac."+'{0:08d}'.format(n),"rb")
+    f = open(p['datadir']+"tau/qq.dac."+'{0:08d}'.format(n),"rb")
     qq_in0 = np.fromfile(f,p["endian"]+'f',p["m_tu"]*p["m_in"]*p["jx"]*p["kx"])
     f.close()
 
@@ -474,7 +474,7 @@ def read_time(n):
 
     import numpy as np
 
-    f = open(p['datadir']+"time/t.dac."+'{0:08d}'.format(n),"rb")
+    f = open(p['datadir']+"time/mhd/t.dac."+'{0:08d}'.format(n),"rb")
     t = np.fromfile(f,p['endian']+'d',1)
     f.close()    
     t = np.reshape(t,(1),order="F")[0]
@@ -499,7 +499,7 @@ def read_vc(n,silent=False,out=True):
     '''
     import numpy as np
 
-    f = open(p['datadir']+"remap/vla.dac."+'{0:08d}'.format(n),"rb")
+    f = open(p['datadir']+"remap/vl/vla.dac."+'{0:08d}'.format(n),"rb")
     vl0 = np.fromfile(f,p["endian"]+'f',p['m2da']*p['ix']*p['jx'])
     f.close()
 
