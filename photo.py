@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import R2D2
-import config as c
 import sys
 import os
 
@@ -18,60 +17,50 @@ dir="../run/"+caseid+"/data/"
 pngdir="../figs/"+caseid+"/photo/"
 os.makedirs(pngdir,exist_ok=True)
 
-R2D2.read_init(dir,"3d")
-for key in c.p:
-    exec('%s = %s%s%s' % (key, 'c.p["',key,'"]'))
+R2D2.init(dir)
+for key in R2D2.p:
+    exec('%s = %s%s%s' % (key, 'R2D2.p["',key,'"]'))
 
 try:
     n0
 except NameError:
     n0 = 0
-if  n0 > c.p["ni"]:
-    n0 = c.p["ni"]
+if  n0 > R2D2.p["ni"]:
+    n0 = R2D2.p["ni"]
 
-print("Maximum time step= ",nd," time ="\
-      ,dtout*float(nd)/3600./24.," [day]")
+print("Maximum time step= ",ni," time ="\
+      ,dtout/ifac*float(nd)/3600./24.," [day]")
 
 plt.close('all')
 
-xsize = 12
-ysize = 6
+xsize = 15
+ysize = 7.5
 fig = plt.figure(num=1,figsize=(xsize,ysize))
 
-# read time
-f = open(dir+"time/t.dac."+'{0:08d}'.format(0),"rb")
-t0 = np.fromfile(f,endian+'d',1)
-f.close()    
-t0 = np.reshape(t0,(1),order="F")
+t0 = R2D2.read_time(0,tau=True)
 
-plt.rcParams["font.size"] = 15
-#for n in range(193,194):
-t_flag = 0
 for n in range(n0,ni+1):
 #for n in range(n0,200):
     print(n)
     ##############################
     # read time
-    f = open(dir+"time/ti.dac."+'{0:08d}'.format(n),"rb")
-    t = np.fromfile(f,endian+'d',1)
-    f.close()    
-    t = np.reshape(t,(1),order="F")
+    t = R2D2.read_time(n,tau=True)
 
     ##############################
     # read time
-    qq_in = R2D2.read_tau_one(dir,n)
+    R2D2.read_tau(n,silent=True)
 
     shading = "flat"
     #shading = "groroud"
     ax1 = fig.add_subplot(121,aspect="equal")
     ax2 = fig.add_subplot(122,aspect="equal")
     
-    in0 = np.roll(qq_in["in"],[jx//2-jc,kx//2-kc],axis=(0,1))
-    bx0 = np.roll(qq_in["bx"],[jx//2-jc,kx//2-kc],axis=(0,1))
+    in0 = np.roll(R2D2.qi["in"],[jx//2-jc,kx//2-kc],axis=(0,1))
+    bx0 = np.roll(R2D2.qi["bx"],[jx//2-jc,kx//2-kc],axis=(0,1))
 
     lfac = 1.e-8
     ax1.pcolormesh(y*lfac,z*lfac,in0.transpose(),cmap='gist_gray',vmax=3.0e10,vmin=0.2e10,shading=shading)
-    ax2.pcolormesh(y*lfac,z*lfac,bx0.transpose(),cmap='gist_gray',vmax=3e3,vmin=-3.e3,shading=shading)
+    ax2.pcolormesh(y*lfac,z*lfac,bx0.transpose(),cmap='gist_gray',vmax=5.e2,vmin=-5.e2,shading=shading)
     ax1.set_xlabel("Mm")
     ax1.set_ylabel("Mm")
 
@@ -79,17 +68,15 @@ for n in range(n0,ni+1):
     ax2.tick_params(labelleft=False,left=False)
 
     bbox_props = dict(boxstyle="round,pad=0.3", fc="white", ec="black", lw=2,alpha=0.9)
-    ax1.annotate(s="t="+"{:.2f}".format((t[0]-t0[0])/3600.)+" [hr]"\
+    ax1.annotate(s="t="+"{:.2f}".format((t-t0)/3600.)+" [hr]"\
                      ,xy=[0.03,0.03],xycoords="axes fraction"\
                      ,fontsize=18,color='black',bbox=bbox_props)
 
-    if(t_flag == 0):
-        t_flag = 1
+    if n == n0:
         fig.tight_layout()
 
 
     plt.savefig(pngdir+"py"+'{0:08d}'.format(n)+".png")
-
     #plt.pause(0.1)
 
     if(n != ni):

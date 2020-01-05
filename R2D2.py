@@ -460,12 +460,14 @@ def read_tau(n,silent=False,out=False):
         return qi
 
 ##############################
-def read_time(n):
+def read_time(n,tau=False):
     '''
     This funcition read time at a selected time step
 
     Parameters:
         n (int): a setected time step for data
+        tau (logic): if True time for optical depth
+                     output is returned
 
     Returnes:
         (float): time at a selected time step
@@ -474,10 +476,16 @@ def read_time(n):
 
     import numpy as np
 
-    f = open(p['datadir']+"time/mhd/t.dac."+'{0:08d}'.format(n),"rb")
-    t = np.fromfile(f,p['endian']+'d',1)
-    f.close()    
-    t = np.reshape(t,(1),order="F")[0]
+    if tau:
+        f = open(p['datadir']+"time/tau/t.dac."+'{0:08d}'.format(n),"rb")
+        t = np.fromfile(f,p['endian']+'d',1)
+        f.close()    
+        t = np.reshape(t,(1),order="F")[0]
+    else:
+        f = open(p['datadir']+"time/mhd/t.dac."+'{0:08d}'.format(n),"rb")
+        t = np.fromfile(f,p['endian']+'d',1)
+        f.close()    
+        t = np.reshape(t,(1),order="F")[0]
 
     return t
     
