@@ -1,4 +1,5 @@
 import R2D2
+import glob
 import os
 
 try:
@@ -15,10 +16,8 @@ R2D2.init(datadir)
 for key in R2D2.p:
     exec('%s = %s%s%s' % (key, 'R2D2.p["',key,'"]'))
 
-json_key = os.environ['HOME']+'/json/R2D2-a1a6600166fd.json'
+json_key = glob.glob(os.environ['HOME']+'/json/*')[0]
 project = os.getcwd().split('/')[-2]
 
-#R2D2.init_gspread(json_key,project)
+R2D2.init_gspread(json_key,project)
 R2D2.out_gspread(caseid,json_key,project)
-
-

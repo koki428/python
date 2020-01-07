@@ -611,7 +611,8 @@ def init_gspread(json_key,project):
     wks.update_acell('L1', 'dtout_tau [s]')
     wks.update_acell('M1', 'alpha')
     wks.update_acell('N1', 'RSST')
-    wks.update_acell('O1', 'origin')
+    wks.update_acell('O1', 'upodate time')
+    wks.update_acell('P1', 'origin')
 
 def out_gspread(caseid,json_key,project):
     '''
@@ -626,6 +627,7 @@ def out_gspread(caseid,json_key,project):
     Returns:
         None
     '''
+    import datetime
     import gspread
     from oauth2client.service_account import ServiceAccountCredentials
 
@@ -655,4 +657,4 @@ def out_gspread(caseid,json_key,project):
         wks.update_acell('N'+str_id,'F')
     else:
         wks.update_acell('N'+str_id,'T')
-
+    wks.update_acell('O'+str_id,str(datetime.datetime.now()).split('.')[0])
