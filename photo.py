@@ -1,3 +1,4 @@
+
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
@@ -40,7 +41,7 @@ fig = plt.figure(num=1,figsize=(xsize,ysize))
 t0 = R2D2.read_time(0,tau=True)
 
 for n in range(n0,ni+1):
-#for n in range(n0,200):
+#for n in range(20,21):
     print(n)
     ##############################
     # read time

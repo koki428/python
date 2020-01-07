@@ -13,7 +13,7 @@ vc = {}
 ######################################################
 def init(datadir):
     '''
-    Thie function reads basic data for the calculation setting.
+    This function reads basic data for the calculation setting.
     The data is stored in R2D2.p dictionary
 
     Parameters:
@@ -65,6 +65,11 @@ def init(datadir):
             p[line.split()[1]] = int(line.split()[0])
         if line.split()[2] == 'd':
             p[line.split()[1]] = float(line.split()[0])
+        if line.split()[2] == 'c':
+            p[line.split()[1]] = line.split()[0]
+        if line.split()[2] == 'l':
+            p[line.split()[1]] = line.split()[0]
+            
         line = f.readline()
 
     f.close()
@@ -493,7 +498,7 @@ def read_time(n,tau=False):
 # read remap_calc variable
 def read_vc(n,silent=False,out=True):
     '''
-    Thie function reads on the fly analysis data from fortran.
+    This function reads on the fly analysis data from fortran.
     The data is stored in R2D2.vc dictionary
 
     Parameters:
@@ -531,7 +536,7 @@ def read_vc(n,silent=False,out=True):
 
 def read_qq_check(n,silent=False,out=False):
     '''
-    Thie function reads 3D full data for checkpoint
+    This function reads 3D full data for checkpoint
     The data is stored in R2D2.qc dictionary
 
     Parameters:
@@ -565,4 +570,89 @@ def read_qq_check(n,silent=False,out=False):
     
     if out:
         return qc
+
+######################################################
+######################################################
+######################################################
+### for initialize google spread sheet
+
+def init_gspread(json_key,project):
+    '''
+    This function initialize the utility of google spread 
+
+    Parameters:
+        json_key (str): file of json key to access Google API
+        projet (str): project name, typically name of upper directory
+
+    Returnes:
+        None
+    '''
+    import gspread
+    from oauth2client.service_account import ServiceAccountCredentials
+
+    scope = ['https://spreadsheets.google.com/feeds',
+             'https://www.googleapis.com/auth/drive']
+
+    credentials = ServiceAccountCredentials.from_json_keyfile_name(json_key, scope)
+    gc = gspread.authorize(credentials)
+    wks = gc.open(project).sheet1
+
+    wks.update_acell('A1', 'Case ID')
+    wks.update_acell('B1', 'Server')
+    wks.update_acell('C1', '(ix,jx,kx)')
+    wks.update_acell('D1', 'xmin [Mm]')
+    wks.update_acell('E1', 'xmax [Mm]')
+    wks.update_acell('F1', 'ymin [Mm]')
+    wks.update_acell('G1', 'ymax [Mm]')
+    wks.update_acell('H1', 'zmin [Mm]')
+    wks.update_acell('I1', 'zmax [Mm]')
+    wks.update_acell('J1', 'm ray')
+    wks.update_acell('K1', 'dtout [s]')
+    wks.update_acell('L1', 'dtout_tau [s]')
+    wks.update_acell('M1', 'alpha')
+    wks.update_acell('N1', 'RSST')
+    wks.update_acell('O1', 'origin')
+
+def out_gspread(caseid,json_key,project):
+    '''
+    This function output parameters to 
+    Google spread sheet
+
+    Parameters:
+        caseid (str): caseid
+        json_key (str): file of json key to access Google API
+        projet (str): project name, typically name of upper directory
+    
+    Returns:
+        None
+    '''
+    import gspread
+    from oauth2client.service_account import ServiceAccountCredentials
+
+    scope = ['https://spreadsheets.google.com/feeds',
+             'https://www.googleapis.com/auth/drive']
+
+    credentials = ServiceAccountCredentials.from_json_keyfile_name(json_key, scope)
+    gc = gspread.authorize(credentials)
+    wks = gc.open(project).sheet1
+
+    str_id = str(int(caseid[1:]))
+    
+    wks.update_acell('A'+str_id, caseid)
+    wks.update_acell('B'+str_id, p['server'])
+    wks.update_acell('C'+str_id, str(p['ix'])+' '+str(p['jx'])+' '+str(p['kx']))
+    wks.update_acell('D'+str_id, '{:6.2f}'.format((p['xmin']-p['rsun'])*1.e-8))
+    wks.update_acell('E'+str_id, '{:6.2f}'.format((p['xmax']-p['rsun'])*1.e-8))
+    wks.update_acell('F'+str_id, '{:6.2f}'.format(p['ymin']*1.e-8))
+    wks.update_acell('G'+str_id, '{:6.2f}'.format(p['ymax']*1.e-8))
+    wks.update_acell('H'+str_id, '{:6.2f}'.format(p['zmin']*1.e-8))
+    wks.update_acell('I'+str_id, '{:6.2f}'.format(p['zmax']*1.e-8))
+    wks.update_acell('J'+str_id, p['rte'])
+    wks.update_acell('K'+str_id, '{:6.2f}'.format(p['dtout']))
+    wks.update_acell('L'+str_id, '{:6.2f}'.format(p['dtout_tau']))
+    wks.update_acell('M'+str_id, '{:5.2f}'.format(p['potential_alpha']))
+    if p['xi'].max() == 1.0:
+        wks.update_acell('N'+str_id,'F')
+    else:
+        wks.update_acell('N'+str_id,'T')
 
