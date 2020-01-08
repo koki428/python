@@ -4,7 +4,6 @@ R2D2 python module provides functions for reading R2D2 simulation results.
 
 # Global variables
 p = {}
-qc = {}
 q2 = {}
 q3 = {}
 qi = {}
@@ -32,7 +31,6 @@ def init(datadir):
 
     import numpy as np
     import sys
-
     
     p['datadir'] = datadir
 
@@ -124,6 +122,10 @@ def init(datadir):
     back = np.fromfile(f,dtype=dtyp,count=1)
     f.close()
 
+    p['xg'] = back['x'].reshape((ixg),order='F')
+    p['yg'] = back['y'].reshape((jxg),order='F')
+    p['zg'] = back['z'].reshape((kxg),order='F')
+    
     for key in back.dtype.names:
         if back[key].size == ixg:
             p[key] = back[key].reshape((ixg),order="F")[marginx:ixg-marginx]
@@ -534,7 +536,7 @@ def read_vc(n,silent=False,out=True):
 ######################################################
 ### read full 3D variable for checkpoint
 
-def read_qq_check(n,silent=False,out=False):
+def read_qq_check(n):
     '''
     This function reads 3D full data for checkpoint
     The data is stored in R2D2.qc dictionary
@@ -545,7 +547,7 @@ def read_qq_check(n,silent=False,out=False):
         out (logic): True returns stored data, otherwise stored only in R2D2.qc
 
     Returnes:
-        None, but data dictionary is returned when out=False is specified
+        qq (ndarray)[mtype,ix+2*margin,jx+2*marign,kx+2*margin]: 
 
     '''
     import numpy as np
@@ -561,15 +563,10 @@ def read_qq_check(n,silent=False,out=False):
     kxg = kx + 2*margin
 
     f = open(p['datadir']+"qq/qq.dac."+'{0:08d}'.format(n),'rb')
-    qc = np.fromfile(f,p['endian']+'d',mtype*ixg*jxg*kxg).reshape((mtype,ixg,jxg,kxg),order="F")
-    
+    qc = np.fromfile(f,p['endian']+'d',mtype*ixg*jxg*kxg).reshape((mtype,ixg,jxg,kxg),order="F")    
     f.close()
 
-    if (not silent) and (not out) :
-        print('### variales are stored in R2D2.qc ###')
-    
-    if out:
-        return qc
+    return qc
 
 ######################################################
 ######################################################
@@ -606,14 +603,18 @@ def init_gspread(json_key,project):
     wks.update_acell('G1', 'ymax [Mm]')
     wks.update_acell('H1', 'zmin [Mm]')
     wks.update_acell('I1', 'zmax [Mm]')
-    wks.update_acell('J1', 'm ray')
-    wks.update_acell('K1', 'dtout [s]')
-    wks.update_acell('L1', 'dtout_tau [s]')
-    wks.update_acell('M1', 'alpha')
-    wks.update_acell('N1', 'RSST')
-    wks.update_acell('O1', 'upodate time')
-    wks.update_acell('P1', 'origin')
+    wks.update_acell('J1', 'uniform')
+    wks.update_acell('K1', 'dx [km]')
+    wks.update_acell('L1', 'm ray')
+    wks.update_acell('M1', 'dtout [s]')
+    wks.update_acell('N1', 'dtout_tau [s]')
+    wks.update_acell('O1', 'alpha')
+    wks.update_acell('P1', 'RSST')
+    wks.update_acell('Q1', 'upodate time')
+    wks.update_acell('R1', 'origin')
 
+######################################################
+######################################################
 def out_gspread(caseid,json_key,project):
     '''
     This function output parameters to 
@@ -649,12 +650,116 @@ def out_gspread(caseid,json_key,project):
     wks.update_acell('G'+str_id, '{:6.2f}'.format(p['ymax']*1.e-8))
     wks.update_acell('H'+str_id, '{:6.2f}'.format(p['zmin']*1.e-8))
     wks.update_acell('I'+str_id, '{:6.2f}'.format(p['zmax']*1.e-8))
-    wks.update_acell('J'+str_id, p['rte'])
-    wks.update_acell('K'+str_id, '{:6.2f}'.format(p['dtout']))
-    wks.update_acell('L'+str_id, '{:6.2f}'.format(p['dtout_tau']))
-    wks.update_acell('M'+str_id, '{:5.2f}'.format(p['potential_alpha']))
-    if p['xi'].max() == 1.0:
-        wks.update_acell('N'+str_id,'F')
+    if ((p['x'][1] - p['x'][0]) == (p['x'][p['ix']-1] - p['x'][p['ix']-2])):
+        wks.update_acell('J'+str_id,'T')
     else:
-        wks.update_acell('N'+str_id,'T')
-    wks.update_acell('O'+str_id,str(datetime.datetime.now()).split('.')[0])
+        wks.update_acell('J'+str_id,'F')
+    dx0 = (p['x'][1] - p['x'][0])*1.e-5
+    dx1 = (p['x'][p['ix']-1] - p['x'][p['ix']-2])*1.e-5
+    wks.update_acell('K'+str_id, '{:6.2f}'.format(dx0)+' '+'{:6.2f}'.format(dx1))
+    wks.update_acell('L'+str_id, p['rte'])
+    wks.update_acell('M'+str_id, '{:6.2f}'.format(p['dtout']))
+    wks.update_acell('N'+str_id, '{:6.2f}'.format(p['dtout_tau']))
+    wks.update_acell('O'+str_id, '{:5.2f}'.format(p['potential_alpha']))
+    if p['xi'].max() == 1.0:
+        wks.update_acell('P'+str_id,'F')
+    else:
+        wks.update_acell('P'+str_id,'T')
+    wks.update_acell('Q'+str_id,str(datetime.datetime.now()).split('.')[0])
+
+######################################################
+######################################################
+def gen_coord(xmax,xmin,ix,margin):
+    '''
+    This fucntion defines uniform geometry
+
+    Parameters:
+        xmax (float): location of upper boundary
+        xmin (float): location of lower boundary
+        ix (int): number of grid without margin
+        margin (int): number of margin
+
+    Return:
+        x (float) [ix + 2*margin]: generated geometry
+
+    '''
+    import numpy as np
+    dx = (xmax - xmin)/ix
+    x = np.arange(xmin - (margin - 0.5)*dx,xmax + (margin + 0.5)*dx,dx)
+
+    return x
+
+######################################################
+######################################################
+def gen_coord_ununiform(xmax,xmin,ix,margin,dx00,ix_ununi):
+    '''
+    This function defines ununiform geometry
+
+    Parameters: 
+        xmax (float): location of upper boundary
+        xmin (float): location of lower boundary
+        ix (int): number of grid without margin
+        margin (int): number of margin
+        dx00 (float): grid spacing in uniform grid region
+        ix_uniuni (int): number of uniform grid
+
+    Return:
+        x (float) [ix + 2*margin]: generated geometry
+   
+    '''
+    import numpy as np
+    
+    xrange = xmax - xmin
+    xrange0 = dx00*ix_ununi
+    xrange1 = xrange - xrange0
+    nxx = ix - ix_ununi
+
+    ixg = ix + 2*margin
+
+    fdx = 2*(xrange1 - dx00*nxx)/(nxx-4)/nxx
+    x = np.zeros(ixg)
+    x[ixg - margin - 1] = xmax - 0.5*dx00
+    for i in range(ixg - margin,ixg):
+        x[i] = x[i-1] + dx00
+
+    for i in range(ixg - margin - 2, ixg - margin - ix_ununi - 3, -1):
+        x[i] = x[i+1] - dx00
+
+    dx11 = dx00
+    for i in range(ixg - margin - ix_ununi-3,3,-1):
+        x[i] = x[i+1] - dx11
+        dx11 = dx11 + fdx
+
+    for i in range(3,-1,-1):
+        x[i] = x[i+1] - dx11
+    
+    return x
+
+######################################################
+######################################################
+def upgrade_resolution(
+         xmin,xmax,ymin,ymax,zmin,zmax
+        ,ixf=2,jxf=2,kxf=2
+        ,x_ununif=False,y_ununif=False,z_ununif=False):
+    '''
+    '''
+    import numpy as np
+    if x_ununif:
+        xu = gen_coord(xmax,xmin,p['ix']*ixf,p['margin'])        
+    else:
+        xu = gen_coord(xmax,xmin,p['ix']*ixf,p['margin'])
+
+    if y_ununif:
+        yu = gen_coord(ymax,ymin,p['jx']*jxf,p['margin'])
+    else:
+        yu = gen_coord(ymax,ymin,p['jx']*jxf,p['margin'])
+
+    if z_ununif:
+        zu = gen_coord(zmax,zmin,p['kx']*kxf,p['margin'])
+    else:
+        zu = gen_coord(zmax,zmin,p['kx']*kxf,p['margin'])
+        
+    XU, YU, ZU = np.meshgrid(xu,yu,zu,indexing='ij',sparse=True)
+
+    return None
+

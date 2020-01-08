@@ -69,7 +69,8 @@ v1 = (marginlen_vbot + marginlen_vint + xlen)/vsize
 fig = plt.figure(num=1,figsize=(hsize,vsize))
 
 # read time
-t0 = R2D2.read_time(0)
+#t0 = R2D2.read_time(0)
+t0 = 0
 
 plt.rcParams["font.size"] = 15
 
