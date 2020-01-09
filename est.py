@@ -14,16 +14,16 @@ except NameError:
 
 datadir="../run/"+caseid+"/data/"
 
-R2D2.init(datadir)
-for key in R2D2.p:
-    exec('%s = %s%s%s' % (key, 'R2D2.p["',key,'"]'))
+d = R2D2.R2D2_data(datadir)
+for key in d.p:
+    exec('%s = %s%s%s' % (key, 'd.p["',key,'"]'))
 
 try:
     n0
 except NameError:
     n0 = 0
-if  n0 > R2D2.p["nd"]:
-    n0 = R2D2.p["nd"]
+if  n0 > d.p["nd"]:
+    n0 = d.p["nd"]
 
 print("Maximum time step= ",nd," time ="\
       ,dtout*float(nd)/3600./24.," [day]")
@@ -61,44 +61,44 @@ for n in range(n0,nd+1):
     print(n)
     ##############################
     # read time
-    t = R2D2.read_time(n)
+    t = d.read_time(n)
     
     ##############################
     # read value
-    R2D2.read_vc(n,silent=True)
+    d.read_vc(n,silent=True)
         
     ##############################    
     fsun = 6.318e10
-    fe = np.average(R2D2.vc["fe"],axis=1)
-    fd = np.average(R2D2.vc["fd"],axis=1)
-    fk = np.average(R2D2.vc["fk"],axis=1)
-    fr = np.average(R2D2.vc["fr"],axis=1)
+    fe = np.average(d.vc["fe"],axis=1)
+    fd = np.average(d.vc["fd"],axis=1)
+    fk = np.average(d.vc["fk"],axis=1)
+    fr = np.average(d.vc["fr"],axis=1)
 
     xs = rsun - 2.e8
     ds = 2.e7
-    sr = 0.5e0*(1.e0 + np.tanh((R2D2.p["x"]-xs)/ds))
+    sr = 0.5e0*(1.e0 + np.tanh((d.p["x"]-xs)/ds))
     SR, sry = np.meshgrid(sr,y,indexing="ij")
     
     ff = fd*sr + fe*(1.e0-sr)
     ft = ff + fk + fr
 
-    vxrmst[:,n-n0] = np.sqrt(np.average(R2D2.vc["vxrms"]**2,axis=1))
-    vyrmst[:,n-n0] = np.sqrt(np.average(R2D2.vc["vyrms"]**2,axis=1))
-    vzrmst[:,n-n0] = np.sqrt(np.average(R2D2.vc["vzrms"]**2,axis=1))
+    vxrmst[:,n-n0] = np.sqrt(np.average(d.vc["vxrms"]**2,axis=1))
+    vyrmst[:,n-n0] = np.sqrt(np.average(d.vc["vyrms"]**2,axis=1))
+    vzrmst[:,n-n0] = np.sqrt(np.average(d.vc["vzrms"]**2,axis=1))
 
-    bxrmst[:,n-n0] = np.sqrt(np.average(R2D2.vc["bxrms"]**2,axis=1))
-    byrmst[:,n-n0] = np.sqrt(np.average(R2D2.vc["byrms"]**2,axis=1))
-    bzrmst[:,n-n0] = np.sqrt(np.average(R2D2.vc["bzrms"]**2,axis=1))
+    bxrmst[:,n-n0] = np.sqrt(np.average(d.vc["bxrms"]**2,axis=1))
+    byrmst[:,n-n0] = np.sqrt(np.average(d.vc["byrms"]**2,axis=1))
+    bzrmst[:,n-n0] = np.sqrt(np.average(d.vc["bzrms"]**2,axis=1))
 
-    rormst[:,n-n0] = np.sqrt(np.average(R2D2.vc["rorms"]**2,axis=1))
-    sermst[:,n-n0] = np.sqrt(np.average(R2D2.vc["serms"]**2,axis=1))
-    prrmst[:,n-n0] = np.sqrt(np.average(R2D2.vc["prrms"]**2,axis=1))
-    termst[:,n-n0] = np.sqrt(np.average(R2D2.vc["terms"]**2,axis=1))
+    rormst[:,n-n0] = np.sqrt(np.average(d.vc["rorms"]**2,axis=1))
+    sermst[:,n-n0] = np.sqrt(np.average(d.vc["serms"]**2,axis=1))
+    prrmst[:,n-n0] = np.sqrt(np.average(d.vc["prrms"]**2,axis=1))
+    termst[:,n-n0] = np.sqrt(np.average(d.vc["terms"]**2,axis=1))
 
-    romt[:,n-n0] = np.sqrt(np.average(R2D2.vc["rom"]**2,axis=1))
-    semt[:,n-n0] = np.sqrt(np.average(R2D2.vc["sem"]**2,axis=1))
-    prmt[:,n-n0] = np.sqrt(np.average(R2D2.vc["prm"]**2,axis=1))
-    temt[:,n-n0] = np.sqrt(np.average(R2D2.vc["tem"]**2,axis=1))
+    romt[:,n-n0] = np.sqrt(np.average(d.vc["rom"]**2,axis=1))
+    semt[:,n-n0] = np.sqrt(np.average(d.vc["sem"]**2,axis=1))
+    prmt[:,n-n0] = np.sqrt(np.average(d.vc["prm"]**2,axis=1))
+    temt[:,n-n0] = np.sqrt(np.average(d.vc["tem"]**2,axis=1))
 
     fet[:,n-n0] = fe
     fdt[:,n-n0] = fd
@@ -119,10 +119,10 @@ for n in range(n0,nd+1):
 
 
     #####################
-    ax1.plot(R2D2.p["xn"],ff/fsun,label=r'$F_\mathrm{e}$',color="red")
-    ax1.plot(R2D2.p["xn"],fk/fsun,label=r'$F_\mathrm{k}$',color="green")
-    ax1.plot(R2D2.p["xn"],fr/fsun,label=r'$F_\mathrm{r}$',color="blue")
-    ax1.plot(R2D2.p["xn"],ft/fsun,label=r'$F_\mathrm{t}$',color="black")
+    ax1.plot(d.p["xn"],ff/fsun,label=r'$F_\mathrm{e}$',color="red")
+    ax1.plot(d.p["xn"],fk/fsun,label=r'$F_\mathrm{k}$',color="green")
+    ax1.plot(d.p["xn"],fr/fsun,label=r'$F_\mathrm{r}$',color="blue")
+    ax1.plot(d.p["xn"],ft/fsun,label=r'$F_\mathrm{t}$',color="black")
     ax1.set_ylim(fmin,fmax)
     ax1.set_xlabel("$x - R_{\odot} \ [\mathrm{Mm}]$")
     ax1.set_ylabel("$F/F_{\odot}$")
@@ -130,10 +130,10 @@ for n in range(n0,nd+1):
     ax1.legend()
 
     #####################
-    vxrms = np.sqrt((R2D2.vc['vxrms']**2).mean(axis=1))
-    vhrms = np.sqrt((R2D2.vc['vyrms']**2 + R2D2.vc['vzrms']**2).mean(axis=1))
-    ax2.plot(R2D2.p['xn'],vxrms*1.e-5,label=r'$v_{x\mathrm{(rms)}}$',color='blue')
-    ax2.plot(R2D2.p['xn'],vhrms*1.e-5,label=r'$v_\mathrm{h(rms)}$',color='red')
+    vxrms = np.sqrt((d.vc['vxrms']**2).mean(axis=1))
+    vhrms = np.sqrt((d.vc['vyrms']**2 + d.vc['vzrms']**2).mean(axis=1))
+    ax2.plot(d.p['xn'],vxrms*1.e-5,label=r'$v_{x\mathrm{(rms)}}$',color='blue')
+    ax2.plot(d.p['xn'],vhrms*1.e-5,label=r'$v_\mathrm{h(rms)}$',color='red')
     ax2.set_xlabel(r"$x - R_{\odot} \ [\mathrm{Mm}]$")
     ax2.set_ylabel(r"velocities [km/s]")
     ax2.set_label('RMS velocities')
@@ -141,10 +141,10 @@ for n in range(n0,nd+1):
     ax2.legend()
 
     #####################
-    bxrms = np.sqrt((R2D2.vc['bxrms']**2).mean(axis=1))
-    bhrms = np.sqrt((R2D2.vc['byrms']**2 + R2D2.vc['bzrms']**2).mean(axis=1))
-    ax3.plot(R2D2.p['xn'],bxrms,label=r'$B_{x\mathrm{(rms)}}$',color='blue')
-    ax3.plot(R2D2.p['xn'],bhrms,label=r'$B_\mathrm{h(rms)}$',color='red')
+    bxrms = np.sqrt((d.vc['bxrms']**2).mean(axis=1))
+    bhrms = np.sqrt((d.vc['byrms']**2 + d.vc['bzrms']**2).mean(axis=1))
+    ax3.plot(d.p['xn'],bxrms,label=r'$B_{x\mathrm{(rms)}}$',color='blue')
+    ax3.plot(d.p['xn'],bhrms,label=r'$B_\mathrm{h(rms)}$',color='red')
     ax3.set_xlabel(r"$x - R_{\odot} \ [\mathrm{Mm}]$")
     ax3.set_ylabel(r"Magnetic field [G]")
     ax3.set_label('RMS magnetic field')
@@ -195,7 +195,7 @@ fk = np.average(fkt,axis=1)
 fr = np.average(frt,axis=1)
 ft = ff + fk + fr
 
-np.savez(R2D2.p['datadir']+"est.npz"\
+np.savez(d.p['datadir']+"est.npz"\
              ,x=x,y=y,z=z,rsun=rsun\
              ,ro0=ro0,pr0=pr0,te0=te0,se0=se0\
              ,vxrms=vxrms,vyrms=vyrms,vzrms=vzrms\

@@ -18,16 +18,16 @@ dir="../run/"+caseid+"/data/"
 pngdir="../figs/"+caseid+"/photo/"
 os.makedirs(pngdir,exist_ok=True)
 
-R2D2.init(dir)
-for key in R2D2.p:
-    exec('%s = %s%s%s' % (key, 'R2D2.p["',key,'"]'))
+d = R2D2.R2D2_data(dir)
+for key in d.p:
+    exec('%s = %s%s%s' % (key, 'd.p["',key,'"]'))
 
 try:
     n0
 except NameError:
     n0 = 0
-if  n0 > R2D2.p["ni"]:
-    n0 = R2D2.p["ni"]
+if  n0 > d.p["ni"]:
+    n0 = d.p["ni"]
 
 print("Maximum time step= ",ni," time ="\
       ,dtout/ifac*float(nd)/3600./24.," [day]")
@@ -38,26 +38,26 @@ xsize = 15
 ysize = 7.5
 fig = plt.figure(num=1,figsize=(xsize,ysize))
 
-t0 = R2D2.read_time(0,tau=True)
+t0 = d.read_time(0,tau=True,silent=True)
 
 for n in range(n0,ni+1):
 #for n in range(20,21):
     print(n)
     ##############################
     # read time
-    t = R2D2.read_time(n,tau=True)
+    t = d.read_time(n,tau=True,silent=True)
 
     ##############################
     # read time
-    R2D2.read_tau(n,silent=True)
+    d.read_qq_tau(n,silent=True)
 
     shading = "flat"
     #shading = "groroud"
     ax1 = fig.add_subplot(121,aspect="equal")
     ax2 = fig.add_subplot(122,aspect="equal")
     
-    in0 = np.roll(R2D2.qi["in"],[jx//2-jc,kx//2-kc],axis=(0,1))
-    bx0 = np.roll(R2D2.qi["bx"],[jx//2-jc,kx//2-kc],axis=(0,1))
+    in0 = np.roll(d.qt["in"],[jx//2-jc,kx//2-kc],axis=(0,1))
+    bx0 = np.roll(d.qt["bx"],[jx//2-jc,kx//2-kc],axis=(0,1))
 
     lfac = 1.e-8
     ax1.pcolormesh(y*lfac,z*lfac,in0.transpose(),cmap='gist_gray',vmax=3.0e10,vmin=0.2e10,shading=shading)
@@ -78,7 +78,7 @@ for n in range(n0,ni+1):
 
 
     plt.savefig(pngdir+"py"+'{0:08d}'.format(n)+".png")
-    #plt.pause(0.1)
+    plt.pause(0.1)
 
     if(n != ni):
         clf()

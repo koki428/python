@@ -18,8 +18,6 @@ def init(datadir):
     Parameters:
         datadir (str): data location
 
-    Returnes:
-        None
 
     Examples:
         >>> import R2D2
@@ -615,7 +613,7 @@ def init_gspread(json_key,project):
 
 ######################################################
 ######################################################
-def out_gspread(caseid,json_key,project):
+def out_gspread(caseid,json_key,project,d):
     '''
     This function output parameters to 
     Google spread sheet
@@ -624,9 +622,8 @@ def out_gspread(caseid,json_key,project):
         caseid (str): caseid
         json_key (str): file of json key to access Google API
         projet (str): project name, typically name of upper directory
+        d (R2D2_data): instance of R2D2_data
     
-    Returns:
-        None
     '''
     import datetime
     import gspread
@@ -666,106 +663,4 @@ def out_gspread(caseid,json_key,project):
     else:
         wks.update_acell('P'+str_id,'T')
     wks.update_acell('Q'+str_id,str(datetime.datetime.now()).split('.')[0])
-
-######################################################
-######################################################
-def gen_coord(xmax,xmin,ix,margin):
-    '''
-    This fucntion defines uniform geometry
-
-    Parameters:
-        xmax (float): location of upper boundary
-        xmin (float): location of lower boundary
-        ix (int): number of grid without margin
-        margin (int): number of margin
-
-    Return:
-        x (float) [ix + 2*margin]: generated geometry
-
-    '''
-    import numpy as np
-    dx = (xmax - xmin)/ix
-    x = np.arange(xmin - (margin - 0.5)*dx,xmax + (margin + 0.5)*dx,dx)
-
-    return x
-
-######################################################
-######################################################
-def gen_coord_ununiform(xmax,xmin,ix,margin,dx00,ix_ununi):
-    '''
-    This function defines ununiform geometry
-
-    Parameters: 
-        xmax (float): location of upper boundary
-        xmin (float): location of lower boundary
-        ix (int): number of grid without margin
-        margin (int): number of margin
-        dx00 (float): grid spacing in uniform grid region
-        ix_uniuni (int): number of uniform grid
-
-    Return:
-        x (float) [ix + 2*margin]: generated geometry
-   
-    '''
-    import numpy as np
-    
-    xrange = xmax - xmin
-    xrange0 = dx00*ix_ununi
-    xrange1 = xrange - xrange0
-    nxx = ix - ix_ununi
-
-    ixg = ix + 2*margin
-
-    fdx = 2*(xrange1 - dx00*nxx)/(nxx-4)/nxx
-    x = np.zeros(ixg)
-    x[ixg - margin - 1] = xmax - 0.5*dx00
-    for i in range(ixg - margin,ixg):
-        x[i] = x[i-1] + dx00
-
-    for i in range(ixg - margin - 2, ixg - margin - ix_ununi - 3, -1):
-        x[i] = x[i+1] - dx00
-
-    dx11 = dx00
-    for i in range(ixg - margin - ix_ununi-3,3,-1):
-        x[i] = x[i+1] - dx11
-        dx11 = dx11 + fdx
-
-    for i in range(3,-1,-1):
-        x[i] = x[i+1] - dx11
-    
-    return x
-
-######################################################
-######################################################
-def upgrade_resolution(
-        caseid,n
-        ,xmin,xmax,ymin,ymax,zmin,zmax
-        ,ixf=2,jxf=2,kxf=2
-        ,x_ununif=False):
-    '''
-    '''
-
-    ixu = p['ix']*ixf
-    jxu = p['jx']*jxf
-    kxu = p['kx']*kxf
-
-    ixug = ixu + 2*margin
-    jxug = jxu + 2*margin
-    kxug = kxu + 2*margin
-    
-    
-    import numpy as np
-    if x_ununif:
-        xu = gen_coord(xmax,xmin,,p['margin'])        
-    else:
-        xu = gen_coord(xmax,xmin,p['ix']*ixf,p['margin'])
-
-    yu = gen_coord(ymax,ymin,p['jx']*jxf,p['margin'])
-    zu = gen_coord(zmax,zmin,p['kx']*kxf,p['margin'])
-
-    XU, YU, ZU = np.meshgrid(xu,yu,zu,indexing='ij',sparse=True)
-    
-    qu = np.zeros((mtype,))
-
-    return None
 

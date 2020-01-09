@@ -17,16 +17,16 @@ datadir="../run/"+caseid+"/data/"
 casedir="../figs/"+caseid
 os.makedirs(casedir,exist_ok=True)
 
-R2D2.init(datadir)
-for key in R2D2.p:
-    exec('%s = %s%s%s' % (key, 'R2D2.p["',key,'"]'))
+d = R2D2.R2D2_data(datadir)
+for key in d.p:
+    exec('%s = %s%s%s' % (key, 'd.p["',key,'"]'))
 
 try:
     n0
 except NameError:
     n0 = 0
-if  n0 > R2D2.p["nd"]:
-    n0 = R2D2.p["nd"]
+if  n0 > d.p["nd"]:
+    n0 = d.p["nd"]
 
 print('### calculation domain ###')
 print('xmax - rsun = ', '{:6.2f}'.format((xmax - rsun)*1.e-8),'[Mm], xmin - rsun = ', '{:.2f}'.format((xmin - rsun)*1.e-8),'[Mm]')
@@ -40,5 +40,5 @@ print('(ix,jx,kx)=(',ix,',',jx,',',kx,')')
 print('')
 print('### calculation time ###')
 print('time step (nd) =',nd)
-t = R2D2.read_time(nd)
+t = d.read_time(nd)
 print('time =','{:.2f}'.format(t/3600),' [hour]')
