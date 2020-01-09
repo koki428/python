@@ -738,28 +738,34 @@ def gen_coord_ununiform(xmax,xmin,ix,margin,dx00,ix_ununi):
 ######################################################
 ######################################################
 def upgrade_resolution(
-         xmin,xmax,ymin,ymax,zmin,zmax
+        caseid,n
+        ,xmin,xmax,ymin,ymax,zmin,zmax
         ,ixf=2,jxf=2,kxf=2
-        ,x_ununif=False,y_ununif=False,z_ununif=False):
+        ,x_ununif=False):
     '''
     '''
+
+    ixu = p['ix']*ixf
+    jxu = p['jx']*jxf
+    kxu = p['kx']*kxf
+
+    ixug = ixu + 2*margin
+    jxug = jxu + 2*margin
+    kxug = kxu + 2*margin
+    
+    
     import numpy as np
     if x_ununif:
-        xu = gen_coord(xmax,xmin,p['ix']*ixf,p['margin'])        
+        xu = gen_coord(xmax,xmin,,p['margin'])        
     else:
         xu = gen_coord(xmax,xmin,p['ix']*ixf,p['margin'])
 
-    if y_ununif:
-        yu = gen_coord(ymax,ymin,p['jx']*jxf,p['margin'])
-    else:
-        yu = gen_coord(ymax,ymin,p['jx']*jxf,p['margin'])
+    yu = gen_coord(ymax,ymin,p['jx']*jxf,p['margin'])
+    zu = gen_coord(zmax,zmin,p['kx']*kxf,p['margin'])
 
-    if z_ununif:
-        zu = gen_coord(zmax,zmin,p['kx']*kxf,p['margin'])
-    else:
-        zu = gen_coord(zmax,zmin,p['kx']*kxf,p['margin'])
-        
     XU, YU, ZU = np.meshgrid(xu,yu,zu,indexing='ij',sparse=True)
+    
+    qu = np.zeros((mtype,))
 
     return None
 
