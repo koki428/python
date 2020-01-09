@@ -50,7 +50,12 @@ def init(self, datadir):
         if line.split()[2] == 'c':
             self.p[line.split()[1]] = line.split()[0]
         if line.split()[2] == 'l':
-            self.p[line.split()[1]] = line.split()[0]            
+            if line.split()[0] == 'F':
+                self.p[line.split()[1]] = False
+            else:
+                self.p[line.split()[1]] = True
+
+                
         line = f.readline()
     f.close()
 
@@ -176,7 +181,7 @@ def read_qq_select(self,xs,n,silent=False):
     Parameters:
         xs (float): a selected height for data
         n (int): a setected time step for data
-        silent (logic): True suppresses a message of store
+        silent (bool): True suppresses a message of store
         
     '''
 
@@ -245,7 +250,7 @@ def read_qq(self,n,silent=False):
 
     Parameters:
         n (int): a selected time step for data
-        silent (logic): True suppresses a message of store
+        silent (bool): True suppresses a message of store
     '''
     import numpy as np
     
@@ -318,7 +323,7 @@ def read_qq_tau(self,n,silent=False):
 
     Parameters:
         n (int): a setected time step for data
-        silent (logic): True suppresses a message of store
+        silent (bool): True suppresses a message of store
     '''
     import numpy as np
 
@@ -384,7 +389,7 @@ def read_time(self,n,tau=False,silent=True):
 
     Parameters:
         n (int): a setected time step for data
-        tau (logic): if True time for optical depth
+        tau (bool): if True time for optical depth
 
     '''
 
@@ -410,7 +415,7 @@ def read_vc(self,n,silent=False):
     The data is stored in self.vc dictionary
 
     Parameters:
-        silent (logic): True suppresses a message of store
+        silent (bool): True suppresses a message of store
     '''
 
     import numpy as np
@@ -434,7 +439,7 @@ def read_qq_check(self,n,silent=False):
 
     Parameters:
         n (int): a setected time step for data
-        silent (logic): True suppresses a message of store
+        silent (bool): True suppresses a message of store
 
     '''
 
