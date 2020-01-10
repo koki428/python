@@ -7,7 +7,7 @@ def init(self, datadir):
         datadir (str): location of data
     '''
     import numpy as np
-    import sys
+    import os,sys
         
     self.p = {}
     self.qs = {}
@@ -22,12 +22,13 @@ def init(self, datadir):
     f = open(self.p['datadir']+"param/nd.dac","r")
     nn = f.read().split()
     nd = int(nn[0])
-    ni = int(nn[1])
+    nd_tau = int(nn[1])
     f.close()
     
     self.p['nd'] = nd
-    self.p['ni'] = ni
-    
+    nd_tau = len(os.listdir(datadir+'tau')) - 1
+    self.p['nd_tau'] = nd_tau
+        
     R2D2_py_ver = 1.2
     f = open(self.p['datadir']+"param/params.dac","r")
     line = f.readline().split()

@@ -26,10 +26,10 @@ try:
     n0
 except NameError:
     n0 = 0
-if  n0 > d.p["ni"]:
-    n0 = d.p["ni"]
+if  n0 > d.p["nd_tau"]:
+    n0 = d.p["nd_tau"]
 
-print("Maximum time step= ",ni," time ="\
+print("Maximum time step= ",nd_tau," time ="\
       ,dtout/ifac*float(nd)/3600./24.," [day]")
 
 plt.close('all')
@@ -40,7 +40,7 @@ fig = plt.figure(num=1,figsize=(xsize,ysize))
 
 t0 = d.read_time(0,tau=True,silent=True)
 
-for n in range(n0,ni+1):
+for n in range(n0,nd_tau+1):
 #for n in range(20,21):
     print(n)
     ##############################
@@ -80,5 +80,5 @@ for n in range(n0,ni+1):
     plt.savefig(pngdir+"py"+'{0:08d}'.format(n)+".png")
     plt.pause(0.1)
 
-    if(n != ni):
+    if(n != nd_tau):
         clf()
