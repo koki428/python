@@ -1,6 +1,8 @@
 from . import read
 from . import google
 from . import resolution
+from . import models
+
 class R2D2_data():
     '''
     R2D2_data is a class for reading R2D2 data
@@ -12,6 +14,8 @@ class R2D2_data():
         qt (dic): 2D data at constant optical depths
         t (float): time
         vc (dic): data of on the fly analysis
+
+        models (dic): Model S based stratification
     '''
 
 R2D2_data.__init__       = read.init        
@@ -25,3 +29,4 @@ R2D2_data.read_qq_check  = read.read_qq_check
 R2D2_data.out_gspread    = google.out_gspread
 R2D2_data.upgrade_resolution = resolution.upgrade_resolution
 
+R2D2_data.models_init       = models.init

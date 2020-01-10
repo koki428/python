@@ -104,48 +104,91 @@ def upgrade_resolution(
     import os
     import os.path
     import numpy as np
-    from scipy.interpolate import Rbf
     from scipy.interpolate import RegularGridInterpolator
+    from . import common
 
+    ## read Model S based stratification
+    ## data is stored in self.models dictionary
+    self.models_init() 
+
+    ## check if the destination directory
+    ## if not this method finishes
     if not os.path.exists('../run/'+caseid):
         print('### Please download software to '+caseid+' first ###')
         return
-    
+
+    ## number of grid after upgrade
     ixu = self.p['ix']*ixf
     jxu = self.p['jx']*jxf
     kxu = self.p['kx']*kxf
 
+    ## number of grid with margin after upgrade
     ixug = ixu + 2*self.p['margin']
     jxug = jxu + 2*self.p['margin']
     kxug = kxu + 2*self.p['margin']
 
-    import numpy as np
     if x_ununif:
+        ## generate upgraded coordinate in ununiform geometry
         self.xu = gen_coord_ununiform(xmax,xmin,ixu,self.p['margin'],dx00,ix_ununi)
     else:
+        ## generate upgraded coordinate in uniform geometry
         self.xu = gen_coord(xmax,xmin,ixu,self.p['margin'])
 
+    ## generate upgraded coordinate
     self.yu = gen_coord(ymax,ymin,jxu,self.p['margin'])
     self.zu = gen_coord(zmax,zmin,kxu,self.p['margin'])
 
+
+    ## background density and entropy in original setting
+    RO0, tmp, tmp = np.meshgrid(self.p['ro0g'],self.p['yg'],self.p['zg'],indexing='ij')
+    SE0, tmp, tmp = np.meshgrid(self.p['se0g'],self.p['yg'],self.p['zg'],indexing='ij')
+
+    ## background density and entropy in upgraded setting
+    ro0u = np.interp(self.xu,self.models['x']*self.p['rsun'],self.models['ro0'])
+    se0u = np.interp(self.xu,self.models['x']*self.p['rsun'],self.models['se0'])
+
+    ## 1D arrays are converted to 3D
     XU, YU, ZU = np.meshgrid(self.xu,self.yu,self.zu,indexing='ij')
-        
+    RO0U, tmp, tmp = np.meshgrid(ro0u,self.yu,self.zu,indexing='ij')
+    SE0U, tmp, tmp = np.meshgrid(se0u,self.yu,self.zu,indexing='ij')
+
+    ## read original checkpoint data
     self.read_qq_check(n,silent=True,end_step=end_step)
+
+    ## generate upgraded checkpoint data
     self.qu = np.zeros((self.p['mtype'],ixug,jxug,kxug))
+    rob = np.zeros((ixug,jxug,kxug))
+    seb = np.zeros((ixug,jxug,kxug))
+    
+    for m in [0,7]:
+        regrid_function = \
+                RegularGridInterpolator((self.p['xg'],self.p['yg'],self.p['zg']) \
+                                        ,self.qc[m,:,:,:],fill_value=0,bounds_error=False)
+        tmp = regrid_function((XU,YU,ZU))
+        if m == 0:
+            rob = tmp
+        if m == 7:
+            seb = tmp
+    
+    self.qc[0,:,:,:] = np.log(self.qc[0,:,:,:] + RO0)
+    self.qc[7,:,:,:] = self.qc[7,:,:,:] + SE0
+    
     for m in range(0,self.p['mtype']):
         regrid_function = \
                 RegularGridInterpolator((self.p['xg'],self.p['yg'],self.p['zg']) \
                                         ,self.qc[m,:,:,:],fill_value=0,bounds_error=False)
         tmp = regrid_function((XU,YU,ZU))
-        #tmp[XU < self.p['xmin']] = 0
-        #tmp[XU > self.p['xmax']] = 0
-        #tmp[YU < self.p['ymin']] = 0
-        #tmp[YU > self.p['ymax']] = 0
-        #tmp[ZU < self.p['zmin']] = 0
-        #tmp[ZU > self.p['zmax']] = 0
         self.qu[m,:,:,:] = tmp
         print(str(m)+' finished...')
 
+    ros = np.exp(self.qu[0,:,:,:]) - RO0U
+    ses = self.qu[7,:,:,:] - SE0U
+
+    ros[np.abs(rob)/RO0U < 1.e-3] = rob[np.abs(rob)/RO0U < 1.e-3]
+    ses[np.abs(seb)/SE0U < 1.e-3] = seb[np.abs(seb)/SE0U < 1.e-3]
+
+    self.qu[0,:,:,:] = ros
+    self.qu[7,:,:,:] = ses    
 
     os.makedirs('../run/'+caseid+'/data/param/',exist_ok=True)
     os.makedirs('../run/'+caseid+'/data/qq/',exist_ok=True)
@@ -155,12 +198,6 @@ def upgrade_resolution(
     os.makedirs('../run/'+caseid+'/data/time/tau/',exist_ok=True)
     os.makedirs('../run/'+caseid+'/data/tau/',exist_ok=True)
 
-    #f = open('../run/'+caseid+'/data/qq/qq.dac.e',mode='wb')
-    #f.write(self.qu.reshape([self.p['mtype']*ixug*jxug*kxug],order='F'))    
-    #f.close()
-    #f = open('../run/'+caseid+'/data/time/mhd/t.dac.e',mode='wb')
-    #f.write(
-    #f.close()
     self.qu.reshape([self.p['mtype']*ixug*jxug*kxug] \
             ,order='F').astype(endian+'d').tofile('../run/'+caseid+'/data/qq/qq.dac.e')
 

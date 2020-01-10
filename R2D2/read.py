@@ -18,7 +18,7 @@ def init(self, datadir):
         
     self.p['datadir'] = datadir 
 
-    # read parameters
+    # read basic parameters
     f = open(self.p['datadir']+"param/nd.dac","r")
     nn = f.read().split()
     nd = int(nn[0])
@@ -28,7 +28,8 @@ def init(self, datadir):
     self.p['nd'] = nd
     nd_tau = len(os.listdir(datadir+'tau')) - 1
     self.p['nd_tau'] = nd_tau
-        
+
+    ## version check
     R2D2_py_ver = 1.2
     f = open(self.p['datadir']+"param/params.dac","r")
     line = f.readline().split()
@@ -55,7 +56,6 @@ def init(self, datadir):
                 self.p[line.split()[1]] = False
             else:
                 self.p[line.split()[1]] = True
-
                 
         line = f.readline()
     f.close()
@@ -66,6 +66,7 @@ def init(self, datadir):
     else:
         self.p["endian"] = ">"
 
+    ## number of grid in each direction
     self.p["ix"] = self.p["ix0"]*self.p["nx"]
     self.p["jx"] = self.p["jx0"]*self.p["ny"]
     self.p["kx"] = self.p["kx0"]*self.p["nz"]
@@ -110,6 +111,9 @@ def init(self, datadir):
     self.p['xg'] = back['x'].reshape((ixg),order='F')
     self.p['yg'] = back['y'].reshape((jxg),order='F')
     self.p['zg'] = back['z'].reshape((kxg),order='F')
+
+    self.p['ro0g'] = back['ro0'].reshape((ixg),order='F')
+    self.p['se0g'] = back['se0'].reshape((ixg),order='F')
     
     for key in back.dtype.names:
         if back[key].size == ixg:
