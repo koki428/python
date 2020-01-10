@@ -432,7 +432,7 @@ def read_vc(self,n,silent=False):
         print('### variales are stored in self.vc ###')
 
 ##############################
-def read_qq_check(self,n,silent=False):
+def read_qq_check(self,n,silent=False,end_step=False):
     '''
     This method reads 3D full data for checkpoint
     The data is stored in self.qc dictionary
@@ -440,7 +440,7 @@ def read_qq_check(self,n,silent=False):
     Parameters:
         n (int): a setected time step for data
         silent (bool): True suppresses a message of store
-
+        end_step (bool): If true, checkpoint of end step is read.
     '''
 
     import numpy as np
@@ -454,8 +454,15 @@ def read_qq_check(self,n,silent=False):
     ixg = ix + 2*margin
     jxg = jx + 2*margin
     kxg = kx + 2*margin
-    
-    f = open(self.p['datadir']+"qq/qq.dac."+'{0:08d}'.format(n),'rb')
+
+    step = '{0:08d}'.format(n)
+    if end_step:
+        if np.mod(self.p['nd'],2) == 0:
+            step = 'e'
+        if np.mod(self.p['nd'],2) == 1:
+            step = 'o'
+
+    f = open(self.p['datadir']+"qq/qq.dac."+step,'rb')
     self.qc = np.fromfile(f,self.p['endian']+'d',mtype*ixg*jxg*kxg).reshape((mtype,ixg,jxg,kxg),order="F")    
     f.close()
     

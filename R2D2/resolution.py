@@ -71,9 +71,10 @@ def gen_coord_ununiform(xmax,xmin,ix,margin,dx00,ix_ununi):
 def upgrade_resolution(
         self,caseid,n
         ,xmin,xmax,ymin,ymax,zmin,zmax 
-        ,endian='<'
         ,ixf=2,jxf=2,kxf=2
-        ,ix_ununi=32,dx00=4.8e6,x_ununif=False):
+        ,ix_ununi=32,dx00=4.8e6,x_ununif=False
+        ,endian='<',end_step=False
+        ):
     '''
     This function chabges the resolution and output for the next
     calculation.
@@ -129,7 +130,7 @@ def upgrade_resolution(
 
     XU, YU, ZU = np.meshgrid(self.xu,self.yu,self.zu,indexing='ij')
         
-    self.read_qq_check(n,silent=True)
+    self.read_qq_check(n,silent=True,end_step=end_step)
     self.qu = np.zeros((self.p['mtype'],ixug,jxug,kxug))
     for m in range(0,self.p['mtype']):
         regrid_function = \
