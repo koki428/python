@@ -70,7 +70,8 @@ def gen_coord_ununiform(xmax,xmin,ix,margin,dx00,ix_ununi):
 ######################################################
 def upgrade_resolution(
         self,caseid,n
-        ,xmin,xmax,ymin,ymax,zmin,zmax
+        ,xmin,xmax,ymin,ymax,zmin,zmax 
+        ,endian='<'
         ,ixf=2,jxf=2,kxf=2
         ,ix_ununi=32,dx00=4.8e6,x_ununif=False):
     '''
@@ -86,6 +87,8 @@ def upgrade_resolution(
         ymin (float): min location in y direction
         zmax (float): max location in z direction
         zmin (float): min location in z direction
+
+        endian (str): endian
     
         ixf (int): increase factor of grid point in x direction
         jxf (int): increase factor of grid point in y direction
@@ -151,18 +154,18 @@ def upgrade_resolution(
     os.makedirs('../run/'+caseid+'/data/time/tau/',exist_ok=True)
     os.makedirs('../run/'+caseid+'/data/tau/',exist_ok=True)
 
-    f = open('../run/'+caseid+'/data/qq/qq.dac.e',mode='wb')
-    f.write(self.qu.reshape([self.p['mtype']*ixug*jxug*kxug],order='F'))
-    f.close()
+    #f = open('../run/'+caseid+'/data/qq/qq.dac.e',mode='wb')
+    #f.write(self.qu.reshape([self.p['mtype']*ixug*jxug*kxug],order='F'))    
+    #f.close()
+    #f = open('../run/'+caseid+'/data/time/mhd/t.dac.e',mode='wb')
+    #f.write(
+    #f.close()
+    self.qu.reshape([self.p['mtype']*ixug*jxug*kxug] \
+            ,order='F').astype(endian+'d').tofile('../run/'+caseid+'/data/qq/qq.dac.e')
 
     t = np.zeros(1)
-    f = open('../run/'+caseid+'/data/time/mhd/t.dac.e',mode='wb')
-    f.write(t.reshape([1],order='F'))
-    f.close()
-
-    f = open('../run/'+caseid+'/data/time/tau/t.dac.e',mode='wb')
-    f.write(t.reshape([1],order='F'))
-    f.close()
+    t.reshape([1] \
+            ,order='F').astype(endian+'d').tofile('../run/'+caseid+'/data/time/mhd/t.dac.e')
 
     f = open('../run/'+caseid+'/data/param/nd.dac',mode='w')
     f.write('{0:08d}'.format(0)+'{0:08d}'.format(0))
