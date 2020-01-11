@@ -140,7 +140,6 @@ def upgrade_resolution(
     self.up['y'] = gen_coord(ymax,ymin,self.up['jx'],self.p['margin'])
     self.up['z'] = gen_coord(zmax,zmin,self.up['kx'],self.p['margin'])
 
-
     ## background density and entropy in original setting
     RO0, tmp, tmp = np.meshgrid(self.p['ro0g'],self.p['yg'],self.p['zg'],indexing='ij')
     SE0, tmp, tmp = np.meshgrid(self.p['se0g'],self.p['yg'],self.p['zg'],indexing='ij')
@@ -158,9 +157,9 @@ def upgrade_resolution(
     self.read_qq_check(n,silent=True,end_step=end_step)
 
     ## generate upgraded checkpoint data
-    self.qu = np.zeros((self.p['mtype'],ixug,jxug,kxug))
-    rob = np.zeros((ixug,jxug,kxug))
-    seb = np.zeros((ixug,jxug,kxug))
+    self.qu = np.zeros((self.p['mtype'],self.up['ixg'],self.up['jxg'],self.up['kxg']))
+    rob = np.zeros((self.up['ixg'],self.up['jxg'],self.up['kxg']))
+    seb = np.zeros((self.up['ixg'],self.up['jxg'],self.up['kxg']))
     
     for m in [0,7]:
         regrid_function = \
@@ -200,7 +199,7 @@ def upgrade_resolution(
     os.makedirs('../run/'+caseid+'/data/time/tau/',exist_ok=True)
     os.makedirs('../run/'+caseid+'/data/tau/',exist_ok=True)
 
-    self.qu.reshape([self.p['mtype']*ixug*jxug*kxug] \
+    self.qu.reshape([self.p['mtype']*self.up['ixg']*self.up['jxg']*self.up['kxg']] \
             ,order='F').astype(endian+'d').tofile('../run/'+caseid+'/data/qq/qq.dac.e')
 
     t = np.zeros(1)
@@ -240,9 +239,9 @@ def upgrade_resolution(
     print('zmax = '+'{:.4e}'.format(zmax),change_judge(zmax,self,'ymax'))
     print(' ')
     
-    print('nx0*ix0 = '+str(ixu),change_judge(ixu,self,'ix'))
-    print('ny0*jx0 = '+str(jxu),change_judge(jxu,self,'jx'))
-    print('nz0*kx0 = '+str(kxu),change_judge(kxu,self,'kx'))
+    print('nx0*ix0 = '+str(self.up['ix']),change_judge(self.up['ix'],self,'ix'))
+    print('ny0*jx0 = '+str(self.up['jx']),change_judge(self.up['jx'],self,'jx'))
+    print('nz0*kx0 = '+str(self.up['kx']),change_judge(self.up['kx'],self,'kx'))
 
     print(' ')
 
