@@ -107,6 +107,8 @@ def upgrade_resolution(
     from scipy.interpolate import RegularGridInterpolator
     from . import common
 
+    self.up = {}
+
     ## read Model S based stratification
     ## data is stored in self.models dictionary
     self.models_init() 
@@ -118,25 +120,25 @@ def upgrade_resolution(
         return
 
     ## number of grid after upgrade
-    ixu = self.p['ix']*ixf
-    jxu = self.p['jx']*jxf
-    kxu = self.p['kx']*kxf
+    self.up['ix'] = self.p['ix']*ixf
+    self.up['jx'] = self.p['jx']*jxf
+    self.up['kx'] = self.p['kx']*kxf
 
     ## number of grid with margin after upgrade
-    ixug = ixu + 2*self.p['margin']
-    jxug = jxu + 2*self.p['margin']
-    kxug = kxu + 2*self.p['margin']
+    self.up['ixg'] = self.up['ix'] + 2*self.p['margin']
+    self.up['jxg'] = self.up['jx'] + 2*self.p['margin']
+    self.up['kxg'] = self.up['kx'] + 2*self.p['margin']
 
     if x_ununif:
         ## generate upgraded coordinate in ununiform geometry
-        self.xu = gen_coord_ununiform(xmax,xmin,ixu,self.p['margin'],dx00,ix_ununi)
+        self.up['x'] = gen_coord_ununiform(xmax,xmin,self.up['ix'],self.p['margin'],dx00,ix_ununi)
     else:
         ## generate upgraded coordinate in uniform geometry
-        self.xu = gen_coord(xmax,xmin,ixu,self.p['margin'])
+        self.up['x'] = gen_coord(xmax,xmin,self.up['ix'],self.p['margin'])
 
     ## generate upgraded coordinate
-    self.yu = gen_coord(ymax,ymin,jxu,self.p['margin'])
-    self.zu = gen_coord(zmax,zmin,kxu,self.p['margin'])
+    self.up['y'] = gen_coord(ymax,ymin,self.up['jx'],self.p['margin'])
+    self.up['z'] = gen_coord(zmax,zmin,self.up['kx'],self.p['margin'])
 
 
     ## background density and entropy in original setting
@@ -144,13 +146,13 @@ def upgrade_resolution(
     SE0, tmp, tmp = np.meshgrid(self.p['se0g'],self.p['yg'],self.p['zg'],indexing='ij')
 
     ## background density and entropy in upgraded setting
-    ro0u = np.interp(self.xu,self.models['x']*self.p['rsun'],self.models['ro0'])
-    se0u = np.interp(self.xu,self.models['x']*self.p['rsun'],self.models['se0'])
+    self.up['ro0'] = np.interp(self.up['x'],self.models['x']*self.p['rsun'],self.models['ro0'])
+    self.up['se0'] = np.interp(self.up['x'],self.models['x']*self.p['rsun'],self.models['se0'])
 
     ## 1D arrays are converted to 3D
-    XU, YU, ZU = np.meshgrid(self.xu,self.yu,self.zu,indexing='ij')
-    RO0U, tmp, tmp = np.meshgrid(ro0u,self.yu,self.zu,indexing='ij')
-    SE0U, tmp, tmp = np.meshgrid(se0u,self.yu,self.zu,indexing='ij')
+    XU, YU, ZU = np.meshgrid(self.up['x'],self.up['y'],self.up['z'],indexing='ij')
+    RO0U, tmp, tmp = np.meshgrid(self.up['ro0'],self.up['y'],self.up['z'],indexing='ij')
+    SE0U, tmp, tmp = np.meshgrid(self.up['se0'],self.up['y'],self.up['z'],indexing='ij')
 
     ## read original checkpoint data
     self.read_qq_check(n,silent=True,end_step=end_step)
