@@ -40,6 +40,9 @@ fig = plt.figure(num=1,figsize=(xsize,ysize))
 
 t0 = d.read_time(0,tau=True,silent=True)
 
+#n0 = 0
+#nd_tau = 
+
 for n in range(n0,nd_tau+1):
 #for n in range(20,21):
     print(n)
