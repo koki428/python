@@ -105,6 +105,7 @@ def upgrade_resolution(
     import os.path
     import numpy as np
     from scipy.interpolate import RegularGridInterpolator
+    import R2D2.regrid
     from . import common
 
     self.up = {}
@@ -140,56 +141,19 @@ def upgrade_resolution(
     self.up['y'] = gen_coord(ymax,ymin,self.up['jx'],self.p['margin'])
     self.up['z'] = gen_coord(zmax,zmin,self.up['kx'],self.p['margin'])
 
-    ## background density and entropy in original setting
-    RO0, tmp, tmp = np.meshgrid(self.p['ro0g'],self.p['yg'],self.p['zg'],indexing='ij')
-    SE0, tmp, tmp = np.meshgrid(self.p['se0g'],self.p['yg'],self.p['zg'],indexing='ij')
-
-    ## background density and entropy in upgraded setting
-    self.up['ro0'] = np.interp(self.up['x'],self.models['x']*self.p['rsun'],self.models['ro0'])
-    self.up['se0'] = np.interp(self.up['x'],self.models['x']*self.p['rsun'],self.models['se0'])
-
-    ## 1D arrays are converted to 3D
-    XU, YU, ZU = np.meshgrid(self.up['x'],self.up['y'],self.up['z'],indexing='ij')
-    RO0U, tmp, tmp = np.meshgrid(self.up['ro0'],self.up['y'],self.up['z'],indexing='ij')
-    SE0U, tmp, tmp = np.meshgrid(self.up['se0'],self.up['y'],self.up['z'],indexing='ij')
-
-    ## read original checkpoint data
+    ## read checkpoint data of original case
     self.read_qq_check(n,silent=True,end_step=end_step)
 
-    ## generate upgraded checkpoint data
+    ## prepare checkpoint data for upgrade data
     self.qu = np.zeros((self.p['mtype'],self.up['ixg'],self.up['jxg'],self.up['kxg']))
-    rob = np.zeros((self.up['ixg'],self.up['jxg'],self.up['kxg']))
-    seb = np.zeros((self.up['ixg'],self.up['jxg'],self.up['kxg']))
-    
-    for m in [0,7]:
-        regrid_function = \
-                RegularGridInterpolator((self.p['xg'],self.p['yg'],self.p['zg']) \
-                                        ,self.qc[m,:,:,:],fill_value=0,bounds_error=False)
-        tmp = regrid_function((XU,YU,ZU))
-        if m == 0:
-            rob = tmp
-        if m == 7:
-            seb = tmp
-    
-    self.qc[0,:,:,:] = np.log(self.qc[0,:,:,:] + RO0)
-    self.qc[7,:,:,:] = self.qc[7,:,:,:] + SE0
     
     for m in range(0,self.p['mtype']):
-        regrid_function = \
-                RegularGridInterpolator((self.p['xg'],self.p['yg'],self.p['zg']) \
-                                        ,self.qc[m,:,:,:],fill_value=0,bounds_error=False)
-        tmp = regrid_function((XU,YU,ZU))
-        self.qu[m,:,:,:] = tmp
+        self.qu[m,:,:,:] = R2D2.regrid.interp(self.p['xg'],self.p['yg'],self.p['zg'], \
+                                              self.up['x'],self.up['y'],self.up['z'], \
+                                              self.qc[m,:,:,:], \
+                                              self.p['xg'].size,self.p['yg'].size,self.p['zg'].size, \
+                                              self.up['x'].size,self.up['y'].size,self.up['z'].size )
         print(str(m)+' finished...')
-
-    ros = np.exp(self.qu[0,:,:,:]) - RO0U
-    ses = self.qu[7,:,:,:] - SE0U
-
-    ros[np.abs(rob)/RO0U < 1.e-3] = rob[np.abs(rob)/RO0U < 1.e-3]
-    ses[np.abs(seb)/SE0U < 1.e-3] = seb[np.abs(seb)/SE0U < 1.e-3]
-
-    self.qu[0,:,:,:] = ros
-    self.qu[7,:,:,:] = ses    
 
     os.makedirs('../run/'+caseid+'/data/param/',exist_ok=True)
     os.makedirs('../run/'+caseid+'/data/qq/',exist_ok=True)
@@ -207,14 +171,16 @@ def upgrade_resolution(
             ,order='F').astype(endian+'d').tofile('../run/'+caseid+'/data/time/mhd/t.dac.e')
 
     f = open('../run/'+caseid+'/data/param/nd.dac',mode='w')
-    f.write('{0:08d}'.format(0)+'{0:08d}'.format(0))
+    f.write(str(0).rjust(8)+str(0).rjust(8))
     f.close()
 
     print(' ')
     print('### Data upgrade funished ###')
     print('Please use following parameters')
     print(' ')
-
+    print('caseid is \033[31m'+caseid+'\033[0m')
+    print(' ')
+    
     def sign_judge(value):
         if np.sign(value) == 1.0:
             sign = "+"
@@ -253,6 +219,9 @@ def upgrade_resolution(
     print('uniform_flag = '+uniform_flag \
           ,change_judge(x_ununif,self,'ununiform_flag'))
 
-    print('ix_ununi = '+str(ix_ununi),change_judge(ix_ununi,self,'ix_ununi'))
-    print('dx00 = ''{:.4e}'.format(dx00),change_judge(dx00,self,'dx00'))
-        
+    if x_ununif:
+        print('ix_ununi = '+str(ix_ununi),change_judge(ix_ununi,self,'ix_ununi'))
+        print('dx00 = ''{:.4e}'.format(dx00),change_judge(dx00,self,'dx00'))
+    else:
+        print('You plan to use uniform grid spacing.')
+        print('Do not care about ix_ununi and dx00 in geometry_def.F90')
