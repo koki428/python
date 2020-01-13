@@ -104,11 +104,19 @@ for n in range(n0,nd+1):
     ax4 = fig.add_axes([h1,v0,yfac,xfac])
 
     ax1.tick_params(labelbottom=False)
-    in0 = d.qt["in"].copy()
-    in0s = np.roll(in0,[jx//2-jc,kx//2-kc],axis=[0,1])
-    ax1.pcolormesh(y*lfac,z*lfac,in0s.transpose(),cmap='gist_gray',vmax=3.2e10,vmin=1.e10,shading=shading)
-    ax1.set_ylabel("z [Mm]")
-    ax1.set_title("Emergent intensity")
+    if deep_flag == 1:
+        d.read_qq_select(xmax,n,silent=True)
+        in0 = d.qs["vx"].copy()
+        in0s = np.roll(in0,[jx//2-jc,kx//2-kc],axis=[0,1])
+        ax1.pcolormesh(y*lfac,z*lfac,in0s.transpose(),cmap='gist_gray',vmax=1.e4,vmin=-1.e4,shading=shading)
+        ax1.set_ylabel("z [Mm]")
+        ax1.set_title("Vertical velocity")
+    else:
+        in0 = d.qt["in"].copy()
+        in0s = np.roll(in0,[jx//2-jc,kx//2-kc],axis=[0,1])
+        ax1.pcolormesh(y*lfac,z*lfac,in0s.transpose(),cmap='gist_gray',vmax=3.2e10,vmin=1.e10,shading=shading)
+        ax1.set_ylabel("z [Mm]")
+        ax1.set_title("Emergent intensity")
 
     bx = np.roll(d.qt["bx"],[jx//2-jc,kx//2-kc],axis=[0,1])
     by = np.roll(d.qt["by"],[jx//2-jc,kx//2-kc],axis=[0,1])
