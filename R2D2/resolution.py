@@ -91,9 +91,9 @@ def upgrade_resolution(
 
         endian (str): endian
     
-        ixf (int): increase factor of grid point in x direction
-        jxf (int): increase factor of grid point in y direction
-        kxf (int): increase factor of grid point in z direction
+        ixf (int or float): increase factor of grid point in x direction
+        jxf (int or float): increase factor of grid point in y direction
+        kxf (int or float): increase factor of grid point in z direction
         
         below prameters are effective only when x_ununif=True
         ix_ununi (int): number of grid in uniform grid region
@@ -121,9 +121,9 @@ def upgrade_resolution(
         return
 
     ## number of grid after upgrade
-    self.up['ix'] = self.p['ix']*ixf
-    self.up['jx'] = self.p['jx']*jxf
-    self.up['kx'] = self.p['kx']*kxf
+    self.up['ix'] = int(self.p['ix']*ixf)
+    self.up['jx'] = int(self.p['jx']*jxf)
+    self.up['kx'] = int(self.p['kx']*kxf)
 
     ## number of grid with margin after upgrade
     self.up['ixg'] = self.up['ix'] + 2*self.p['margin']
@@ -166,6 +166,25 @@ def upgrade_resolution(
     self.qu.reshape([self.p['mtype']*self.up['ixg']*self.up['jxg']*self.up['kxg']] \
             ,order='F').astype(endian+'d').tofile('../run/'+caseid+'/data/qq/qq.dac.e')
 
+
+    def sign_judge(value):
+        if np.sign(value) == 1.0:
+            sign = "+"
+        else:
+            sign = "-"
+        return sign
+
+    def change_judge(value,self,key,enp=True):
+        if value == self.p[key]:
+            change = ' (unchange)'
+        else:
+            if enp:
+                change = ' \033[31m(changed)\033[0m'
+            else:
+                change = ' (changed)'
+                
+        return change
+    
     t = np.zeros(1)
     t.reshape([1] \
             ,order='F').astype(endian+'d').tofile('../run/'+caseid+'/data/time/mhd/t.dac.e')
@@ -174,31 +193,62 @@ def upgrade_resolution(
     f.write(str(0).rjust(8)+str(0).rjust(8))
     f.close()
 
+    f = open('../run/'+caseid+'/data/cont_log.txt',mode='w')
+    f.write('This file describes the original data.\n\n')
+    f.write('Server: '+self.p['server']+'\n')
+    f.write('Datadir: '+self.p['datadir']+'\n')
+    if end_step:
+        cstep = str(self.p['nd'])
+    else:
+        cstep = str(n)
+    f.write('Output step: '+cstep+'\n')
+
+    value = self.p['xmin'] - self.p['rsun']
+    f.write('xmin = rsun '+sign_judge(value)+'{:.4e}'.format(abs(value))+' or '
+            +'{:.3f}'.format(self.p['xmin']/self.p['rsun'])+'*rsun'
+            +change_judge(xmin,self,'xmin',enp=False)+'\n')
+    value = self.p['xmax'] - self.p['rsun']
+    f.write('xmax = rsun '+sign_judge(value)+'{:.4e}'.format(abs(value))+' or '
+            +'{:.3f}'.format(self.p['xmax']/self.p['rsun'])+'*rsun'
+            +change_judge(xmax,self,'xmax',enp=False)+'\n')
+    f.write('ymin = '+'{:.4e}'.format(self.p['ymin'])+change_judge(ymin,self,'ymin',enp=False)+'\n')
+    f.write('ymax = '+'{:.4e}'.format(self.p['ymax'])+change_judge(ymax,self,'ymax',enp=False)+'\n')
+    f.write('zmin = '+'{:.4e}'.format(self.p['zmin'])+change_judge(zmin,self,'ymin',enp=False)+'\n')
+    f.write('zmax = '+'{:.4e}'.format(self.p['zmax'])+change_judge(zmax,self,'ymax',enp=False)+'\n')
+    f.write('\n')
+    
+    f.write('nx0*ix0 = '+str(self.p['ix'])+change_judge(self.up['ix'],self,'ix',enp=False)+'\n')
+    f.write('ny0*jx0 = '+str(self.p['jx'])+change_judge(self.up['jx'],self,'jx',enp=False)+'\n')
+    f.write('nz0*kx0 = '+str(self.p['kx'])+change_judge(self.up['kx'],self,'kx',enp=False)+'\n')
+
+    if x_ununif:
+        uniform_flag = '.true.'
+    else:
+        uniform_flag = '.false.'
+
+    f.write('uniform_flag = '+str(self.p['ununiform_flag']) \
+            +change_judge(x_ununif,self,'ununiform_flag',enp=False)+'\n')
+
+    f.write('ix_ununi = '+str(self.p['ix_ununi'])+change_judge(ix_ununi,self,'ix_ununi',enp=False)+'\n')
+    f.write('dx00 = ''{:.4e}'.format(self.p['dx00'])+change_judge(dx00,self,'dx00',enp=False)+'\n')
+    
+    f.close()
+    
     print(' ')
     print('### Data upgrade funished ###')
     print('Please use following parameters')
     print(' ')
     print('caseid is \033[31m'+caseid+'\033[0m')
     print(' ')
-    
-    def sign_judge(value):
-        if np.sign(value) == 1.0:
-            sign = "+"
-        else:
-            sign = "-"
-        return sign
-
-    def change_judge(value,self,key):
-        if value == self.p[key]:
-            change = ' (unchange)'
-        else:
-            change = ' \033[31m(changed)\033[0m'
-        return change
-    
+        
     value = xmin - self.p['rsun']
-    print('xmin = rsun '+sign_judge(value),'{:.4e}'.format(abs(value)),change_judge(xmin,self,'xmin'))
+    print('xmin = rsun '+sign_judge(value),'{:.4e}'.format(abs(value)),' or '
+          ,'{:.3f}'.format(xmin/self.p['rsun'])+'*rsun'
+          ,change_judge(xmin,self,'xmin'))
     value = xmax - self.p['rsun']
-    print('xmax = rsun '+sign_judge(value),'{:.4e}'.format(abs(value)),change_judge(xmax,self,'xmax'))
+    print('xmax = rsun '+sign_judge(value),'{:.4e}'.format(abs(value)),' or '
+          ,'{:.3f}'.format(xmax/self.p['rsun'])+'*rsun'
+          ,change_judge(xmax,self,'xmax'))
     print('ymin = '+'{:.4e}'.format(ymin),change_judge(ymin,self,'ymin'))
     print('ymax = '+'{:.4e}'.format(ymax),change_judge(ymax,self,'ymax'))
     print('zmin = '+'{:.4e}'.format(zmin),change_judge(zmin,self,'ymin'))
