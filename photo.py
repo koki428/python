@@ -64,7 +64,7 @@ for n in range(n0,nd_tau+1):
 
     lfac = 1.e-8
     ax1.pcolormesh(y*lfac,z*lfac,in0.transpose(),cmap='gist_gray',vmax=3.0e10,vmin=0.2e10,shading=shading)
-    ax2.pcolormesh(y*lfac,z*lfac,bx0.transpose(),cmap='gist_gray',vmax=5.e2,vmin=-5.e2,shading=shading)
+    ax2.pcolormesh(y*lfac,z*lfac,bx0.transpose(),cmap='gist_gray',vmax=3.e3,vmin=-3.e3,shading=shading)
     ax1.set_xlabel("Mm")
     ax1.set_ylabel("Mm")
 

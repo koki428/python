@@ -136,10 +136,11 @@ for n in range(n0,nd+1):
     ax3.set_xlabel("y [Mm]")
     ax3.set_title(r"$T$")
     
-    bb = np.sqrt(d.vc["bxp"]**2 + d.vc["byp"]**2 + d.vc["bzp"]**2)
+    bb = np.sqrt(d.vc["bxm"]**2 + d.vc["bym"]**2 + d.vc["bzm"]**2)
+    #bb = np.sqrt(d.vc["bxp"]**2 + d.vc["byp"]**2 + d.vc["bzp"]**2)
     bbs = np.roll(bb,[jx//2-jc],axis=1)
     ax4.tick_params(labelleft=False)
-    ax4.pcolormesh(y*lfac,(x-rsun)*lfac,bbs,vmax=6.e3,vmin=0.,cmap='gist_heat',shading=shading)
+    ax4.pcolormesh(y*lfac,(x-rsun)*lfac,bbs,vmax=2.e3,vmin=0.,cmap='gist_heat',shading=shading)
     ax4.contour(y*lfac,(x-rsun)*lfac,tus,levels=[1.],colors="w")
     ax4.set_xlabel("y [Mm]")
     ax4.set_title(r"$|B|$")
