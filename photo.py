@@ -34,8 +34,8 @@ print("Maximum time step= ",nd_tau," time ="\
 
 plt.close('all')
 
-xsize = 15
-ysize = 7.5
+xsize = 20
+ysize = 10
 fig = plt.figure(num=1,figsize=(xsize,ysize))
 
 t0 = d.read_time(0,tau=True,silent=True)
