@@ -30,7 +30,7 @@ if  n0 > d.p["nd_tau"]:
     n0 = d.p["nd_tau"]
 
 print("Maximum time step= ",nd_tau," time ="\
-      ,dtout/ifac*float(nd)/3600./24.," [day]")
+      ,dtout/ifac*float(nd_tau)/3600./24.," [day]")
 
 plt.close('all')
 
