@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
+from matplotlib.gridspec import GridSpec
 import R2D2
 import sys
 import os
@@ -31,50 +31,22 @@ if  n0 > d.p["nd"]:
 print("Maximum time step= ",nd," time ="\
           ,dtout*float(nd)/3600./24.," [day]")
 
-tmp, te2 = np.meshgrid(y,te0)
 plt.close('all')
 
-vsize = 8
 
-zfac0 = 1
-xfac0 = zfac0*(xmax - xmin)/(zmax - zmin)
-marginfac_vbot0 = 0.1
-marginfac_vint0 = 0.06
-marginfac_vtop0 = 0.06
-vsize0 = zfac0 + xfac0 + marginfac_vbot0 + marginfac_vint0 + marginfac_vtop0
-xfac = xfac0/vsize0
-zfac = zfac0/vsize0
-marginfac_vbot = marginfac_vbot0/vsize0
-marginfac_vint = marginfac_vint0/vsize0
-marginfac_vtop = marginfac_vtop0/vsize0
-
-marginlen_vbot = vsize*marginfac_vbot
-marginlen_vint = vsize*marginfac_vint
-xlen = vsize*xfac
-zlen = vsize*zfac
-ylen = zlen*(ymax - ymin)/(zmax - zmin)
-marginlen_hbot = ylen*0.15
-marginlen_hint = ylen*0.02
-marginlen_htop = ylen*0.02
-
-hsize = 2*ylen + marginlen_hbot + marginlen_hint + marginlen_htop
-yfac = ylen/hsize
-
-h0 =  marginlen_hbot/hsize
-h1 = (marginlen_hbot + marginlen_hint + ylen)/hsize
-
-v0 =  marginlen_vbot/vsize
-v1 = (marginlen_vbot + marginlen_vint + xlen)/vsize
-
-fig = plt.figure(num=1,figsize=(hsize,vsize))
-
+plt.rcParams['font.size'] = 16
 # read time
 t0 = d.read_time(0,silent=True)
 
-plt.rcParams["font.size"] = 15
+yran = ymax - ymin
+xran = min(xmax-xmin,yran)
 
-#n0 = 7
-#nd = n0
+xsize = 9
+ysize = xsize*(yran + xran)/2/yran
+fig = plt.figure(num=1,figsize=(xsize,ysize))
+
+grid = GridSpec(2,2,height_ratios=[yran,xran])
+
 
 for n in range(n0,nd+1):
 #for n in range(0,1):
@@ -98,11 +70,11 @@ for n in range(n0,nd+1):
 
     lfac = 1.e-8
     
-    ax1 = fig.add_axes([h0,v1,yfac,zfac])
-    ax2 = fig.add_axes([h1,v1,yfac,zfac])
-    ax3 = fig.add_axes([h0,v0,yfac,xfac])
-    ax4 = fig.add_axes([h1,v0,yfac,xfac])
-
+    ax1 = fig.add_subplot(grid[0,0],aspect='equal')
+    ax2 = fig.add_subplot(grid[0,1],aspect='equal')
+    ax3 = fig.add_subplot(grid[1,0],aspect='equal')
+    ax4 = fig.add_subplot(grid[1,1],aspect='equal')
+    
     ax1.tick_params(labelbottom=False)
     if deep_flag == 1:
         d.read_qq_select(xmax,n,silent=True)
@@ -126,30 +98,32 @@ for n in range(n0,nd+1):
     ax2.pcolormesh(y*lfac,z*lfac,bx.transpose(),cmap='gist_gray',vmax=2.5e3,vmin=-2.5e3,shading=shading)
     ax2.set_title(r"LOS magnetic field@$\tau=1$")
 
-    #ses = np.roll(d.vc['tep']+te2,jx//2-jc,axis=1)
     ses = np.roll((d.vc['sep']-d.vc['sem'])/d.vc['serms'],jx//2-jc,axis=1)
-    #ax3.pcolormesh(y*lfac,(x-rsun)*lfac,ses,vmin=3000.,vmax=18000.,cmap='gist_heat',shading=shading)
     ax3.pcolormesh(y*lfac,(x-rsun)*lfac,ses,vmin=-3.,vmax=3.,cmap='gist_heat',shading=shading)
     tus = np.roll(d.vc["tup"],[jx//2-jc],axis=1)
     ax3.contour(y*lfac,(x-rsun)*lfac,tus,levels=[1.],colors="w")
+    ax3.set_ylim((max(xmax-yran,xmin)-rsun)*lfac,(xmax-rsun)*lfac)
     ax3.set_ylabel("x [Mm]")
     ax3.set_xlabel("y [Mm]")
     ax3.set_title(r"$T$")
     
     bb = np.sqrt(d.vc["bxm"]**2 + d.vc["bym"]**2 + d.vc["bzm"]**2)
-    #bb = np.sqrt(d.vc["bxp"]**2 + d.vc["byp"]**2 + d.vc["bzp"]**2)
     bbs = np.roll(bb,[jx//2-jc],axis=1)
     ax4.tick_params(labelleft=False)
     ax4.pcolormesh(y*lfac,(x-rsun)*lfac,bbs,vmax=2.e3,vmin=0.,cmap='gist_heat',shading=shading)
     ax4.contour(y*lfac,(x-rsun)*lfac,tus,levels=[1.],colors="w")
+    ax4.set_ylim((max(xmax-yran,xmin)-rsun)*lfac,(xmax-rsun)*lfac)
     ax4.set_xlabel("y [Mm]")
     ax4.set_title(r"$|B|$")
 
     bbox_props = dict(boxstyle="round,pad=0.3", fc="white", ec="black", lw=2,alpha=0.9)
     ax3.annotate(s="t="+"{:.2f}".format((t-t0)/60/60)+" [hour]"\
-                     ,xy=[0.02,0.02],xycoords="figure fraction"\
+                     ,xy=[0.05,0.05],xycoords="figure fraction"\
                      ,fontsize=18,color='black',bbox=bbox_props)
-        
+
+    if(n == n0):
+        fig.tight_layout()
+    
     plt.pause(0.1)
     plt.savefig(pngdir+"py"+'{0:08d}'.format(n)+".png")
 
