@@ -35,4 +35,5 @@ R2D2_data.models_init       = models.init
 R2D2_data.sync_tau = sync.sync_tau
 R2D2_data.sync_select = sync.sync_select
 R2D2_data.sync_vc = sync.sync_vc
+R2D2_data.sync_check = sync.sync_check
 R2D2_data.sync_all = sync.sync_all

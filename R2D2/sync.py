@@ -90,6 +90,31 @@ def sync_vc(self,server,project=os.getcwd().split('/')[-2]):
               +server+':work/'+project+'/run/'+caseid+'/data/remap/vl '
               +self.p['datadir']+'remap/' )
 
+def sync_check(self,n,server,project=os.getcwd().split('/')[-2],end_step=False):
+    '''
+    This method downloads checkpoint data
+
+    Parameters:
+        n (int): step to be downloaded
+        server (str): name of remote server
+        project (str): name of project such as 'R2D2'
+        end_step (bool): If true, checkpoint of end step is read
+    '''
+
+    step = str(n).zfill(8)
+    
+    if end_step:
+        if np.mod(self.p['nd'],2) == 0:
+            step = 'e'
+        if np.mod(self.p['nd'],2) == 1:
+            step = 'o'
+    
+    caseid = self.p['datadir'].split('/')[-3]
+    os.system('rsync -avP ' \
+              +server+':work/'+project+'/run/'+caseid+'/data/qq/qq.dac.'+step+' ' \
+              +self.p['datadir']+'qq/' )
+    
+
     
 def sync_all(self,server,project=os.getcwd().split('/')[-2],dist='../run/'):
     '''
@@ -98,12 +123,14 @@ def sync_all(self,server,project=os.getcwd().split('/')[-2],dist='../run/'):
     Parameters:
         server (str): name of remote server
         project (str): name of project such as 'R2D2'
+        dist (str): distination of data directory
     '''
 
     caseid = self.p['datadir'].split('/')[-3]
-    os.system('rsync -avP' \
+    os.system('rsync -avP ' \
               +server+':work/'+project+'/run/'+caseid+' ' \
               +dist)
+
 
     
     
