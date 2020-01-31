@@ -116,13 +116,13 @@ for n in range(n0,nd+1):
     ax4.set_xlabel("y [Mm]")
     ax4.set_title(r"$|B|$")
 
-    bbox_props = dict(boxstyle="round,pad=0.3", fc="white", ec="black", lw=2,alpha=0.9)
+    #bbox_props = dict(boxstyle="round,pad=0.3", fc="white", ec="black", lw=2,alpha=0.9)
     ax3.annotate(s="t="+"{:.2f}".format((t-t0)/60/60)+" [hour]"\
-                     ,xy=[0.05,0.05],xycoords="figure fraction"\
-                     ,fontsize=18,color='black',bbox=bbox_props)
+                     ,xy=[0.05,0.03],xycoords="figure fraction"\
+                     ,fontsize=18,color='black')#,bbox=bbox_props)
 
     if(n == n0):
-        fig.tight_layout()
+        fig.tight_layout(pad=0.1)
     
     plt.pause(0.1)
     plt.savefig(pngdir+"py"+'{0:08d}'.format(n)+".png")
