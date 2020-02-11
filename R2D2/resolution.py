@@ -22,9 +22,10 @@ def gen_coord(xmax,xmin,ix,margin):
 
 ######################################################
 ######################################################
-def gen_coord_ununiform(xmax,xmin,ix,margin,dx00,ix_ununi):
+def gen_coord_ununiform_top(xmax,xmin,ix,margin,dx00,ix_ununi):
     '''
-    This function defines ununiform geometry
+    This function defines ununiform geometry for vertical geometry
+    The fine grid is concentrated around the top boundary
 
     Parameters: 
         xmax (float): location of upper boundary
@@ -63,6 +64,80 @@ def gen_coord_ununiform(xmax,xmin,ix,margin,dx00,ix_ununi):
 
     for i in range(3,-1,-1):
         x[i] = x[i+1] - dx11
+    
+    return x
+
+######################################################
+######################################################
+def gen_coord_ununiform_flex(xmax,xmin,ix,margin,dxf,ixf,xc):
+    '''
+    This function defines ununiform geometry
+    The fine grid is concentrated around x = xc
+
+    Parameters:
+        xmax (float): location of upper boundary
+        xmin (float): location of lower boundary
+        ix (int): number of grid without margin
+        margin (int): number of margin
+        dxf (float): grid spacing in fine grid
+        ixf (int): number of fine grid
+        xc (float): center position of fine grid
+
+    Return:
+        x (float) [ix + 2*margin]: generated geometry        
+    '''
+    import numpy as np
+    
+    ixg = ix + 2*margin
+    x = np.zeros(ixg)
+
+    # number of low resolution grid
+    ixl = ix - ixf
+    
+    # grid spacing in low resolution grid
+    dxl = (xmax - xmin - dxf*ixf)/ixl    
+    
+    if xc - xmin <= dxf*ixf/2 : # if fine grid cross the boundary
+        if((xc-xmin)//dxf*dxf == xc - xmin):
+            xc = (((xc - xmin)//dxf))*dxf + xmin
+        else:
+            xc = (((xc - xmin)//dxf)+1)*dxf + xmin
+        # number of shift
+        ixs = np.int((xc - xmin)//dxf)
+    else: # if coarse grid cross the boundary
+        xcf = xc - dxf*ixf/2
+        if (xcf - xmin)//dxl*dxl == xcf - xmin:
+            xcf = ((xcf - xmin)//dxl)*dxl + xmin
+        else:
+            xcf = ((xcf - xmin)//dxl+1)*dxl + xmin
+        xc = xcf + dxf*ixf/2
+        # number of shift
+        ixs = np.int((xcf - xmin)//dxl) + ixf//2
+
+    # Grid construction start from center of fine grid
+    x[margin + ixs] = xc + 0.5*dxf
+    for i in range(1,ix):
+        ii = i + ixs
+        # if the grid exceeds the top boundary
+        # return to the bottom boundary
+        if i + ixs > ix - 1:
+            ii = i + ixs - ix
+
+        # return procedure from top to bottom boundary
+        if ii == 0:
+            x[margin - 1] = x[margin + ix - 1] - (xmax - xmin)
+            
+        if i == ixf/2 or i == ixf/2 + ixl: # for fine and coarse grid boundary
+            x[margin + ii] = x[margin + ii - 1] + 0.5*(dxf + dxl)
+        elif i <= ixf/2 - 1 or i >= ixf/2 + ixl + 1: # for fine grid
+            x[margin + ii] = x[margin + ii - 1] + dxf
+        else: # for coarse grid
+            x[margin + ii] = x[margin + ii - 1] + dxl
+        
+    for i in range(0,margin): # for margin 
+        x[i] = x[ixg - 2*margin + i] - (xmax - xmin)
+        x[ixg - margin + i] = x[margin + i] + (xmax - xmin)
+
     
     return x
 
@@ -132,7 +207,7 @@ def upgrade_resolution(
 
     if x_ununif:
         ## generate upgraded coordinate in ununiform geometry
-        self.up['x'] = gen_coord_ununiform(xmax,xmin,self.up['ix'],self.p['margin'],dx00,ix_ununi)
+        self.up['x'] = gen_coord_ununiform_top(xmax,xmin,self.up['ix'],self.p['margin'],dx00,ix_ununi)
     else:
         ## generate upgraded coordinate in uniform geometry
         self.up['x'] = gen_coord(xmax,xmin,self.up['ix'],self.p['margin'])
