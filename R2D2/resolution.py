@@ -69,7 +69,7 @@ def gen_coord_ununiform_top(xmax,xmin,ix,margin,dx00,ix_ununi):
 
 ######################################################
 ######################################################
-def gen_coord_ununiform_flex(xmax,xmin,ix,margin,dxf,ixf,xc):
+def gen_coord_ununiform_flex(xmax,xmin,ix,margin,dx_fine,ix_fine,xc_fine):
     '''
     This function defines ununiform geometry
     The fine grid is concentrated around x = xc
@@ -79,9 +79,9 @@ def gen_coord_ununiform_flex(xmax,xmin,ix,margin,dxf,ixf,xc):
         xmin (float): location of lower boundary
         ix (int): number of grid without margin
         margin (int): number of margin
-        dxf (float): grid spacing in fine grid
-        ixf (int): number of fine grid
-        xc (float): center position of fine grid
+        dx_fine (float): grid spacing in fine grid
+        ix_fine (int): number of fine grid
+        xc_fine (float): center position of fine grid
 
     Return:
         x (float) [ix + 2*margin]: generated geometry        
@@ -92,47 +92,47 @@ def gen_coord_ununiform_flex(xmax,xmin,ix,margin,dxf,ixf,xc):
     x = np.zeros(ixg)
 
     # number of low resolution grid
-    ixl = ix - ixf
+    ix_low = ix - ix_fine
     
     # grid spacing in low resolution grid
-    dxl = (xmax - xmin - dxf*ixf)/ixl    
+    dx_low = (xmax - xmin - dx_fine*ix_fine)/ix_low
     
-    if xc - xmin <= dxf*ixf/2 : # if fine grid cross the boundary
-        if((xc-xmin)//dxf*dxf == xc - xmin):
-            xc = (((xc - xmin)//dxf))*dxf + xmin
+    if xc_fine - xmin <= dx_fine*ix_fine/2 : # if fine grid cross the boundary
+        if((xc_fine - xmin)//dx_fine*dx_fine == xc_fine - xmin):
+            xc_fine = (((xc_fine - xmin)//dx_fine))*dx_fine + xmin
         else:
-            xc = (((xc - xmin)//dxf)+1)*dxf + xmin
+            xc_fine = (((xc_fine - xmin)//dx_fine)+1)*dx_fine + xmin
         # number of shift
-        ixs = np.int((xc - xmin)//dxf)
+        ixs = np.int((xc_fine - xmin)//dx_fine)
     else: # if coarse grid cross the boundary
-        xcf = xc - dxf*ixf/2
-        if (xcf - xmin)//dxl*dxl == xcf - xmin:
-            xcf = ((xcf - xmin)//dxl)*dxl + xmin
+        xct = xc_fine - dx_fine*ixf/2
+        if (xct - xmin)//dx_low*dx_low == xct_fine - xmin:
+            xct = ((xct - xmin)//dx_low  )*dx_low + xmin
         else:
-            xcf = ((xcf - xmin)//dxl+1)*dxl + xmin
-        xc = xcf + dxf*ixf/2
+            xct = ((xct - xmin)//dx_low+1)*dx_low + xmin
+        xc_fine = xct + dx_fine*ix_fine/2
         # number of shift
-        ixs = np.int((xcf - xmin)//dxl) + ixf//2
+        ix_shift = np.int((xc_fine - xmin)//dx_low) + ix_fine//2
 
     # Grid construction start from center of fine grid
-    x[margin + ixs] = xc + 0.5*dxf
+    x[margin + ix_shift] = xc_fine + 0.5*dx_fine
     for i in range(1,ix):
-        ii = i + ixs
+        ii = i + ix_shift
         # if the grid exceeds the top boundary
         # return to the bottom boundary
-        if i + ixs > ix - 1:
-            ii = i + ixs - ix
+        if i + ix_shift= > ix - 1:
+            ii = i + ix_shift - ix
 
         # return procedure from top to bottom boundary
         if ii == 0:
             x[margin - 1] = x[margin + ix - 1] - (xmax - xmin)
             
-        if i == ixf/2 or i == ixf/2 + ixl: # for fine and coarse grid boundary
-            x[margin + ii] = x[margin + ii - 1] + 0.5*(dxf + dxl)
-        elif i <= ixf/2 - 1 or i >= ixf/2 + ixl + 1: # for fine grid
-            x[margin + ii] = x[margin + ii - 1] + dxf
+        if i == ix_fine/2 or i == ix_fine/2 + ix_low: # for fine and coarse grid boundary
+            x[margin + ii] = x[margin + ii - 1] + 0.5*(dx_fine + dx_low)
+        elif i <= ix_fine/2 - 1 or i >= ix_fine/2 + ix_low + 1: # for fine grid
+            x[margin + ii] = x[margin + ii - 1] + dx_fine
         else: # for coarse grid
-            x[margin + ii] = x[margin + ii - 1] + dxl
+            x[margin + ii] = x[margin + ii - 1] + dx_low
         
     for i in range(0,margin): # for margin 
         x[i] = x[ixg - 2*margin + i] - (xmax - xmin)
