@@ -99,28 +99,29 @@ def gen_coord_ununiform_flex(xmax,xmin,ix,margin,dx_fine,ix_fine,xc_fine):
     
     if xc_fine - xmin <= dx_fine*ix_fine/2 : # if fine grid cross the boundary
         if((xc_fine - xmin)//dx_fine*dx_fine == xc_fine - xmin):
-            xc_fine = (((xc_fine - xmin)//dx_fine))*dx_fine + xmin
+            xc_fine = (((xc_fine - xmin)//dx_fine)  )*dx_fine + xmin
         else:
             xc_fine = (((xc_fine - xmin)//dx_fine)+1)*dx_fine + xmin
         # number of shift
-        ixs = np.int((xc_fine - xmin)//dx_fine)
+        ix_shift = np.int((xc_fine - xmin)//dx_fine)
     else: # if coarse grid cross the boundary
-        xct = xc_fine - dx_fine*ixf/2
-        if (xct - xmin)//dx_low*dx_low == xct_fine - xmin:
+        xct = xc_fine - dx_fine*ix_fine/2
+        if (xct - xmin)//dx_low*dx_low == xct - xmin:
             xct = ((xct - xmin)//dx_low  )*dx_low + xmin
         else:
             xct = ((xct - xmin)//dx_low+1)*dx_low + xmin
         xc_fine = xct + dx_fine*ix_fine/2
         # number of shift
-        ix_shift = np.int((xc_fine - xmin)//dx_low) + ix_fine//2
+        ix_shift = np.int((xct - xmin)//dx_low) + ix_fine//2
 
+    print(ix_shift)
     # Grid construction start from center of fine grid
     x[margin + ix_shift] = xc_fine + 0.5*dx_fine
     for i in range(1,ix):
         ii = i + ix_shift
         # if the grid exceeds the top boundary
         # return to the bottom boundary
-        if i + ix_shift= > ix - 1:
+        if i + ix_shift > ix - 1:
             ii = i + ix_shift - ix
 
         # return procedure from top to bottom boundary
