@@ -150,6 +150,7 @@ def upgrade_resolution(
         ,ixf=2,jxf=2,kxf=2
         ,ix_ununi=32,dx00=4.8e6,x_ununif=False
         ,endian='<',end_step=False
+        ,memory_saving=False
         ):
     '''
     This function chabges the resolution and output for the next
@@ -175,7 +176,9 @@ def upgrade_resolution(
         ix_ununi (int): number of grid in uniform grid region
         dx00 (float): grid spacing in uniform grid region
         x_ununif (bool): whethere ununiform grid is used
-    
+
+        memory_saving (bool): If true, upgraded variables are saved 
+                              in memory separately for saving memory
     '''
     import os
     import os.path
@@ -190,11 +193,15 @@ def upgrade_resolution(
     ## data is stored in self.models dictionary
     self.models_init() 
 
+    ## check if the origin and the destination are different
+    if self.p['datadir'][:-6] == '../run/'+caseid:
+        print('The origin and the destination are the same. stop..')
+        return
+    
     ## check if the destination directory
     ## if not this method finishes
     if not os.path.exists('../run/'+caseid):
-        print('### Please download software to '+caseid+' first ###')
-        return
+        os.system('rsync -avP --exclude="data" '+self.p['datadir'][:-6]+'/'+' ../run/'+caseid)
 
     ## number of grid after upgrade
     self.up['ix'] = int(self.p['ix']*ixf)
@@ -221,15 +228,10 @@ def upgrade_resolution(
     self.read_qq_check(n,silent=True,end_step=end_step)
 
     ## prepare checkpoint data for upgrade data
-    self.qu = np.zeros((self.p['mtype'],self.up['ixg'],self.up['jxg'],self.up['kxg']))
-    
-    for m in range(0,self.p['mtype']):
-        self.qu[m,:,:,:] = R2D2.regrid.interp(self.p['xg'],self.p['yg'],self.p['zg'], \
-                                              self.up['x'],self.up['y'],self.up['z'], \
-                                              self.qc[m,:,:,:], \
-                                              self.p['xg'].size,self.p['yg'].size,self.p['zg'].size, \
-                                              self.up['x'].size,self.up['y'].size,self.up['z'].size )
-        print(str(m)+' finished...')
+    if memory_saving:
+        self.qu = np.zeros((self.up['ixg'],self.up['jxg'],self.up['kxg']))
+    else:
+        self.qu = np.zeros((self.p['mtype'],self.up['ixg'],self.up['jxg'],self.up['kxg']))
 
     os.makedirs('../run/'+caseid+'/data/param/',exist_ok=True)
     os.makedirs('../run/'+caseid+'/data/qq/',exist_ok=True)
@@ -238,9 +240,30 @@ def upgrade_resolution(
     os.makedirs('../run/'+caseid+'/data/time/mhd/',exist_ok=True)
     os.makedirs('../run/'+caseid+'/data/time/tau/',exist_ok=True)
     os.makedirs('../run/'+caseid+'/data/tau/',exist_ok=True)
+        
+    for m in range(0,self.p['mtype']):
+        if memory_saving:
+            self.qu = R2D2.regrid.interp(self.p['xg'],self.p['yg'],self.p['zg'], \
+                                                self.up['x'],self.up['y'],self.up['z'], \
+                                                self.qc[m,:,:,:], \
+                                                self.p['xg'].size,self.p['yg'].size,self.p['zg'].size, \
+                                                self.up['x'].size,self.up['y'].size,self.up['z'].size )
+            self.qu.reshape([self.up['ixg']*self.up['jxg']*self.up['kxg']] \
+                            ,order='F').astype(endian+'d').tofile('../run/'+caseid+'/data/qq/qq'+'{0:02d}'.format(m)+'.dac.e')
+            
+        else:
+            self.qu[m,:,:,:] = R2D2.regrid.interp(self.p['xg'],self.p['yg'],self.p['zg'], \
+                                                  self.up['x'],self.up['y'],self.up['z'], \
+                                                  self.qc[m,:,:,:], \
+                                                  self.p['xg'].size,self.p['yg'].size,self.p['zg'].size, \
+                                                  self.up['x'].size,self.up['y'].size,self.up['z'].size )
+            
+        print(str(m)+' finished...')
 
-    self.qu.reshape([self.p['mtype']*self.up['ixg']*self.up['jxg']*self.up['kxg']] \
-            ,order='F').astype(endian+'d').tofile('../run/'+caseid+'/data/qq/qq.dac.e')
+
+    if not memory_saving:
+        self.qu.reshape([self.p['mtype']*self.up['ixg']*self.up['jxg']*self.up['kxg']] \
+                        ,order='F').astype(endian+'d').tofile('../run/'+caseid+'/data/qq/qq.dac.e')
 
 
     def sign_judge(value):
