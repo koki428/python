@@ -3,6 +3,7 @@ from . import google
 from . import resolution
 from . import models
 from . import sync
+from . import vtk
 
 class R2D2_data():
     '''
