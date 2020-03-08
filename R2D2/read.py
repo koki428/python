@@ -13,6 +13,7 @@ def init(self, datadir):
     self.qs = {}
     self.qq = {}
     self.qt = {}
+    self.q2 = {}
     self.t = 0
     self.vc = {}
         
@@ -71,9 +72,9 @@ def init(self, datadir):
     self.p["jx"] = self.p["jx0"]*self.p["ny"]
     self.p["kx"] = self.p["kx0"]*self.p["nz"]
    
-    ixg = self.p["ix"] + 2*self.p["margin"]
-    jxg = self.p["jx"] + 2*self.p["margin"]
-    kxg = self.p["kx"] + 2*self.p["margin"]
+    ixg = self.p["ix"] + 2*self.p["margin"]*(self.p["xdcheck"]-1)
+    jxg = self.p["jx"] + 2*self.p["margin"]*(self.p["ydcheck"]-1)
+    kxg = self.p["kx"] + 2*self.p["margin"]*(self.p["zdcheck"]-1)
         
     endian = self.p["endian"]
     dtyp=np.dtype([ \
@@ -456,9 +457,9 @@ def read_qq_check(self,n,silent=False,end_step=False):
     kx = self.p['kx']
     margin = self.p['margin']
 
-    ixg = ix + 2*margin
-    jxg = jx + 2*margin
-    kxg = kx + 2*margin
+    ixg = ix + 2*margin*(self.p['xdcheck']-1)
+    jxg = jx + 2*margin*(self.p['ydcheck']-1)
+    kxg = kx + 2*margin*(self.p['zdcheck']-1)
 
     step = '{0:08d}'.format(n)
     if end_step:
@@ -473,3 +474,64 @@ def read_qq_check(self,n,silent=False,end_step=False):
     
     if not silent :
         print('### variales are stored in self.qc ###')
+
+##############################
+def read_qq_2d(self,n,silent=False):
+    '''
+    This method reads full data of 2D calculation
+    The data is stored in self.q2 dictionary
+
+    Parameters:
+        n (int): a selected time step for data
+        silent (bool): True suppresses a message of store
+    '''
+    import numpy as np
+    
+    mtype = self.p["mtype"]
+    ix = self.p["ix"]
+    jx = self.p["jx"]
+
+    ### Only when memory is not allocated 
+    ### and the size of array is different
+    ### memory is allocated
+    memflag = True
+    if 'ro' in self.qq:
+        memflag = not self.q2['ro'].shape == (ix,jx)
+    if 'ro' not in self.q2 or memflag:
+        print('memory is newly allocated')
+        self.q2["ro"] = np.zeros((ix,jx))
+        self.q2["vx"] = np.zeros((ix,jx))
+        self.q2["vy"] = np.zeros((ix,jx))
+        self.q2["vz"] = np.zeros((ix,jx))
+        self.q2["bx"] = np.zeros((ix,jx))
+        self.q2["by"] = np.zeros((ix,jx))
+        self.q2["bz"] = np.zeros((ix,jx))
+        self.q2["se"] = np.zeros((ix,jx))
+        self.q2["pr"] = np.zeros((ix,jx))
+        self.q2["te"] = np.zeros((ix,jx))
+        self.q2["op"] = np.zeros((ix,jx))
+        self.q2["tu"] = np.zeros((ix,jx))
+        self.q2["fr"] = np.zeros((ix,jx))
+
+        dtyp=np.dtype([ ("qq",self.p["endian"]+str((mtype+5)*ix*jx)+"f") ])
+        f = open(self.p['datadir']+"remap/qq/qq.dac."+'{0:08d}'.format(n),'rb')
+        qqq = np.fromfile(f,dtype=dtyp,count=1)
+        self.q2["ro"] = qqq["qq"].reshape((mtype+5,ix,jx),order="F")[0,:,:]
+        self.q2["vx"] = qqq["qq"].reshape((mtype+5,ix,jx),order="F")[1,:,:]
+        self.q2["vy"] = qqq["qq"].reshape((mtype+5,ix,jx),order="F")[2,:,:]
+        self.q2["vz"] = qqq["qq"].reshape((mtype+5,ix,jx),order="F")[3,:,:]
+        self.q2["bx"] = qqq["qq"].reshape((mtype+5,ix,jx),order="F")[4,:,:]
+        self.q2["by"] = qqq["qq"].reshape((mtype+5,ix,jx),order="F")[5,:,:]
+        self.q2["bz"] = qqq["qq"].reshape((mtype+5,ix,jx),order="F")[6,:,:]
+        self.q2["se"] = qqq["qq"].reshape((mtype+5,ix,jx),order="F")[7,:,:]
+        self.q2["pr"] = qqq["qq"].reshape((mtype+5,ix,jx),order="F")[8,:,:]
+        self.q2["te"] = qqq["qq"].reshape((mtype+5,ix,jx),order="F")[9,:,:]
+        self.q2["op"] = qqq["qq"].reshape((mtype+5,ix,jx),order="F")[10,:,:]
+        self.q2["tu"] = qqq["qq"].reshape((mtype+5,ix,jx),order="F")[11,:,:]
+        self.q2["fr"] = qqq["qq"].reshape((mtype+5,ix,jx),order="F")[12,:,:]
+        f.close()
+
+    if not silent :
+        print('### variales are stored in self.q2 ###')
+
+        

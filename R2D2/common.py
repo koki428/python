@@ -27,6 +27,7 @@ R2D2_data.read_qq_tau    = read.read_qq_tau
 R2D2_data.read_time      = read.read_time
 R2D2_data.read_vc        = read.read_vc
 R2D2_data.read_qq_check  = read.read_qq_check
+R2D2_data.read_qq_2d  = read.read_qq_2d
 
 R2D2_data.out_gspread    = google.out_gspread
 R2D2_data.upgrade_resolution = resolution.upgrade_resolution
