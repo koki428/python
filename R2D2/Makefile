@@ -1,23 +1,25 @@
-KIND=GNU
-## KIND shoule be GNU or IFORT
+SERVER=OFP
+#SERVER=XC
 
-ifeq ($(KIND), GNU)
-FC=gfortran
-FLAG=-O3
+ifeq ($(SERVER), OFP)
+FC=intelem
+FLAG=-fPIC
+PRE_EXE=export FFLAGS=
 endif
 
-ifeq ($(KIND), IFORT)
+ifeq ($(SERVER), XC)
 FC=ifort
 FLAG=-fPIC
+PRE_EXE=module load intel
 endif
 
 SRC=regrid.f90
 LIB=$(SRC:.f90=.cpython-37m-x86_64-linux-gnu.so)
 
-#all: $(LIB)
-#	export FFLAGS=
-#	f2py --fcompiler=FC -m $(basename SRC) -c --opt=FLAG regrid.f90
 all: $(LIB)
-
 %.cpython-37m-x86_64-linux-gnu.so: %.f90
+	$(PRE_EXE)
 	f2py --fcompiler=$(FC) -m $* -c --opt=$(FLAG) $<
+
+clean:
+	rm -rf *.cpython-37m-x86_64-linux-gnu.so
