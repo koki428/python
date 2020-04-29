@@ -41,12 +41,13 @@ t0 = d.read_time(0,silent=True)
 yran = ymax - ymin
 xran = min(xmax-xmin,yran)
 
-xsize = 9
+xsize = 12
 ysize = xsize*(yran + xran)/2/yran
 fig = plt.figure(num=1,figsize=(xsize,ysize))
 
 grid = GridSpec(2,2,height_ratios=[yran,xran])
 
+te2, tmp = np.meshgrid(te0,y,indexing='ij')
 
 for n in range(n0,nd+1):
 #for n in range(0,1):
@@ -98,8 +99,11 @@ for n in range(n0,nd+1):
     ax2.pcolormesh(y*lfac,z*lfac,bx.transpose(),cmap='gist_gray',vmax=2.5e3,vmin=-2.5e3,shading=shading)
     ax2.set_title(r"LOS magnetic field@$\tau=1$")
 
-    ses = np.roll((d.vc['sep']-d.vc['sem'])/d.vc['serms'],jx//2-jc,axis=1)
-    ax3.pcolormesh(y*lfac,(x-rsun)*lfac,ses,vmin=-3.,vmax=3.,cmap='gist_heat',shading=shading)
+    #ses = np.roll((d.vc['sep']-d.vc['sem'])/d.vc['serms'],jx//2-jc,axis=1)
+    #ax3.pcolormesh(y*lfac,(x-rsun)*lfac,ses,vmin=-3.,vmax=3.,cmap='gist_heat',shading=shading)
+
+    ax3.pcolormesh(y*lfac,(x-rsun)*lfac,d.vc['tep']+te2,vmin=5000.,vmax=20000,cmap='gist_heat',shading=shading)
+
     tus = np.roll(d.vc["tup"],[jx//2-jc],axis=1)
     ax3.contour(y*lfac,(x-rsun)*lfac,tus,levels=[1.],colors="w")
     ax3.set_ylim((max(xmax-yran,xmin)-rsun)*lfac,(xmax-rsun)*lfac)
@@ -107,10 +111,10 @@ for n in range(n0,nd+1):
     ax3.set_xlabel("y [Mm]")
     ax3.set_title(r"$T$")
     
-    bb = np.sqrt(d.vc["bxm"]**2 + d.vc["bym"]**2 + d.vc["bzm"]**2)
+    bb = np.sqrt(d.vc["bxp"]**2 + d.vc["byp"]**2 + d.vc["bzp"]**2)
     bbs = np.roll(bb,[jx//2-jc],axis=1)
     ax4.tick_params(labelleft=False)
-    ax4.pcolormesh(y*lfac,(x-rsun)*lfac,bbs,vmax=2.e3,vmin=0.,cmap='gist_heat',shading=shading)
+    ax4.pcolormesh(y*lfac,(x-rsun)*lfac,bbs,vmax=8.e3,vmin=0.,cmap='gist_heat',shading=shading)
     ax4.contour(y*lfac,(x-rsun)*lfac,tus,levels=[1.],colors="w")
     ax4.set_ylim((max(xmax-yran,xmin)-rsun)*lfac,(xmax-rsun)*lfac)
     ax4.set_xlabel("y [Mm]")
