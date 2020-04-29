@@ -1,5 +1,5 @@
-SERVER=OFP
-#SERVER=XC
+#SERVER=OFP
+SERVER=XC
 
 ifeq ($(SERVER), OFP)
 FC=intelem
@@ -10,7 +10,7 @@ endif
 ifeq ($(SERVER), XC)
 FC=ifort
 FLAG=-fPIC
-PRE_EXE=module load intel
+PRE_EXE=
 endif
 
 SRC=regrid.f90
