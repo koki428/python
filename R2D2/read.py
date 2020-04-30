@@ -13,6 +13,7 @@ def init(self, datadir):
     self.qs = {}
     self.qq = {}
     self.qt = {}
+    self.ql = {}
     self.q2 = {}
     self.t = 0
     self.vc = {}
@@ -178,6 +179,29 @@ def init(self, datadir):
         self.p["jss"] = self.p["jss"] - 1
         self.p["jee"] = self.p["jee"] - 1
 
+        if os.path.isdir(self.p['datadir']+'slice'):
+            f = open(self.p['datadir']+"slice/params.dac","r")
+            line = f.readline()
+            while line:
+                self.p[line.split()[1]] = int(line.split()[0])
+                line = f.readline()
+
+            f.close()
+
+            dtype = np.dtype([ \
+                ('x_slice',self.p['endian']+str(self.p['nx_slice'])+'d'),\
+                ('y_slice',self.p['endian']+str(self.p['ny_slice'])+'d'),\
+                ('z_slice',self.p['endian']+str(self.p['nz_slice'])+'d'),\
+            ])
+            f = open(self.p['datadir']+'slice/slice.dac','rb')
+            slice = np.fromfile(f,dtype=dtype)
+
+            self.p['x_slice'] = slice['x_slice'].reshape((self.p['nx_slice']),order='F')
+            self.p['y_slice'] = slice['y_slice'].reshape((self.p['ny_slice']),order='F')
+            self.p['z_slice'] = slice['z_slice'].reshape(self.p['nz_slice'],order='F')
+            
+            f.close()
+        
 ##############################
 def read_qq_select(self,xs,n,silent=False):
     '''
@@ -475,6 +499,43 @@ def read_qq_check(self,n,silent=False,end_step=False):
     if not silent :
         print('### variales are stored in self.qc ###')
 
+
+def read_qq_slice(self,n,n_slice,direc,silent=False):
+    '''
+    This method reads 2D data of slice.
+    The data is stored in self.ql dictionary
+
+    Parameters:
+        n (int): a selected time step for data
+        n_slice (int): index of slice
+        direc (str): slice direction. 'x', 'y', or 'z'
+        silent (bool): True suppresses a message of store
+    '''
+    import numpy as np
+
+    mtype = self.p['mtype']
+    f = open(self.p['datadir']+'slice/qq'+direc+'.dac.'+'{0:08d}'.format(n)+'.'
+             +'{0:08d}'.format(n_slice),'rb')
+    if direc == 'x':
+        n1, n2 = self.p['jx'], self.p['kx']
+    if direc == 'y':
+        n1, n2 = self.p['ix'], self.p['kx']
+    if direc == 'z':
+        n1, n2 = self.p['ix'], self.p['jx']
+    qq_slice = np.fromfile(f,self.p['endian']+'f',mtype*n1*n2)
+
+    self.ql['ro'] = qq_slice.reshape((mtype,n1,n2),order='F')[0,:,:]
+    self.ql['vx'] = qq_slice.reshape((mtype,n1,n2),order='F')[1,:,:]
+    self.ql['vy'] = qq_slice.reshape((mtype,n1,n2),order='F')[2,:,:]
+    self.ql['vz'] = qq_slice.reshape((mtype,n1,n2),order='F')[3,:,:]
+    self.ql['bx'] = qq_slice.reshape((mtype,n1,n2),order='F')[4,:,:]
+    self.ql['by'] = qq_slice.reshape((mtype,n1,n2),order='F')[5,:,:]
+    self.ql['bz'] = qq_slice.reshape((mtype,n1,n2),order='F')[6,:,:]
+    self.ql['se'] = qq_slice.reshape((mtype,n1,n2),order='F')[7,:,:]
+
+    if not silent :
+        print('### variales are stored in self.ql ###')
+    
 ##############################
 def read_qq_2d(self,n,silent=False):
     '''
