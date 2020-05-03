@@ -1,5 +1,12 @@
 #SERVER=OFP
-SERVER=XC
+#SERVER=XC
+SERVER=LOCAL
+
+ifeq ($(SERVER), LOCAL)
+FC=gfortran
+FLAG=-O3
+PRE_EXE=
+endif
 
 ifeq ($(SERVER), OFP)
 FC=intelem
@@ -13,7 +20,7 @@ FLAG=-fPIC
 PRE_EXE=
 endif
 
-SRC=regrid.f90
+SRC=$(wildcard ./*.f90)
 LIB=$(SRC:.f90=.cpython-37m-x86_64-linux-gnu.so)
 
 all: $(LIB)
