@@ -95,10 +95,10 @@ for n in range(n0,nd+1):
     prrmst[:,n-n0] = np.sqrt(np.average(d.vc["prrms"]**2,axis=1))
     termst[:,n-n0] = np.sqrt(np.average(d.vc["terms"]**2,axis=1))
 
-    romt[:,n-n0] = np.sqrt(np.average(d.vc["rom"]**2,axis=1))
-    semt[:,n-n0] = np.sqrt(np.average(d.vc["sem"]**2,axis=1))
-    prmt[:,n-n0] = np.sqrt(np.average(d.vc["prm"]**2,axis=1))
-    temt[:,n-n0] = np.sqrt(np.average(d.vc["tem"]**2,axis=1))
+    romt[:,n-n0] = np.average(d.vc["rom"],axis=1)
+    semt[:,n-n0] = np.average(d.vc["sem"],axis=1)
+    prmt[:,n-n0] = np.average(d.vc["prm"],axis=1)
+    temt[:,n-n0] = np.average(d.vc["tem"],axis=1)
 
     fet[:,n-n0] = fe
     fdt[:,n-n0] = fd
@@ -148,8 +148,11 @@ for n in range(n0,nd+1):
     ax3.set_xlabel(r"$x - R_{\odot} \ [\mathrm{Mm}]$")
     ax3.set_ylabel(r"Magnetic field [G]")
     ax3.set_label('RMS magnetic field')
-    ax3.set_yscale('log')
+    #ax3.set_yscale('log')
     ax3.legend()
+
+    ax4.plot(semt[:,n-n0])
+    
     
     if n == n0:
         plt.tight_layout()
