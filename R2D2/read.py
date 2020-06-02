@@ -515,7 +515,7 @@ def read_qq_slice(self,n,n_slice,direc,silent=False):
 
     mtype = self.p['mtype']
     f = open(self.p['datadir']+'slice/qq'+direc+'.dac.'+'{0:08d}'.format(n)+'.'
-             +'{0:08d}'.format(n_slice),'rb')
+             +'{0:08d}'.format(n_slice+1),'rb')
     if direc == 'x':
         n1, n2 = self.p['jx'], self.p['kx']
     if direc == 'y':
