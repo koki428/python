@@ -40,8 +40,9 @@ def init_gspread(json_key,project):
     wks.update_acell('N1', 'dtout_tau [s]')
     wks.update_acell('O1', 'alpha')
     wks.update_acell('P1', 'RSST')
-    wks.update_acell('Q1', 'upodate time')
-    wks.update_acell('R1', 'origin')
+    wks.update_acell('Q1', 'Omega[Sun]')
+    wks.update_acell('R1', 'upodate time')
+    wks.update_acell('S1', 'origin')
 
 ######################################################
 ######################################################
@@ -59,6 +60,7 @@ def out_gspread(self,caseid,json_key,project):
     '''
     import datetime
     import gspread
+    
     from oauth2client.service_account import ServiceAccountCredentials
 
     scope = ['https://spreadsheets.google.com/feeds',
@@ -68,7 +70,7 @@ def out_gspread(self,caseid,json_key,project):
     gc = gspread.authorize(credentials)
     wks = gc.open(project).sheet1
 
-    str_id = str(int(caseid[1:]))
+    str_id = str(int(caseid[1:])+1)
     
     wks.update_acell('A'+str_id, caseid)
     wks.update_acell('B'+str_id, self.p['server'])
@@ -94,4 +96,7 @@ def out_gspread(self,caseid,json_key,project):
         wks.update_acell('P'+str_id,'F')
     else:
         wks.update_acell('P'+str_id,'T')
-    wks.update_acell('Q'+str_id,str(datetime.datetime.now()).split('.')[0])
+    
+    wks.update_acell('Q'+str_id, '{:5.1f}'.format(self.p['omfac']))
+    wks.update_acell('R'+str_id,str(datetime.datetime.now()).split('.')[0])
+    wks.update_acell('S'+str_id,self.p['origin'])

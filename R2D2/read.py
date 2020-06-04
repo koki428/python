@@ -201,6 +201,15 @@ def init(self, datadir):
             self.p['z_slice'] = slice['z_slice'].reshape(self.p['nz_slice'],order='F')
             
             f.close()
+
+
+    # read original data
+    if os.path.exists(datadir+'cont_log.txt'):
+        f = open(datadir+'cont_log.txt')
+        self.p['origin'] = f.readlines()[3][-5:-1]
+    else:
+        self.p['origin'] = 'N/A'
+            
         
 ##############################
 def read_qq_select(self,xs,n,silent=False):
