@@ -67,6 +67,8 @@ for n in range(n0,nd+1):
     # read value
     d.read_vc(n,silent=True)
 
+    print(d.vc['sem'].mean())
+
     ##############################    
     fsun = 6.318e10
     fe = np.average(d.vc["fe"],axis=1)
