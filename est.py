@@ -68,6 +68,7 @@ for n in range(n0,nd+1):
     d.read_vc(n,silent=True)
 
     print(d.vc['sem'].mean())
+    print(d.vc['rzm'].mean())
 
     ##############################    
     fsun = 6.318e10
@@ -210,33 +211,33 @@ np.savez(d.p['datadir']+"est.npz"\
              ,ff=ff,fk=fk,fr=fr,ft=ft\
              )
          
-#plt.rcParams["font.size"] = 15
-#fig2 = plt.figure(num=2,figsize=(12,5))
-#ax23 = fig2.add_subplot(121)
-#ax24 = fig2.add_subplot(122)
-#ax23.plot(xr,ff/fsun,color="red",label="$F_\mathrm{e}$")
-#ax23.plot(xr,fk/fsun,color="green",label="$F_\mathrm{k}$")
-#ax23.plot(xr,fr/fsun,color="blue",label="$F_\mathrm{r}$")
-#ax23.plot(xr,ft/fsun,color="black",label="$F_\mathrm{t}$")
-#ax23.set_xlim(xmin/rsun,xmax/rsun)
-#ax23.set_ylim(fmin,fmax)
-#ax23.set_xlabel("$x/R_{\odot}$")
-#ax23.set_ylabel("$F/F_{\odot}$")
-#ax23.set_title("Full convection zone")
-#ax23.legend(loc='upper left',prop={'size': 15})
-#ax23.annotate(s="t="+"{:.2f}".format(t/3600./24.)+" [day]"\
-#                 ,xy=[0.01,0.01],xycoords="figure fraction",fontsize=18)
+plt.rcParams["font.size"] = 15
+fig2 = plt.figure(num=2,figsize=(12,5))
+ax23 = fig2.add_subplot(121)
+ax24 = fig2.add_subplot(122)
+ax23.plot(xr,ff/fsun,color="red",label="$F_\mathrm{e}$")
+ax23.plot(xr,fk/fsun,color="green",label="$F_\mathrm{k}$")
+ax23.plot(xr,fr/fsun,color="blue",label="$F_\mathrm{r}$")
+ax23.plot(xr,ft/fsun,color="black",label="$F_\mathrm{t}$")
+ax23.set_xlim(xmin/rsun,xmax/rsun)
+ax23.set_ylim(fmin,fmax)
+ax23.set_xlabel("$x/R_{\odot}$")
+ax23.set_ylabel("$F/F_{\odot}$")
+ax23.set_title("Full convection zone")
+ax23.legend(loc='upper left',prop={'size': 15})
+ax23.annotate(s="t="+"{:.2f}".format(t/3600./24.)+" [day]"\
+                 ,xy=[0.01,0.01],xycoords="figure fraction",fontsize=18)
 
-#ax24.plot(xn,ff/fsun,color="red")
-#ax24.plot(xn,fk/fsun,color="green")
-#ax24.plot(xn,fr/fsun,color="blue")
-#ax24.plot(xn,ft/fsun,color="black")
-#ax24.set_xlim(-20,1)
-#ax24.set_ylim(fmin,fmax)
-#ax24.set_xlabel("$x - R_{\odot} \ [\mathrm{Mm}]$")
-#ax24.set_ylabel("$F/F_{\odot}$")
-#ax24.set_title("Around photosphere")
-#fig2.tight_layout()
-#plt.pause(0.001)
-#plt.ion()
+ax24.plot(xn,ff/fsun,color="red")
+ax24.plot(xn,fk/fsun,color="green")
+ax24.plot(xn,fr/fsun,color="blue")
+ax24.plot(xn,ft/fsun,color="black")
+ax24.set_xlim(-20,1)
+ax24.set_ylim(fmin,fmax)
+ax24.set_xlabel("$x - R_{\odot} \ [\mathrm{Mm}]$")
+ax24.set_ylabel("$F/F_{\odot}$")
+ax24.set_title("Around photosphere")
+fig2.tight_layout()
+plt.pause(0.001)
+plt.ion()
     

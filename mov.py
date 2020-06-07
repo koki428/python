@@ -85,7 +85,7 @@ for n in range(n0,nd+1):
         ax1.set_ylabel("z [Mm]")
         ax1.set_title("Vertical velocity")
         sem, tmp = np.meshgrid(d.vc['sem'].mean(axis=1),y,indexing='ij')
-        ax3.pcolormesh(y*lfac,(x-rsun)*lfac,(d.vc['sep']-d.vc['sem'])/d.vc['serms'],cmap='gist_heat')
+        ax3.pcolormesh(y*lfac,(x-rsun)*lfac,(d.vc['sep']-d.vc['sem'])/d.vc['serms'],cmap='gist_heat',vmax=3,vmin=-3)
         ax3.set_title(r'$(s-\langle s\rangle)/s_{rms}$')
     else:
         in0 = d.qt["in"].copy()
