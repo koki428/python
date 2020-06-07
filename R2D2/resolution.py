@@ -147,7 +147,7 @@ def gen_coord_ununiform_flex(xmax,xmin,ix,margin,dx_fine,ix_fine,xc_fine):
 def upgrade_resolution(
         self,caseid,n
         ,xmin,xmax,ymin,ymax,zmin,zmax 
-        ,ixf=2,jxf=2,kxf=2
+        ,ix,jx,kx
         ,ix_ununi=32,dx00=4.8e6,x_ununif=False
         ,endian='<',end_step=False
         ,memory_saving=False
@@ -168,9 +168,9 @@ def upgrade_resolution(
 
         endian (str): endian
     
-        ixf (int or float): increase factor of grid point in x direction
-        jxf (int or float): increase factor of grid point in y direction
-        kxf (int or float): increase factor of grid point in z direction
+        ix (int): updated grid point in x direction
+        jx (int): updated grid point in y direction
+        kx (int): updated grid point in z direction
         
         below prameters are effective only when x_ununif=True
         ix_ununi (int): number of grid in uniform grid region
@@ -204,9 +204,9 @@ def upgrade_resolution(
         os.system('rsync -avP --exclude="data" '+self.p['datadir'][:-6]+'/'+' ../run/'+caseid)
 
     ## number of grid after upgrade
-    self.up['ix'] = int(self.p['ix']*ixf)
-    self.up['jx'] = int(self.p['jx']*jxf)
-    self.up['kx'] = int(self.p['kx']*kxf)
+    self.up['ix'] = ix
+    self.up['jx'] = jx
+    self.up['kx'] = kx
 
     ## number of grid with margin after upgrade
     self.up['ixg'] = self.up['ix'] + 2*self.p['margin']
