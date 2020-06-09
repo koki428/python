@@ -140,7 +140,8 @@ for n in range(n0,nd+1):
     ax2.set_xlabel(r"$x - R_{\odot} \ [\mathrm{Mm}]$")
     ax2.set_ylabel(r"velocities [km/s]")
     ax2.set_label('RMS velocities')
-    ax2.set_yscale('log')
+    if deep_flag == 0:
+        ax2.set_yscale('log')
     ax2.legend()
 
     #####################
