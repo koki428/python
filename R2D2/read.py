@@ -421,14 +421,15 @@ def read_qq_tau(self,n,silent=False):
         print('### variales are stored in self.qt ###')
                 
 ##############################
-def read_time(self,n,tau=False,silent=True):
+def read_time(self,n,tau=False,silent=False):
     '''
     This method reads time at a selected time step
     The data is stored in self.t
 
     Parameters:
-        n (int): a setected time step for data
+        n (int): a selected time step for data
         tau (bool): if True time for optical depth
+        silent (bool): True suppresses a message of store
 
     '''
 
@@ -454,6 +455,7 @@ def read_vc(self,n,silent=False):
     The data is stored in self.vc dictionary
 
     Parameters:
+        n (int): a selected time step for data
         silent (bool): True suppresses a message of store
     '''
 

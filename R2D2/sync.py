@@ -85,6 +85,7 @@ def sync_vc(self,server,project=os.getcwd().split('/')[-2]):
         project (str): name of project such as 'R2D2'
     '''
 
+    import os
     caseid = self.p['datadir'].split('/')[-3]
     os.system('rsync -avP' \
               +' --exclude="time/mhd" ' \
@@ -101,7 +102,9 @@ def sync_check(self,n,server,project=os.getcwd().split('/')[-2],end_step=False):
         project (str): name of project such as 'R2D2'
         end_step (bool): If true, checkpoint of end step is read
     '''
-
+    import numpy as np
+    import os
+    
     step = str(n).zfill(8)
     
     if end_step:
@@ -114,9 +117,23 @@ def sync_check(self,n,server,project=os.getcwd().split('/')[-2],end_step=False):
     os.system('rsync -avP ' \
               +server+':work/'+project+'/run/'+caseid+'/data/qq/qq.dac.'+step+' ' \
               +self.p['datadir']+'qq/' )
-    
 
+def sync_slice(self,server,project=os.getcwd().split('/')[-2]):
+    '''
+    This method downloads slice data
+
+    Parameters:
+        server (str): name of remote server
+        project (str): name of project such as 'R2D2'
+    '''
+    import numpy as np
+    import os
     
+    caseid = self.p['datadir'].split('/')[-3]
+    os.system('rsync -avP ' \
+              +server+':work/'+project+'/run/'+caseid+'/data/slice ' \
+              +self.p['datadir'] )
+        
 def sync_all(self,server,project=os.getcwd().split('/')[-2],dist='../run/'):
     '''
     This method downloads all the data
@@ -126,7 +143,8 @@ def sync_all(self,server,project=os.getcwd().split('/')[-2],dist='../run/'):
         project (str): name of project such as 'R2D2'
         dist (str): distination of data directory
     '''
-
+    import os
+    
     caseid = self.p['datadir'].split('/')[-3]
     os.system('rsync -avP ' \
               +server+':work/'+project+'/run/'+caseid+' ' \
