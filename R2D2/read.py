@@ -421,7 +421,7 @@ def read_qq_tau(self,n,silent=False):
         print('### variales are stored in self.qt ###')
                 
 ##############################
-def read_time(self,n,tau=False,silent=False):
+def read_time(self,n,tau=False,silent=True):
     '''
     This method reads time at a selected time step
     The data is stored in self.t
