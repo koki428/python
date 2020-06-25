@@ -57,6 +57,9 @@ ftt = np.zeros((ix,nd-n0+1))
 plt.close('all')
 plt.clf()
 
+#n0 = 2
+#nd = 2
+
 for n in range(n0,nd+1):
     print(n)
     ##############################
@@ -126,6 +129,8 @@ for n in range(n0,nd+1):
     ax1.plot(d.p["xn"],fk/fsun,label=r'$F_\mathrm{k}$',color="green")
     ax1.plot(d.p["xn"],fr/fsun,label=r'$F_\mathrm{r}$',color="blue")
     ax1.plot(d.p["xn"],ft/fsun,label=r'$F_\mathrm{t}$',color="black")
+
+    ax1.hlines(y=1,xmin=d.p['xn'].min(),xmax=d.p['xn'].max(),linestyle='--',color='black')
     ax1.set_ylim(fmin,fmax)
     ax1.set_xlabel("$x - R_{\odot} \ [\mathrm{Mm}]$")
     ax1.set_ylabel("$F/F_{\odot}$")
@@ -155,7 +160,7 @@ for n in range(n0,nd+1):
     #ax3.set_yscale('log')
     ax3.legend()
 
-    ax4.plot(semt[:,n-n0])
+    ax4.plot(semt[:,n-n0]+se0)
     
     
     if n == n0:
@@ -228,6 +233,8 @@ ax23.set_title("Full convection zone")
 ax23.legend(loc='upper left',prop={'size': 15})
 ax23.annotate(s="t="+"{:.2f}".format(t/3600./24.)+" [day]"\
                  ,xy=[0.01,0.01],xycoords="figure fraction",fontsize=18)
+
+ax23.hlines(y=1,xmin=xmin/rsun,xmax=xmax/rsun,linestyle='--',color='black')
 
 ax24.plot(xn,ff/fsun,color="red")
 ax24.plot(xn,fk/fsun,color="green")

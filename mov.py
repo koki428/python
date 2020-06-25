@@ -93,7 +93,7 @@ for n in range(n0,nd+1):
         ax1.pcolormesh(y*lfac,z*lfac,in0s.transpose(),cmap='gist_gray',vmax=3.2e10,vmin=1.e10,shading=shading)
         ax1.set_ylabel("z [Mm]")
         ax1.set_title("Emergent intensity")
-        ax3.pcolormesh(y*lfac,(x-rsun)*lfac,d.vc['tep']+te2,vmin=5000.,vmax=20000,cmap='gist_heat',shading=shading)
+        ax3.pcolormesh(y*lfac,(x-rsun)*lfac,d.vc['tep']+te2,vmin=2000.,vmax=20000,cmap='gist_heat',shading=shading)
         tus = np.roll(d.vc["tup"],[jx//2-jc],axis=1)
         ax3.contour(y*lfac,(x-rsun)*lfac,tus,levels=[1.],colors="w")
         ax3.set_title(r"$T$")
