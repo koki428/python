@@ -235,6 +235,7 @@ def upgrade_resolution(
 
     os.makedirs('../run/'+caseid+'/data/param/',exist_ok=True)
     os.makedirs('../run/'+caseid+'/data/qq/',exist_ok=True)
+    os.makedirs('../run/'+caseid+'/data/slice/',exist_ok=True)
     os.makedirs('../run/'+caseid+'/data/remap/qq/',exist_ok=True)
     os.makedirs('../run/'+caseid+'/data/remap/vl/',exist_ok=True)
     os.makedirs('../run/'+caseid+'/data/time/mhd/',exist_ok=True)
