@@ -30,6 +30,9 @@ print("Maximum time step= ",nd," time ="\
 
 plt.close('all')
 
+#n0 = 27
+#nd = 27
+
 vxrmst = np.zeros((ix,nd-n0+1))
 vyrmst = np.zeros((ix,nd-n0+1))
 vzrmst = np.zeros((ix,nd-n0+1))
@@ -57,9 +60,6 @@ ftt = np.zeros((ix,nd-n0+1))
 plt.close('all')
 plt.clf()
 
-#n0 = 2
-#nd = 2
-
 for n in range(n0,nd+1):
     print(n)
     ##############################
@@ -71,22 +71,24 @@ for n in range(n0,nd+1):
     d.read_vc(n,silent=True)
 
     print(d.vc['sem'].mean())
-    print(d.vc['rzm'].mean())
+    #print(d.vc['rzm'].mean())
+    print(d.vc['rom'].mean())
 
     ##############################    
-    fsun = 6.318e10
+    fsun = 6.306e10
     fe = np.average(d.vc["fe"],axis=1)
     fd = np.average(d.vc["fd"],axis=1)
     fk = np.average(d.vc["fk"],axis=1)
     fr = np.average(d.vc["fr"],axis=1)
-
+    fc = np.average(d.vc["fa"],axis=1)
+    
     xs = rsun - 2.e8
     ds = 2.e7
     sr = 0.5e0*(1.e0 + np.tanh((d.p["x"]-xs)/ds))
     SR, sry = np.meshgrid(sr,y,indexing="ij")
     
     ff = fd*sr + fe*(1.e0-sr)
-    ft = ff + fk + fr
+    ft = ff + fk + fr + fc
 
     vxrmst[:,n-n0] = np.sqrt(np.average(d.vc["vxrms"]**2,axis=1))
     vyrmst[:,n-n0] = np.sqrt(np.average(d.vc["vyrms"]**2,axis=1))
@@ -117,7 +119,7 @@ for n in range(n0,nd+1):
     fmin = -1.0
 
     plt.rcParams["font.size"] = 15
-    fig1 = plt.figure(200,figsize=(12,8))
+    fig1 = plt.figure(num=200,figsize=(12,8))
     ax1 = fig1.add_subplot(221)
     ax2 = fig1.add_subplot(222)
     ax3 = fig1.add_subplot(223)
@@ -129,6 +131,7 @@ for n in range(n0,nd+1):
     ax1.plot(d.p["xn"],fk/fsun,label=r'$F_\mathrm{k}$',color="green")
     ax1.plot(d.p["xn"],fr/fsun,label=r'$F_\mathrm{r}$',color="blue")
     ax1.plot(d.p["xn"],ft/fsun,label=r'$F_\mathrm{t}$',color="black")
+    ax1.plot(d.p["xn"],fc/fsun,label=r'$F_\mathrm{c}$',color="purple")
 
     ax1.hlines(y=1,xmin=d.p['xn'].min(),xmax=d.p['xn'].max(),linestyle='--',color='black')
     ax1.set_ylim(fmin,fmax)
@@ -160,7 +163,12 @@ for n in range(n0,nd+1):
     #ax3.set_yscale('log')
     ax3.legend()
 
-    ax4.plot(semt[:,n-n0]+se0)
+    hp = pr0/ro0/gx
+    semx = np.zeros(ix)
+    for i in range(1,ix):
+        semx[i] = (semt[i,n-n0] - semt[i-1,n-n0])/(x[i] - x[i-1])
+
+    ax4.plot(semx*hp/cp)
     
     
     if n == n0:
@@ -218,7 +226,7 @@ np.savez(d.p['datadir']+"est.npz"\
              )
          
 plt.rcParams["font.size"] = 15
-fig2 = plt.figure(num=2,figsize=(12,5))
+fig2 = plt.figure(num=100,figsize=(12,5))
 ax23 = fig2.add_subplot(121)
 ax24 = fig2.add_subplot(122)
 ax23.plot(xr,ff/fsun,color="red",label="$F_\mathrm{e}$")

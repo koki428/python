@@ -2,13 +2,10 @@ import R2D2
 import glob
 import os
 
-try:
-    caseid
-except NameError:
-    print("input caseid id (3 digit)")
-    caseid = 0
-    caseid = input()
-    caseid = "d"+caseid.zfill(3)
+print("input caseid id (3 digit)")
+caseid = 0
+caseid = input()
+caseid = "d"+caseid.zfill(3)
 
 datadir="../run/"+caseid+"/data/"
 
