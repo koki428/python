@@ -294,7 +294,9 @@ def upgrade_resolution(
     f.close()
 
     f = open('../run/'+caseid+'/data/cont_log.txt',mode='w')
-    f.write('This file describes the original data.\n\n')
+    f.write('The initial condition of this run is upgraded data from the other directory\n')
+    f.write('This file describes the original and the upgraded data\n\n')
+    f.write('### Original data ###\n\n')
     f.write('Server: '+self.p['server']+'\n')
     f.write('Datadir: '+self.p['datadir']+'\n')
     if end_step:
@@ -331,6 +333,46 @@ def upgrade_resolution(
 
     f.write('ix_ununi = '+str(self.p['ix_ununi'])+change_judge(ix_ununi,self,'ix_ununi',enp=False)+'\n')
     f.write('dx00 = ''{:.4e}'.format(self.p['dx00'])+change_judge(dx00,self,'dx00',enp=False)+'\n')
+
+    f.write('\n')
+    f.write('###############################################')
+    f.write('\n')
+    f.write('###############################################')
+    f.write('\n')
+    f.write('###############################################')
+    f.write('\n')
+    f.write('### Upgrade data ###')
+    f.write('\n\n')
+
+    value = xmin - self.p['rsun']
+    f.write('xmin = rsun '+sign_judge(value)+'{:.4e}'.format(abs(value))+' or '
+            +'{:.3f}'.format(xmin/self.p['rsun'])+'*rsun'
+            +change_judge(xmin,self,'xmin',enp=False)+'\n')
+    value = xmax - self.p['rsun']
+    f.write('xmax = rsun '+sign_judge(value)+'{:.4e}'.format(abs(value))+' or '
+            +'{:.3f}'.format(xmax/self.p['rsun'])+'*rsun'
+            +change_judge(xmax,self,'xmax',enp=False)+'\n')
+    f.write('ymin = '+'{:.4e}'.format(ymin)+change_judge(ymin,self,'ymin',enp=False)+'\n')
+    f.write('ymax = '+'{:.4e}'.format(ymax)+change_judge(ymax,self,'ymax',enp=False)+'\n')
+    f.write('zmin = '+'{:.4e}'.format(zmin)+change_judge(zmin,self,'ymin',enp=False)+'\n')
+    f.write('zmax = '+'{:.4e}'.format(zmax)+change_judge(zmax,self,'ymax',enp=False)+'\n')
+    f.write('\n')
+    
+    f.write('nx0*ix0 = '+str(self.up['ix'])+change_judge(self.up['ix'],self,'ix',enp=False)+'\n')
+    f.write('ny0*jx0 = '+str(self.up['jx'])+change_judge(self.up['jx'],self,'jx',enp=False)+'\n')
+    f.write('nz0*kx0 = '+str(self.up['kx'])+change_judge(self.up['kx'],self,'kx',enp=False)+'\n')
+
+    if x_ununif:
+        uniform_flag = '.true.'
+    else:
+        uniform_flag = '.false.'
+
+    f.write('uniform_flag = '+str(x_ununif) \
+            +change_judge(x_ununif,self,'ununiform_flag',enp=False)+'\n')
+
+    f.write('ix_ununi = '+str(ix_ununi)+change_judge(ix_ununi,self,'ix_ununi',enp=False)+'\n')
+    f.write('dx00 = ''{:.4e}'.format(dx00)+change_judge(dx00,self,'dx00',enp=False)+'\n')
+
     
     f.close()
     
