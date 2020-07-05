@@ -35,6 +35,9 @@ plt.close('all')
 n0 = 100
 nd = 100
 
+#n0 = 1
+#nd = 1
+
 vxrmst = np.zeros((ix,nd-n0+1))
 vyrmst = np.zeros((ix,nd-n0+1))
 vzrmst = np.zeros((ix,nd-n0+1))
@@ -82,7 +85,7 @@ for n in range(n0,nd+1):
     fd = np.average(d.vc["fd"],axis=1)
     fk = np.average(d.vc["fk"],axis=1)
     fr = np.average(d.vc["fr"],axis=1)
-    fc = np.average(d.vc["fa"],axis=1)
+    #fc = np.average(d.vc["fa"],axis=1)
     
     xs = rsun - 2.e8
     ds = 2.e7
@@ -90,7 +93,7 @@ for n in range(n0,nd+1):
     SR, sry = np.meshgrid(sr,y,indexing="ij")
     
     ff = fd*sr + fe*(1.e0-sr)
-    ft = ff + fk + fr + fc
+    ft = ff + fk + fr 
 
     vxrmst[:,n-n0] = np.sqrt(np.average(d.vc["vxrms"]**2,axis=1))
     vyrmst[:,n-n0] = np.sqrt(np.average(d.vc["vyrms"]**2,axis=1))
@@ -133,7 +136,6 @@ for n in range(n0,nd+1):
     ax1.plot(d.p["xn"],fk/fsun,label=r'$F_\mathrm{k}$',color="green")
     ax1.plot(d.p["xn"],fr/fsun,label=r'$F_\mathrm{r}$',color="blue")
     ax1.plot(d.p["xn"],ft/fsun,label=r'$F_\mathrm{t}$',color="black")
-    ax1.plot(d.p["xn"],fc/fsun,label=r'$F_\mathrm{c}$',color="purple")
 
     ax1.hlines(y=1,xmin=d.p['xn'].min(),xmax=d.p['xn'].max(),linestyle='--',color='black')
     ax1.set_ylim(fmin,fmax)
