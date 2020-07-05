@@ -206,7 +206,7 @@ def init(self, datadir):
     # read original data
     if os.path.exists(datadir+'cont_log.txt'):
         f = open(datadir+'cont_log.txt')
-        self.p['origin'] = f.readlines()[3][-5:-1]
+        self.p['origin'] = f.readlines()[6][-11:-7]
     else:
         self.p['origin'] = 'N/A'
             
