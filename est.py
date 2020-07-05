@@ -32,6 +32,8 @@ plt.close('all')
 
 #n0 = 27
 #nd = 27
+n0 = 100
+nd = 100
 
 vxrmst = np.zeros((ix,nd-n0+1))
 vyrmst = np.zeros((ix,nd-n0+1))
