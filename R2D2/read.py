@@ -533,16 +533,18 @@ def read_qq_slice(self,n,n_slice,direc,silent=False):
         n1, n2 = self.p['ix'], self.p['kx']
     if direc == 'z':
         n1, n2 = self.p['ix'], self.p['jx']
-    qq_slice = np.fromfile(f,self.p['endian']+'f',mtype*n1*n2)
+    qq_slice = np.fromfile(f,self.p['endian']+'f',(mtype+2)*n1*n2)
 
-    self.ql['ro'] = qq_slice.reshape((mtype,n1,n2),order='F')[0,:,:]
-    self.ql['vx'] = qq_slice.reshape((mtype,n1,n2),order='F')[1,:,:]
-    self.ql['vy'] = qq_slice.reshape((mtype,n1,n2),order='F')[2,:,:]
-    self.ql['vz'] = qq_slice.reshape((mtype,n1,n2),order='F')[3,:,:]
-    self.ql['bx'] = qq_slice.reshape((mtype,n1,n2),order='F')[4,:,:]
-    self.ql['by'] = qq_slice.reshape((mtype,n1,n2),order='F')[5,:,:]
-    self.ql['bz'] = qq_slice.reshape((mtype,n1,n2),order='F')[6,:,:]
-    self.ql['se'] = qq_slice.reshape((mtype,n1,n2),order='F')[7,:,:]
+    self.ql['ro'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[0,:,:]
+    self.ql['vx'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[1,:,:]
+    self.ql['vy'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[2,:,:]
+    self.ql['vz'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[3,:,:]
+    self.ql['bx'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[4,:,:]
+    self.ql['by'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[5,:,:]
+    self.ql['bz'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[6,:,:]
+    self.ql['se'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[7,:,:]
+    self.ql['pr'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[8,:,:]
+    self.ql['te'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[9,:,:]
 
     if not silent :
         print('### variales are stored in self.ql ###')
