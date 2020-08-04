@@ -209,6 +209,8 @@ def init(self, datadir):
         self.p['order_1D'] = int(orders[0])
         self.p['order_2D'] = int(orders[1])
         self.p['order_3D'] = int(orders[2])
+    else:
+        order_3D = 1
         
     # read original data
     if os.path.exists(datadir+'cont_log.txt'):
