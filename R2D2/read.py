@@ -262,6 +262,7 @@ def read_qq_select(self,xs,n,silent=False):
         self.qs["by"] = np.zeros((jx,kx))
         self.qs["bz"] = np.zeros((jx,kx))
         self.qs["se"] = np.zeros((jx,kx))
+        self.qs["ph"] = np.zeros((jx,kx))
         self.qs["pr"] = np.zeros((jx,kx))
         self.qs["te"] = np.zeros((jx,kx))
         self.qs["op"] = np.zeros((jx,kx))
@@ -285,6 +286,7 @@ def read_qq_select(self,xs,n,silent=False):
             self.qs["by"][jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[5,i0-iss[np0],:,:] 
             self.qs["bz"][jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[6,i0-iss[np0],:,:] 
             self.qs["se"][jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[7,i0-iss[np0],:,:] 
+            self.qs["ph"][jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[8,i0-iss[np0],:,:] 
         if(order_3D == 2):            
             index = [iixl[np0], mtype, jjxl[np0], kx]
             self.qs["ro"][jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[i0-iss[np0],0,:,:] 
@@ -295,6 +297,7 @@ def read_qq_select(self,xs,n,silent=False):
             self.qs["by"][jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[i0-iss[np0],5,:,:] 
             self.qs["bz"][jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[i0-iss[np0],6,:,:] 
             self.qs["se"][jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[i0-iss[np0],7,:,:] 
+            self.qs["ph"][jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[i0-iss[np0],8,:,:] 
         if(order_3D == 3):
             index = [iixl[np0], jjxl[np0], mtype, kx]
             self.qs["ro"][jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[i0-iss[np0],:,0,:] 
@@ -305,6 +308,7 @@ def read_qq_select(self,xs,n,silent=False):
             self.qs["by"][jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[i0-iss[np0],:,5,:] 
             self.qs["bz"][jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[i0-iss[np0],:,6,:] 
             self.qs["se"][jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[i0-iss[np0],:,7,:] 
+            self.qs["ph"][jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[i0-iss[np0],:,8,:] 
         if(order_3D == 4):
             index = [iixl[np0], jjxl[np0], kx, mtype]
             self.qs["ro"][jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[i0-iss[np0],:,:,0] 
@@ -315,6 +319,7 @@ def read_qq_select(self,xs,n,silent=False):
             self.qs["by"][jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[i0-iss[np0],:,:,5] 
             self.qs["bz"][jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[i0-iss[np0],:,:,6] 
             self.qs["se"][jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[i0-iss[np0],:,:,7] 
+            self.qs["ph"][jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[i0-iss[np0],:,:,8]
 
             
         self.qs["pr"][jss[np0]:jee[np0]+1,:] = qqq["pr"].reshape((iixl[np0],jjxl[np0],kx),order="F")[i0-iss[np0],:,:]
@@ -366,6 +371,7 @@ def read_qq(self,n,silent=False):
         self.qq["by"] = np.zeros((ix,jx,kx))
         self.qq["bz"] = np.zeros((ix,jx,kx))
         self.qq["se"] = np.zeros((ix,jx,kx))
+        self.qq["ph"] = np.zeros((ix,jx,kx))
         self.qq["pr"] = np.zeros((ix,jx,kx))
         self.qq["te"] = np.zeros((ix,jx,kx))
         self.qq["op"] = np.zeros((ix,jx,kx))
@@ -391,6 +397,7 @@ def read_qq(self,n,silent=False):
                 self.qq["by"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[5,:,:,:] 
                 self.qq["bz"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[6,:,:,:] 
                 self.qq["se"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[7,:,:,:] 
+                self.qq["ph"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[8,:,:,:]
             if(order_3D == 2):
                 index = [iixl[np0], mtype, jjxl[np0], kx]
                 self.qq["ro"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,0,:,:] 
@@ -401,6 +408,7 @@ def read_qq(self,n,silent=False):
                 self.qq["by"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,5,:,:] 
                 self.qq["bz"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,6,:,:] 
                 self.qq["se"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,7,:,:] 
+                self.qq["ph"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,8,:,:] 
             if(order_3D == 3):
                 index = [iixl[np0], jjxl[np0], mtype, kx]
                 self.qq["ro"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,:,0,:] 
@@ -411,6 +419,7 @@ def read_qq(self,n,silent=False):
                 self.qq["by"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,:,5,:] 
                 self.qq["bz"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,:,6,:] 
                 self.qq["se"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,:,7,:] 
+                self.qq["ph"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,:,8,:] 
             if(order_3D == 4):
                 index = [iixl[np0], jjxl[np0], kx, mtype]
                 self.qq["ro"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,:,:,0] 
@@ -421,6 +430,7 @@ def read_qq(self,n,silent=False):
                 self.qq["by"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,:,:,5] 
                 self.qq["bz"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,:,:,6] 
                 self.qq["se"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,:,:,7] 
+                self.qq["ph"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,:,:,8] 
             
             self.qq["pr"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["pr"].reshape((iixl[np0],jjxl[np0],kx),order="F")
             self.qq["te"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["te"].reshape((iixl[np0],jjxl[np0],kx),order="F")
@@ -621,8 +631,9 @@ def read_qq_slice(self,n,n_slice,direc,silent=False):
     self.ql['by'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[5,:,:]
     self.ql['bz'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[6,:,:]
     self.ql['se'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[7,:,:]
-    self.ql['pr'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[8,:,:]
-    self.ql['te'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[9,:,:]
+    self.ql['ph'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[8,:,:]
+    self.ql['pr'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[mtype+0,:,:]
+    self.ql['te'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[mthpe+1,:,:]
 
     if not silent :
         print('### variales are stored in self.ql ###')
