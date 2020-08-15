@@ -584,6 +584,8 @@ def read_qq_check(self,n,silent=False,end_step=False):
     jxg = jx + 2*margin*(self.p['ydcheck']-1)
     kxg = kx + 2*margin*(self.p['zdcheck']-1)
 
+    order_3D = self.p["order_3D"]
+    
     step = '{0:08d}'.format(n)
     if end_step:
         if np.mod(self.p['nd'],2) == 0:
@@ -592,7 +594,16 @@ def read_qq_check(self,n,silent=False,end_step=False):
             step = 'o'
 
     f = open(self.p['datadir']+"qq/qq.dac."+step,'rb')
-    self.qc = np.fromfile(f,self.p['endian']+'d',mtype*ixg*jxg*kxg).reshape((mtype,ixg,jxg,kxg),order="F")    
+    print(order_3D)
+    if(order_3D == 1):
+        self.qc = np.fromfile(f,self.p['endian']+'d',mtype*ixg*jxg*kxg).reshape((mtype,ixg,jxg,kxg),order="F")    
+    if(order_3D == 2):
+        self.qc = np.fromfile(f,self.p['endian']+'d',mtype*ixg*jxg*kxg).reshape((ixg,mtype,jxg,kxg),order="F")    
+    if(order_3D == 3):
+        self.qc = np.fromfile(f,self.p['endian']+'d',mtype*ixg*jxg*kxg).reshape((ixg,jxg,mtype,kxg),order="F")    
+    if(order_3D == 4):
+        self.qc = np.fromfile(f,self.p['endian']+'d',mtype*ixg*jxg*kxg).reshape((ixg,jxg,kxg,mtype),order="F")    
+
     f.close()
     
     if not silent :
@@ -623,6 +634,7 @@ def read_qq_slice(self,n,n_slice,direc,silent=False):
         n1, n2 = self.p['ix'], self.p['jx']
     qq_slice = np.fromfile(f,self.p['endian']+'f',(mtype+2)*n1*n2)
 
+    
     self.ql['ro'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[0,:,:]
     self.ql['vx'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[1,:,:]
     self.ql['vy'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[2,:,:]
