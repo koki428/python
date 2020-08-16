@@ -36,6 +36,18 @@ plt.close('all')
 #n0 = 1
 #nd = 1
 
+if geometry == 'Spherical':
+    xx,yy = np.meshgrid(x,y,indexing='ij')
+    sinyy = sin(yy)
+    sinyym = np.average(sinyy,axis=1)
+
+    xx,yy_flux = np.meshgrid(x_flux,y,indexing='ij')
+    sinyy_flux = sin(yy_flux)
+    sinyym_flux = np.average(sinyy_flux,axis=1)
+else:
+    sinyy = 1
+    sinyym = 1.
+    
 vxrmst = np.zeros((ix,nd-n0+1))
 vyrmst = np.zeros((ix,nd-n0+1))
 vzrmst = np.zeros((ix,nd-n0+1))
@@ -54,11 +66,11 @@ semt = np.zeros((ix,nd-n0+1))
 prmt = np.zeros((ix,nd-n0+1))
 temt = np.zeros((ix,nd-n0+1))
 
-fet = np.zeros((ix,nd-n0+1))
-fdt = np.zeros((ix,nd-n0+1))
-fkt = np.zeros((ix,nd-n0+1))
-frt = np.zeros((ix,nd-n0+1))
-ftt = np.zeros((ix,nd-n0+1))
+fet = np.zeros((ix+1,nd-n0+1))
+fdt = np.zeros((ix+1,nd-n0+1))
+fkt = np.zeros((ix+1,nd-n0+1))
+frt = np.zeros((ix+1,nd-n0+1))
+ftt = np.zeros((ix+1,nd-n0+1))
 
 plt.close('all')
 plt.clf()
@@ -79,37 +91,44 @@ for n in range(n0,nd+1):
 
     ##############################    
     fsun = 6.306e10
-    fe = np.average(d.vc["fe"],axis=1)
-    fd = np.average(d.vc["fd"],axis=1)
-    fk = np.average(d.vc["fk"],axis=1)
-    fr = np.average(d.vc["fr"],axis=1)
+    if geometry == 'Spherical':
+        fsun = 3.86e33/pi/4
+        fe = np.average(d.vc["fe"]*sinyy_flux,axis=1)/sinyym_flux*x_flux**2
+        fd = np.average(d.vc["fd"]*sinyy_flux,axis=1)/sinyym_flux*x_flux**2
+        fk = np.average(d.vc["fk"]*sinyy_flux,axis=1)/sinyym_flux*x_flux**2
+        fr = np.average(d.vc["fr"]*sinyy_flux,axis=1)/sinyym_flux
+    else:
+        fe = np.average(d.vc["fe"],axis=1)/sinyym
+        fd = np.average(d.vc["fd"],axis=1)/sinyym
+        fk = np.average(d.vc["fk"],axis=1)/sinyym
+        fr = np.average(d.vc["fr"],axis=1)/sinyym
     #fc = np.average(d.vc["fa"],axis=1)
     
     xs = rsun - 2.e8
     ds = 2.e7
-    sr = 0.5e0*(1.e0 + np.tanh((d.p["x"]-xs)/ds))
+    sr = 0.5e0*(1.e0 + np.tanh((x_flux-xs)/ds))
     SR, sry = np.meshgrid(sr,y,indexing="ij")
     
     ff = fd*sr + fe*(1.e0-sr)
     ft = ff + fk + fr 
 
-    vxrmst[:,n-n0] = np.sqrt(np.average(d.vc["vxrms"]**2,axis=1))
-    vyrmst[:,n-n0] = np.sqrt(np.average(d.vc["vyrms"]**2,axis=1))
-    vzrmst[:,n-n0] = np.sqrt(np.average(d.vc["vzrms"]**2,axis=1))
+    vxrmst[:,n-n0] = np.sqrt(np.average(d.vc["vxrms"]**2*sinyy,axis=1))/sinyym
+    vyrmst[:,n-n0] = np.sqrt(np.average(d.vc["vyrms"]**2*sinyy,axis=1))/sinyym
+    vzrmst[:,n-n0] = np.sqrt(np.average(d.vc["vzrms"]**2*sinyy,axis=1))/sinyym
 
-    bxrmst[:,n-n0] = np.sqrt(np.average(d.vc["bxrms"]**2,axis=1))
-    byrmst[:,n-n0] = np.sqrt(np.average(d.vc["byrms"]**2,axis=1))
-    bzrmst[:,n-n0] = np.sqrt(np.average(d.vc["bzrms"]**2,axis=1))
+    bxrmst[:,n-n0] = np.sqrt(np.average(d.vc["bxrms"]**2*sinyy,axis=1))/sinyym
+    byrmst[:,n-n0] = np.sqrt(np.average(d.vc["byrms"]**2*sinyy,axis=1))/sinyym
+    bzrmst[:,n-n0] = np.sqrt(np.average(d.vc["bzrms"]**2*sinyy,axis=1))/sinyym
 
-    rormst[:,n-n0] = np.sqrt(np.average(d.vc["rorms"]**2,axis=1))
-    sermst[:,n-n0] = np.sqrt(np.average(d.vc["serms"]**2,axis=1))
-    prrmst[:,n-n0] = np.sqrt(np.average(d.vc["prrms"]**2,axis=1))
-    termst[:,n-n0] = np.sqrt(np.average(d.vc["terms"]**2,axis=1))
+    rormst[:,n-n0] = np.sqrt(np.average(d.vc["rorms"]**2*sinyy,axis=1))/sinyym
+    sermst[:,n-n0] = np.sqrt(np.average(d.vc["serms"]**2*sinyy,axis=1))/sinyym
+    prrmst[:,n-n0] = np.sqrt(np.average(d.vc["prrms"]**2*sinyy,axis=1))/sinyym
+    termst[:,n-n0] = np.sqrt(np.average(d.vc["terms"]**2*sinyy,axis=1))/sinyym
 
-    romt[:,n-n0] = np.average(d.vc["rom"],axis=1)
-    semt[:,n-n0] = np.average(d.vc["sem"],axis=1)
-    prmt[:,n-n0] = np.average(d.vc["prm"],axis=1)
-    temt[:,n-n0] = np.average(d.vc["tem"],axis=1)
+    romt[:,n-n0] = np.average(d.vc["rom"]*sinyy,axis=1)/sinyym
+    semt[:,n-n0] = np.average(d.vc["sem"]*sinyy,axis=1)/sinyym
+    prmt[:,n-n0] = np.average(d.vc["prm"]*sinyy,axis=1)/sinyym
+    temt[:,n-n0] = np.average(d.vc["tem"]*sinyy,axis=1)/sinyym
 
     fet[:,n-n0] = fe
     fdt[:,n-n0] = fd
@@ -130,14 +149,24 @@ for n in range(n0,nd+1):
 
 
     #####################
-    ax1.plot(d.p["xn"],ff/fsun,label=r'$F_\mathrm{e}$',color="red")
-    ax1.plot(d.p["xn"],fk/fsun,label=r'$F_\mathrm{k}$',color="green")
-    ax1.plot(d.p["xn"],fr/fsun,label=r'$F_\mathrm{r}$',color="blue")
-    ax1.plot(d.p["xn"],ft/fsun,label=r'$F_\mathrm{t}$',color="black")
+    if geometry == 'Spherical':
+        xp = x_flux/rsun
+        xlabel = r'$r/R_\odot$'
+        xpp = x/rsun
+    else:
+        xp = (x_flux - rsun)*1.e-8
+        xpp = (x - rsun)*1.e-8
+        xlabel = r'$x-R_\odot\ \mathrm{[Mm]}$'
 
-    ax1.hlines(y=1,xmin=d.p['xn'].min(),xmax=d.p['xn'].max(),linestyle='--',color='black')
+        
+    ax1.plot(xp,ff/fsun,label=r'$F_\mathrm{e}$',color="red")
+    ax1.plot(xp,fk/fsun,label=r'$F_\mathrm{k}$',color="green")
+    ax1.plot(xp,fr/fsun,label=r'$F_\mathrm{r}$',color="blue")
+    ax1.plot(xp,ft/fsun,label=r'$F_\mathrm{t}$',color="black")
+
+    ax1.hlines(y=1,xmin=xp.min(),xmax=xp.max(),linestyle='--',color='black')
     ax1.set_ylim(fmin,fmax)
-    ax1.set_xlabel("$x - R_{\odot} \ [\mathrm{Mm}]$")
+    ax1.set_xlabel(xlabel)
     ax1.set_ylabel("$F/F_{\odot}$")
     ax1.set_title("Energy fluxes")
     ax1.legend()
@@ -145,9 +174,9 @@ for n in range(n0,nd+1):
     #####################
     vxrms = np.sqrt((d.vc['vxrms']**2).mean(axis=1))
     vhrms = np.sqrt((d.vc['vyrms']**2 + d.vc['vzrms']**2).mean(axis=1))
-    ax2.plot(d.p['xn'],vxrms*1.e-5,label=r'$v_{x\mathrm{(rms)}}$',color='blue')
-    ax2.plot(d.p['xn'],vhrms*1.e-5,label=r'$v_\mathrm{h(rms)}$',color='red')
-    ax2.set_xlabel(r"$x - R_{\odot} \ [\mathrm{Mm}]$")
+    ax2.plot(xpp,vxrms*1.e-5,label=r'$v_{x\mathrm{(rms)}}$',color='blue')
+    ax2.plot(xpp,vhrms*1.e-5,label=r'$v_\mathrm{h(rms)}$',color='red')
+    ax2.set_xlabel(xlabel)
     ax2.set_ylabel(r"velocities [km/s]")
     ax2.set_label('RMS velocities')
     if deep_flag == 0:
@@ -157,9 +186,9 @@ for n in range(n0,nd+1):
     #####################
     bxrms = np.sqrt((d.vc['bxrms']**2).mean(axis=1))
     bhrms = np.sqrt((d.vc['byrms']**2 + d.vc['bzrms']**2).mean(axis=1))
-    ax3.plot(d.p['xn'],bxrms,label=r'$B_{x\mathrm{(rms)}}$',color='blue')
-    ax3.plot(d.p['xn'],bhrms,label=r'$B_\mathrm{h(rms)}$',color='red')
-    ax3.set_xlabel(r"$x - R_{\odot} \ [\mathrm{Mm}]$")
+    ax3.plot(xpp,bxrms,label=r'$B_{x\mathrm{(rms)}}$',color='blue')
+    ax3.plot(xpp,bhrms,label=r'$B_\mathrm{h(rms)}$',color='red')
+    ax3.set_xlabel(xlabel)
     ax3.set_ylabel(r"Magnetic field [G]")
     ax3.set_label('RMS magnetic field')
     #ax3.set_yscale('log')
@@ -231,13 +260,13 @@ plt.rcParams["font.size"] = 15
 fig2 = plt.figure(num=100,figsize=(12,5))
 ax23 = fig2.add_subplot(121)
 ax24 = fig2.add_subplot(122)
-ax23.plot(xr,ff/fsun,color="red",label="$F_\mathrm{e}$")
-ax23.plot(xr,fk/fsun,color="green",label="$F_\mathrm{k}$")
-ax23.plot(xr,fr/fsun,color="blue",label="$F_\mathrm{r}$")
-ax23.plot(xr,ft/fsun,color="black",label="$F_\mathrm{t}$")
-ax23.set_xlim(xmin/rsun,xmax/rsun)
+ax23.plot(xp,ff/fsun,color="red",label="$F_\mathrm{e}$")
+ax23.plot(xp,fk/fsun,color="green",label="$F_\mathrm{k}$")
+ax23.plot(xp,fr/fsun,color="blue",label="$F_\mathrm{r}$")
+ax23.plot(xp,ft/fsun,color="black",label="$F_\mathrm{t}$")
+#ax23.set_xlim(xmin/rsun,xmax/rsun)
 ax23.set_ylim(fmin,fmax)
-ax23.set_xlabel("$x/R_{\odot}$")
+ax23.set_xlabel(xlabel)
 ax23.set_ylabel("$F/F_{\odot}$")
 ax23.set_title("Full convection zone")
 ax23.legend(loc='upper left',prop={'size': 15})
@@ -246,11 +275,10 @@ ax23.annotate(s="t="+"{:.2f}".format(t/3600./24.)+" [day]"\
 
 ax23.hlines(y=1,xmin=xmin/rsun,xmax=xmax/rsun,linestyle='--',color='black')
 
-ax24.plot(xn,ff/fsun,color="red")
-ax24.plot(xn,fk/fsun,color="green")
-ax24.plot(xn,fr/fsun,color="blue")
-ax24.plot(xn,ft/fsun,color="black")
-ax24.set_xlim(-20,1)
+ax24.plot(x_flux,ff/fsun,color="red")
+ax24.plot(x_flux,fk/fsun,color="green")
+ax24.plot(x_flux,fr/fsun,color="blue")
+ax24.plot(x_flux,ft/fsun,color="black")
 ax24.set_ylim(fmin,fmax)
 ax24.set_xlabel("$x - R_{\odot} \ [\mathrm{Mm}]$")
 ax24.set_ylabel("$F/F_{\odot}$")

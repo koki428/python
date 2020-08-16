@@ -114,6 +114,10 @@ def init(self, datadir):
     self.p['yg'] = back['y'].reshape((jxg),order='F')
     self.p['zg'] = back['z'].reshape((kxg),order='F')
 
+    self.p['x_flux'] = np.zeros(self.p["ix"]+1)
+    for i in range(0,self.p["ix"]+1):
+        self.p['x_flux'][i] = 0.5*(self.p['xg'][i+self.p['margin']] + self.p['xg'][i+self.p['margin']-1])
+    
     self.p['ro0g'] = back['ro0'].reshape((ixg),order='F')
     self.p['se0g'] = back['se0'].reshape((ixg),order='F')
     
@@ -127,7 +131,6 @@ def init(self, datadir):
             
     self.p["rsun"] = 6.9598947e+10
     self.p["xr"] = self.p["x"]/self.p["rsun"]
-    self.p["xn"] = (self.p["x"]-self.p["rsun"])*1.e-8
     
     if self.p['zdcheck'] == 2:
         dimension = '3d'
@@ -138,9 +141,11 @@ def init(self, datadir):
     # read value information
     if dimension == "3d":
         f = open(self.p['datadir']+"remap/vl/c.dac","r")
-        value = f.read().split('\n')
+        value = f.read().split()
         self.p["m2da"] = int(value[0])
+        self.p["m2d_flux"] = int(value[1])
         del value[0]
+        del value[1]
         self.p["cl"] = list(map(str.strip,value)) ## strip space from character
         f.close()
 
@@ -557,6 +562,14 @@ def read_vc(self,n,silent=False):
     for m in range(self.p["m2da"]):
         self.vc[self.p["cl"][m]] = vl[:,:,m]
 
+    f = open(self.p['datadir']+"remap/vl/vl_flux.dac."+'{0:08d}'.format(n),"rb")
+    vl = np.fromfile(f,self.p["endian"]+'f',self.p['m2d_flux']*(self.p['ix']+1)*self.p['jx']) \
+           .reshape((self.p['ix']+1,self.p['jx'],self.p['m2d_flux']),order="F")
+    f.close()
+
+    for m in range(self.p["m2d_flux"]):
+        self.vc[self.p["cl"][m+self.p["m2da"]]] = vl[:,:,m]
+        
     if not silent :
         print('### variales are stored in self.vc ###')
 
