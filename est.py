@@ -96,7 +96,7 @@ for n in range(n0,nd+1):
         fe = np.average(d.vc["fe"]*sinyy_flux,axis=1)/sinyym_flux*x_flux**2
         fd = np.average(d.vc["fd"]*sinyy_flux,axis=1)/sinyym_flux*x_flux**2
         fk = np.average(d.vc["fk"]*sinyy_flux,axis=1)/sinyym_flux*x_flux**2
-        fr = np.average(d.vc["fr"]*sinyy_flux,axis=1)/sinyym_flux
+        fr = np.average(d.vc["fr"]*sinyy_flux,axis=1)/sinyym_flux*x_flux**2
     else:
         fe = np.average(d.vc["fe"],axis=1)/sinyym
         fd = np.average(d.vc["fd"],axis=1)/sinyym
