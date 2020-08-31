@@ -1,7 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.gridspec import GridSpec
-from mpl_toolkits.basemap import Basemap
 import R2D2
 import sys
 import os
@@ -92,10 +90,16 @@ for n in range(n0,nd+1):
     sem, tmp   = np.meshgrid((d.vc['sem']*SINY).sum(axis=1)/SINYM,y,indexing='ij')
     serms, tmp = np.meshgrid(sqrt((d.vc['serms']**2*SINY).sum(axis=1)/SINYM),y,indexing='ij')
     bbp = sqrt(d.vc['bxp']**2 + d.vc['byp']**2 + d.vc['bzp']**2)
+    om = d.vc['vzm']/RA/sin(TH)
     
+    if serms.max() != 0:
+        se_plot = (d.vc['sep']-sem)/serms
+    else:
+        se_plot = np.zeros((ix,jx))
+
     lfac = 1/rsun
-    ax3.pcolormesh(XX.T*lfac,YY.T*lfac,((d.vc['sep']-sem)/serms).T,vmin=-2.,vmax=2.)
-    ax4.pcolormesh(XX.T*lfac,YY.T*lfac,bbp.T)
+    ax3.pcolormesh(XX.T*lfac,YY.T*lfac,se_plot.T,vmin=-2.,vmax=2.)
+    ax4.pcolormesh(XX.T*lfac,YY.T*lfac,om.T)
     
     if(n == n0):
         fig.tight_layout()

@@ -29,10 +29,10 @@ def init_gspread(json_key,project):
     wks.update_acell('C1', '(ix,jx,kx)')
     wks.update_acell('D1', 'xmin [Mm]')
     wks.update_acell('E1', 'xmax [Mm]')
-    wks.update_acell('F1', 'ymin [Mm]')
-    wks.update_acell('G1', 'ymax [Mm]')
-    wks.update_acell('H1', 'zmin [Mm]')
-    wks.update_acell('I1', 'zmax [Mm]')
+    wks.update_acell('F1', 'ymin')
+    wks.update_acell('G1', 'ymax')
+    wks.update_acell('H1', 'zmin')
+    wks.update_acell('I1', 'zmax')
     wks.update_acell('J1', 'uniform')
     wks.update_acell('K1', 'dx [km]')
     wks.update_acell('L1', 'm ray')
@@ -60,6 +60,7 @@ def out_gspread(self,caseid,json_key,project):
     '''
     import datetime
     import gspread
+    import numpy as np
     
     from oauth2client.service_account import ServiceAccountCredentials
 
@@ -77,10 +78,20 @@ def out_gspread(self,caseid,json_key,project):
     wks.update_acell('C'+str_id, str(self.p['ix'])+' '+str(self.p['jx'])+' '+str(self.p['kx']))
     wks.update_acell('D'+str_id, '{:6.2f}'.format((self.p['xmin']-self.p['rsun'])*1.e-8))
     wks.update_acell('E'+str_id, '{:6.2f}'.format((self.p['xmax']-self.p['rsun'])*1.e-8))
-    wks.update_acell('F'+str_id, '{:6.2f}'.format(self.p['ymin']*1.e-8))
-    wks.update_acell('G'+str_id, '{:6.2f}'.format(self.p['ymax']*1.e-8))
-    wks.update_acell('H'+str_id, '{:6.2f}'.format(self.p['zmin']*1.e-8))
-    wks.update_acell('I'+str_id, '{:6.2f}'.format(self.p['zmax']*1.e-8))
+
+    if self.p['geometry'] == 'Cartesian':
+        wks.update_acell('F'+str_id, '{:6.2f}'.format(self.p['ymin']*1.e-8)+' [Mm]')
+        wks.update_acell('G'+str_id, '{:6.2f}'.format(self.p['ymax']*1.e-8)+' [Mm]')
+        wks.update_acell('H'+str_id, '{:6.2f}'.format(self.p['zmin']*1.e-8)+' [Mm]')
+        wks.update_acell('I'+str_id, '{:6.2f}'.format(self.p['zmax']*1.e-8)+' [Mm]')
+
+    if self.p['geometry'] == 'Spherical':
+        pi2rad = 180/np.pi
+        wks.update_acell('F'+str_id, '{:6.2f}'.format(self.p['ymin']*pi2rad)+' [rad]')
+        wks.update_acell('G'+str_id, '{:6.2f}'.format(self.p['ymax']*pi2rad)+' [rad]')
+        wks.update_acell('H'+str_id, '{:6.2f}'.format(self.p['zmin']*pi2rad)+' [rad]')
+        wks.update_acell('I'+str_id, '{:6.2f}'.format(self.p['zmax']*pi2rad)+' [rad]')
+
     if ((self.p['x'][1] - self.p['x'][0]) == (self.p['x'][self.p['ix']-1] - self.p['x'][self.p['ix']-2])):
         wks.update_acell('J'+str_id,'T')
     else:

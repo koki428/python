@@ -199,7 +199,8 @@ for n in range(n0,nd+1):
     for i in range(1,ix):
         semx[i] = (semt[i,n-n0] - semt[i-1,n-n0])/(x[i] - x[i-1])
 
-    ax4.plot(semx*hp/cp)
+    #ax4.plot(semx*hp/cp)
+    ax4.plot(x/rsun,semt[:,n-n0])
     
     
     if n == n0:

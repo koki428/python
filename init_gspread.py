@@ -2,10 +2,11 @@ import R2D2
 import glob
 import os
 
-print("input caseid id (3 digit) or type stay")
+print("input caseid id (3 digit) or just type enter")
 caseid_tmp = 0
 caseid_tmp = input()
-if caseid_tmp != 'stay':
+print(caseid_tmp)
+if caseid_tmp != '':
     caseid = "d"+caseid_tmp.zfill(3)
 
 datadir="../run/"+caseid+"/data/"

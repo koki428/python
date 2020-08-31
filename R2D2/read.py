@@ -658,7 +658,7 @@ def read_qq_slice(self,n,n_slice,direc,silent=False):
     self.ql['se'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[7,:,:]
     self.ql['ph'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[8,:,:]
     self.ql['pr'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[mtype+0,:,:]
-    self.ql['te'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[mthpe+1,:,:]
+    self.ql['te'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[mtype+1,:,:]
 
     if not silent :
         print('### variales are stored in self.ql ###')
