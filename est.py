@@ -30,8 +30,8 @@ print("Maximum time step= ",nd," time ="\
 
 plt.close('all')
 
-#n0 = 27
-#nd = 27
+#n0 = 20
+#nd = 40
 
 #n0 = 1
 #nd = 1
@@ -65,6 +65,7 @@ romt = np.zeros((ix,nd-n0+1))
 semt = np.zeros((ix,nd-n0+1))
 prmt = np.zeros((ix,nd-n0+1))
 temt = np.zeros((ix,nd-n0+1))
+
 
 fet = np.zeros((ix+1,nd-n0+1))
 fdt = np.zeros((ix+1,nd-n0+1))
@@ -141,7 +142,7 @@ for n in range(n0,nd+1):
     fmin = -1.0
 
     plt.rcParams["font.size"] = 15
-    fig1 = plt.figure(num=200,figsize=(12,8))
+    fig1 = plt.figure(num='est',figsize=(12,8))
     ax1 = fig1.add_subplot(221)
     ax2 = fig1.add_subplot(222)
     ax3 = fig1.add_subplot(223)

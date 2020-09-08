@@ -99,7 +99,6 @@ def init(self, datadir):
                     ("dendro",endian+str(ixg)+"d"),\
                     ("dendse",endian+str(ixg)+"d"),\
                     ("gx",endian+str(ixg)+"d"),\
-                    ("kp",endian+str(ixg)+"d"),\
                     ("cp",endian+str(ixg)+"d"),\
                     ("fa",endian+str(ixg)+"d"),\
                     ("sa",endian+str(ixg)+"d"),\
