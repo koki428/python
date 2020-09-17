@@ -33,8 +33,8 @@ plt.close('all')
 #n0 = 20
 #nd = 40
 
-#n0 = 1
-#nd = 1
+#n0 = 120
+#nd = 150
 
 if geometry == 'Spherical':
     xx,yy = np.meshgrid(x,y,indexing='ij')
