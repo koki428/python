@@ -28,7 +28,7 @@ subroutine interp(x,y,z,xu,yu,zu,qq,ix,jx,kx,ixu,jxu,kxu,qu)
   real(8), dimension(ixu) :: dx0,dx1
   real(8), dimension(jxu) :: dy0,dy1
   real(8), dimension(kxu) :: dz0,dz1
-
+  
   call id_loc(x,xu,ix,ixu,imin,imax,iloc,dx0,dx1)
   call id_loc(y,yu,jx,jxu,jmin,jmax,jloc,dy0,dy1)
   call id_loc(z,zu,kx,kxu,kmin,kmax,kloc,dz0,dz1)

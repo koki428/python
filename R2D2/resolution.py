@@ -16,7 +16,11 @@ def gen_coord(xmax,xmin,ix,margin):
     '''
     import numpy as np
     dx = (xmax - xmin)/ix
-    x = np.arange(xmin - (margin - 0.5)*dx,xmax + (margin + 0.5)*dx,dx)
+    x = np.zeros(ix+margin*2)
+    x[0] = xmin - (margin - 0.5)*dx
+    for i in range(1,ix+2*margin):
+        x[i] = x[i-1] + dx
+    #x = np.arange(xmin - (margin - 0.5)*dx,xmax + (margin + 0.5)*dx,dx)
 
     return x
 
@@ -186,6 +190,7 @@ def upgrade_resolution(
     from scipy.interpolate import RegularGridInterpolator
     import R2D2.regrid
     from . import common
+    import sys
 
     self.up = {}
 
@@ -212,7 +217,7 @@ def upgrade_resolution(
     self.up['ixg'] = self.up['ix'] + 2*self.p['margin']
     self.up['jxg'] = self.up['jx'] + 2*self.p['margin']
     self.up['kxg'] = self.up['kx'] + 2*self.p['margin']
-
+    
     if x_ununif:
         ## generate upgraded coordinate in ununiform geometry
         self.up['x'] = gen_coord_ununiform_top(xmax,xmin,self.up['ix'],self.p['margin'],dx00,ix_ununi)
@@ -223,7 +228,7 @@ def upgrade_resolution(
     ## generate upgraded coordinate
     self.up['y'] = gen_coord(ymax,ymin,self.up['jx'],self.p['margin'])
     self.up['z'] = gen_coord(zmax,zmin,self.up['kx'],self.p['margin'])
-
+    
     ## read checkpoint data of original case
     self.read_qq_check(n,silent=True,end_step=end_step)
 
@@ -231,7 +236,7 @@ def upgrade_resolution(
     if memory_saving:
         self.qu = np.zeros((self.up['ixg'],self.up['jxg'],self.up['kxg']))
     else:
-        self.qu = np.zeros((self.p['mtype'],self.up['ixg'],self.up['jxg'],self.up['kxg']))
+        self.qu = np.zeros((self.up['ixg'],self.up['jxg'],self.up['kxg'],self.p['mtype']))
 
     os.makedirs('../run/'+caseid+'/data/param/',exist_ok=True)
     os.makedirs('../run/'+caseid+'/data/qq/',exist_ok=True)
@@ -246,16 +251,16 @@ def upgrade_resolution(
         if memory_saving:
             self.qu = R2D2.regrid.interp(self.p['xg'],self.p['yg'],self.p['zg'], \
                                                 self.up['x'],self.up['y'],self.up['z'], \
-                                                self.qc[m,:,:,:], \
+                                                self.qc[:,:,:,m], \
                                                 self.p['xg'].size,self.p['yg'].size,self.p['zg'].size, \
                                                 self.up['x'].size,self.up['y'].size,self.up['z'].size )
             self.qu.reshape([self.up['ixg']*self.up['jxg']*self.up['kxg']] \
                             ,order='F').astype(endian+'d').tofile('../run/'+caseid+'/data/qq/qq'+'{0:02d}'.format(m)+'.dac.e')
             
         else:
-            self.qu[m,:,:,:] = R2D2.regrid.interp(self.p['xg'],self.p['yg'],self.p['zg'], \
+            self.qu[:,:,:,m] = R2D2.regrid.interp(self.p['xg'],self.p['yg'],self.p['zg'], \
                                                   self.up['x'],self.up['y'],self.up['z'], \
-                                                  self.qc[m,:,:,:], \
+                                                  self.qc[:,:,:,m], \
                                                   self.p['xg'].size,self.p['yg'].size,self.p['zg'].size, \
                                                   self.up['x'].size,self.up['y'].size,self.up['z'].size )
             
