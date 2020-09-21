@@ -118,7 +118,6 @@ def gen_coord_ununiform_flex(xmax,xmin,ix,margin,dx_fine,ix_fine,xc_fine):
         # number of shift
         ix_shift = np.int((xct - xmin)//dx_low) + ix_fine//2
 
-    print(ix_shift)
     # Grid construction start from center of fine grid
     x[margin + ix_shift] = xc_fine + 0.5*dx_fine
     for i in range(1,ix):
@@ -191,6 +190,7 @@ def upgrade_resolution(
     import R2D2.regrid
     from . import common
     import sys
+    from tqdm import tqdm
 
     self.up = {}
 
@@ -205,7 +205,10 @@ def upgrade_resolution(
     
     ## check if the destination directory
     ## if not this method finishes
-    if not os.path.exists('../run/'+caseid):
+    if os.path.exists('../run/'+caseid):
+        print('The destination directory '+caseid+' already exist. stop..')
+        return
+    else:
         os.system('rsync -avP --exclude="data" '+self.p['datadir'][:-6]+'/'+' ../run/'+caseid)
 
     ## number of grid after upgrade
@@ -246,8 +249,9 @@ def upgrade_resolution(
     os.makedirs('../run/'+caseid+'/data/time/mhd/',exist_ok=True)
     os.makedirs('../run/'+caseid+'/data/time/tau/',exist_ok=True)
     os.makedirs('../run/'+caseid+'/data/tau/',exist_ok=True)
-        
-    for m in range(0,self.p['mtype']):
+
+    print('### Upgrade starts ###')
+    for m in tqdm(range(0,self.p['mtype'])):
         if memory_saving:
             self.qu = R2D2.regrid.interp(self.p['xg'],self.p['yg'],self.p['zg'], \
                                                 self.up['x'],self.up['y'],self.up['z'], \
@@ -264,8 +268,6 @@ def upgrade_resolution(
                                                   self.p['xg'].size,self.p['yg'].size,self.p['zg'].size, \
                                                   self.up['x'].size,self.up['y'].size,self.up['z'].size )
             
-        print(str(m)+' finished...')
-
 
     if not memory_saving:
         self.qu.reshape([self.p['mtype']*self.up['ixg']*self.up['jxg']*self.up['kxg']] \
@@ -318,10 +320,18 @@ def upgrade_resolution(
     f.write('xmax = rsun '+sign_judge(value)+'{:.4e}'.format(abs(value))+' or '
             +'{:.3f}'.format(self.p['xmax']/self.p['rsun'])+'*rsun'
             +change_judge(xmax,self,'xmax',enp=False)+'\n')
-    f.write('ymin = '+'{:.4e}'.format(self.p['ymin'])+change_judge(ymin,self,'ymin',enp=False)+'\n')
-    f.write('ymax = '+'{:.4e}'.format(self.p['ymax'])+change_judge(ymax,self,'ymax',enp=False)+'\n')
-    f.write('zmin = '+'{:.4e}'.format(self.p['zmin'])+change_judge(zmin,self,'ymin',enp=False)+'\n')
-    f.write('zmax = '+'{:.4e}'.format(self.p['zmax'])+change_judge(zmax,self,'ymax',enp=False)+'\n')
+    print(self.p['geometry'])
+    if self.p['geometry'] == 'Spherical':
+        print(self.p['ymin']/np.pi*180)
+        f.write('ymin = '+'{:.4e}'.format(self.p['ymin']/np.pi*180)+' [rad] '+change_judge(ymin,self,'ymin',enp=False)+'\n')
+        f.write('ymax = '+'{:.4e}'.format(self.p['ymax']/np.pi*180)+' [rad] '+change_judge(ymax,self,'ymax',enp=False)+'\n')
+        f.write('zmin = '+'{:.4e}'.format(self.p['zmin']/np.pi*180)+' [rad] '+change_judge(zmin,self,'zmin',enp=False)+'\n')
+        f.write('zmax = '+'{:.4e}'.format(self.p['zmax']/np.pi*180)+' [rad] '+change_judge(zmax,self,'zmax',enp=False)+'\n')
+    else:
+        f.write('ymin = '+'{:.4e}'.format(self.p['ymin'])+change_judge(ymin,self,'ymin',enp=False)+'\n')
+        f.write('ymax = '+'{:.4e}'.format(self.p['ymax'])+change_judge(ymax,self,'ymax',enp=False)+'\n')
+        f.write('zmin = '+'{:.4e}'.format(self.p['zmin'])+change_judge(zmin,self,'zmin',enp=False)+'\n')
+        f.write('zmax = '+'{:.4e}'.format(self.p['zmax'])+change_judge(zmax,self,'zmax',enp=False)+'\n')
     f.write('\n')
     
     f.write('nx0*ix0 = '+str(self.p['ix'])+change_judge(self.up['ix'],self,'ix',enp=False)+'\n')
@@ -357,11 +367,19 @@ def upgrade_resolution(
     f.write('xmax = rsun '+sign_judge(value)+'{:.4e}'.format(abs(value))+' or '
             +'{:.3f}'.format(xmax/self.p['rsun'])+'*rsun'
             +change_judge(xmax,self,'xmax',enp=False)+'\n')
-    f.write('ymin = '+'{:.4e}'.format(ymin)+change_judge(ymin,self,'ymin',enp=False)+'\n')
-    f.write('ymax = '+'{:.4e}'.format(ymax)+change_judge(ymax,self,'ymax',enp=False)+'\n')
-    f.write('zmin = '+'{:.4e}'.format(zmin)+change_judge(zmin,self,'ymin',enp=False)+'\n')
-    f.write('zmax = '+'{:.4e}'.format(zmax)+change_judge(zmax,self,'ymax',enp=False)+'\n')
-    f.write('\n')
+
+    if self.p['geometry'] == 'Spherical':
+        f.write('ymin = '+'{:.4e}'.format(ymin/np.pi*180)+' [rad] '+change_judge(ymin,self,'ymin',enp=False)+'\n')
+        f.write('ymax = '+'{:.4e}'.format(ymax/np.pi*180)+' [rad] '+change_judge(ymax,self,'ymax',enp=False)+'\n')
+        f.write('zmin = '+'{:.4e}'.format(zmin/np.pi*180)+' [rad] '+change_judge(zmin,self,'zmin',enp=False)+'\n')
+        f.write('zmax = '+'{:.4e}'.format(zmax/np.pi*180)+' [rad] '+change_judge(zmax,self,'zmax',enp=False)+'\n')
+    else:
+        f.write('ymin = '+'{:.4e}'.format(ymin)+change_judge(ymin,self,'ymin',enp=False)+'\n')
+        f.write('ymax = '+'{:.4e}'.format(ymax)+change_judge(ymax,self,'ymax',enp=False)+'\n')
+        f.write('zmin = '+'{:.4e}'.format(zmin)+change_judge(zmin,self,'zmin',enp=False)+'\n')
+        f.write('zmax = '+'{:.4e}'.format(zmax)+change_judge(zmax,self,'zmax',enp=False)+'\n')
+        
+        f.write('\n')
     
     f.write('nx0*ix0 = '+str(self.up['ix'])+change_judge(self.up['ix'],self,'ix',enp=False)+'\n')
     f.write('ny0*jx0 = '+str(self.up['jx'])+change_judge(self.up['jx'],self,'jx',enp=False)+'\n')
@@ -396,10 +414,18 @@ def upgrade_resolution(
     print('xmax = rsun '+sign_judge(value),'{:.4e}'.format(abs(value)),' or '
           ,'{:.3f}'.format(xmax/self.p['rsun'])+'*rsun'
           ,change_judge(xmax,self,'xmax'))
-    print('ymin = '+'{:.4e}'.format(ymin),change_judge(ymin,self,'ymin'))
-    print('ymax = '+'{:.4e}'.format(ymax),change_judge(ymax,self,'ymax'))
-    print('zmin = '+'{:.4e}'.format(zmin),change_judge(zmin,self,'ymin'))
-    print('zmax = '+'{:.4e}'.format(zmax),change_judge(zmax,self,'ymax'))
+
+    if self.p['geometry'] == 'Spherical':
+        print('ymin = '+'{:.4e}'.format(ymin/np.pi*180),change_judge(ymin,self,'ymin'))
+        print('ymax = '+'{:.4e}'.format(ymax/np.pi*180),change_judge(ymax,self,'ymax'))
+        print('zmin = '+'{:.4e}'.format(zmin/np.pi*180),change_judge(zmin,self,'zmin'))
+        print('zmax = '+'{:.4e}'.format(zmax/np.pi*180),change_judge(zmax,self,'zmax'))
+    else:
+        print('ymin = '+'{:.4e}'.format(ymin),change_judge(ymin,self,'ymin'))
+        print('ymax = '+'{:.4e}'.format(ymax),change_judge(ymax,self,'ymax'))
+        print('zmin = '+'{:.4e}'.format(zmin),change_judge(zmin,self,'zmin'))
+        print('zmax = '+'{:.4e}'.format(zmax),change_judge(zmax,self,'zmax'))
+
     print(' ')
     
     print('nx0*ix0 = '+str(self.up['ix']),change_judge(self.up['ix'],self,'ix'))
