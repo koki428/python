@@ -329,6 +329,9 @@ def read_qq_select(self,xs,n,silent=False):
         self.qs["pr"][jss[np0]:jee[np0]+1,:] = qqq["pr"].reshape((iixl[np0],jjxl[np0],kx),order="F")[i0-iss[np0],:,:]
         self.qs["te"][jss[np0]:jee[np0]+1,:] = qqq["te"].reshape((iixl[np0],jjxl[np0],kx),order="F")[i0-iss[np0],:,:]
         self.qs["op"][jss[np0]:jee[np0]+1,:] = qqq["op"].reshape((iixl[np0],jjxl[np0],kx),order="F")[i0-iss[np0],:,:]
+        info = {}
+        info['xs'] = self.p['x'][i0]
+        self.qs['info'] = info
         f.close()
         
     if not silent :
@@ -621,16 +624,16 @@ def read_qq_check(self,n,silent=False,end_step=False):
     if not silent :
         print('### variales are stored in self.qc ###')
 
-
-def read_qq_slice(self,n,n_slice,direc,silent=False):
+##############################
+def read_qq_slice(self,n_slice,direc,n,silent=False):
     '''
     This method reads 2D data of slice.
     The data is stored in self.ql dictionary
 
     Parameters:
-        n (int): a selected time step for data
         n_slice (int): index of slice
         direc (str): slice direction. 'x', 'y', or 'z'
+        n (int): a selected time step for data
         silent (bool): True suppresses a message of store
     '''
     import numpy as np
@@ -658,6 +661,14 @@ def read_qq_slice(self,n,n_slice,direc,silent=False):
     self.ql['ph'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[8,:,:]
     self.ql['pr'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[mtype+0,:,:]
     self.ql['te'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[mtype+1,:,:]
+    info = {}
+    info['direc'] = direc
+    if direc == 'x': slice = self.p['x_slice']
+    if direc == 'y': slice = self.p['y_slice']
+    if direc == 'z': slice = self.p['z_slice']
+    info['slice'] = slice[n_slice]
+    info['n_slice'] = n_slice
+    self.ql['info'] = info
 
     if not silent :
         print('### variales are stored in self.ql ###')

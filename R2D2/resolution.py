@@ -151,9 +151,9 @@ def upgrade_resolution(
         self,caseid,n
         ,xmin,xmax,ymin,ymax,zmin,zmax 
         ,ix,jx,kx
-        ,ix_ununi=32,dx00=4.8e6,x_ununif=False
         ,endian='<',end_step=False
         ,memory_saving=False
+        ,ix_ununi=32,dx00=4.8e6,x_ununif=False
         ):
     '''
     This function chabges the resolution and output for the next
@@ -162,6 +162,8 @@ def upgrade_resolution(
     Parameters:
         self (R2D2_data): instance of R2D2_data
         caseid (str): caseid of destination directory e.g. 'd002'
+        n (int): time step of upgrade data.
+                 If end_step=True, n is ignored
         xmax (float): max location in x direction
         xmin (float): min location in x direction
         ymax (float): max location in y direction
@@ -169,19 +171,21 @@ def upgrade_resolution(
         zmax (float): max location in z direction
         zmin (float): min location in z direction
 
-        endian (str): endian
-    
         ix (int): updated grid point in x direction
         jx (int): updated grid point in y direction
         kx (int): updated grid point in z direction
+
+        endian (str): endian
+        end_step (bool): if true final time step is used for upgrade
+                         and parameter n is ignored    
+        memory_saving (bool): If true, upgraded variables are saved 
+                              in memory separately for saving memory
         
         below prameters are effective only when x_ununif=True
         ix_ununi (int): number of grid in uniform grid region
         dx00 (float): grid spacing in uniform grid region
         x_ununif (bool): whethere ununiform grid is used
 
-        memory_saving (bool): If true, upgraded variables are saved 
-                              in memory separately for saving memory
     '''
     import os
     import os.path

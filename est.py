@@ -97,7 +97,7 @@ for n in range(n0,nd+1):
         fe = np.average(d.vc["fe"]*sinyy_flux,axis=1)/sinyym_flux*x_flux**2
         fd = np.average(d.vc["fd"]*sinyy_flux,axis=1)/sinyym_flux*x_flux**2
         fk = np.average(d.vc["fk"]*sinyy_flux,axis=1)/sinyym_flux*x_flux**2
-        fr = np.average(d.vc["fr"]*sinyy_flux,axis=1)/sinyym_flux*x_flux**2
+        fr = np.average(d.vc["fr"]*sinyy_flux,axis=1)/sinyym_flux#*x_flux**2
     else:
         fe = np.average(d.vc["fe"],axis=1)/sinyym
         fd = np.average(d.vc["fd"],axis=1)/sinyym
@@ -201,7 +201,7 @@ for n in range(n0,nd+1):
         semx[i] = (semt[i,n-n0] - semt[i-1,n-n0])/(x[i] - x[i-1])
 
     #ax4.plot(semx*hp/cp)
-    ax4.plot(x/rsun,semt[:,n-n0])
+    ax4.plot(x/rsun,semt[:,n-n0]+se0)
     
     
     if n == n0:
@@ -277,10 +277,14 @@ ax23.annotate(s="t="+"{:.2f}".format(t/3600./24.)+" [day]"\
 
 ax23.hlines(y=1,xmin=xmin/rsun,xmax=xmax/rsun,linestyle='--',color='black')
 
-ax24.plot(x_flux,ff/fsun,color="red")
-ax24.plot(x_flux,fk/fsun,color="green")
-ax24.plot(x_flux,fr/fsun,color="blue")
-ax24.plot(x_flux,ft/fsun,color="black")
+x_flux_c = (x_flux - rsun)*1.e-8
+
+ax24.plot(x_flux_c,ff/fsun,color="red")
+ax24.plot(x_flux_c,fk/fsun,color="green")
+ax24.plot(x_flux_c,fr/fsun,color="blue")
+ax24.plot(x_flux_c,ft/fsun,color="black")
+ax24.hlines(y=1,xmin=-10,xmax=1,linestyle='--',color='black')
+ax24.set_xlim(-10,1)
 ax24.set_ylim(fmin,fmax)
 ax24.set_xlabel("$x - R_{\odot} \ [\mathrm{Mm}]$")
 ax24.set_ylabel("$F/F_{\odot}$")

@@ -62,11 +62,7 @@ for n in range(n0,nd+1):
     ##############################
     # read time
     t = d.read_time(n,silent=True)
-        
-    ##############################
-    # read time
-    d.read_qq_tau(n*int(ifac),silent=True)
-
+    
     ##############################
     # read value
 
@@ -81,11 +77,16 @@ for n in range(n0,nd+1):
     ax3 = fig.add_subplot(223,aspect='equal')
     ax4 = fig.add_subplot(224,aspect='equal')
 
-    d.read_qq_select(xmax,n,silent=True)
-    vx = d.qs['vx']
-    bx = d.qs['bx']
-    ax1.pcolormesh(yc,zc,vx)
-    ax2.pcolormesh(yc,zc,bx)
+    if xmax > rsun:
+        d.read_qq_tau(n*int(ifac),silent=True)
+        ax1.pcolormesh(yc,zc,d.qt['vx'])
+        ax2.pcolormesh(yc,zc,d.qt['bx'])
+    else:
+        d.read_qq_select(xmax,n,silent=True)
+        vx = d.qs['vx']
+        bx = d.qs['bx']
+        ax1.pcolormesh(yc,zc,vx)
+        ax2.pcolormesh(yc,zc,bx)
 
     sem, tmp   = np.meshgrid((d.vc['sem']*SINY).sum(axis=1)/SINYM,y,indexing='ij')
     serms, tmp = np.meshgrid(sqrt((d.vc['serms']**2*SINY).sum(axis=1)/SINYM),y,indexing='ij')
