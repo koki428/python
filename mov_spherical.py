@@ -52,9 +52,12 @@ fig = plt.figure(num=1,figsize=(xsize,ysize))
 RA, TH = np.meshgrid(x,y,indexing='ij')
 XX, YY = RA*cos(TH), RA*sin(TH)
 
-yc = y/pi*180
+zz,yy = np.meshgrid(z,y-0.5*np.pi)
+
+yc = y/pi*180 - 90
 zc = z/pi*180
 
+YC, ZC = np.meshgrid(yc,zc,indexing='ij')
 
 for n in range(n0,nd+1):
 #for n in range(0,1):
@@ -72,22 +75,25 @@ for n in range(n0,nd+1):
     shading = "flat"
     #shading = "groroud"
 
-    ax1 = fig.add_subplot(221,aspect='equal')
-    ax2 = fig.add_subplot(222,aspect='equal')
+    ax1 = fig.add_subplot(221,projection='mollweide')
+    ax2 = fig.add_subplot(222,projection='mollweide')
     ax3 = fig.add_subplot(223,aspect='equal')
     ax4 = fig.add_subplot(224,aspect='equal')
 
     if xmax > rsun:
         d.read_qq_tau(n*int(ifac),silent=True)
-        ax1.pcolormesh(yc,zc,d.qt['vx'])
-        ax2.pcolormesh(yc,zc,d.qt['bx'])
+        ax1.pcolormesh(zz,yy,d.qt['vx'])
+        ax2.pcolormesh(zz,yy,d.qt['bx'])
     else:
         d.read_qq_select(xmax,n,silent=True)
         vx = d.qs['vx']
         bx = d.qs['bx']
-        ax1.pcolormesh(yc,zc,vx)
-        ax2.pcolormesh(yc,zc,bx)
-
+        ax1.pcolormesh(zz,yy,vx)
+        ax2.pcolormesh(zz,yy,bx)
+        for ax in [ax1,ax2]:
+            ax.set_xticklabels('')
+            ax.set_yticklabels('')
+        
     sem, tmp   = np.meshgrid((d.vc['sem']*SINY).sum(axis=1)/SINYM,y,indexing='ij')
     serms, tmp = np.meshgrid(sqrt((d.vc['serms']**2*SINY).sum(axis=1)/SINYM),y,indexing='ij')
     bbp = sqrt(d.vc['bxp']**2 + d.vc['byp']**2 + d.vc['bzp']**2)

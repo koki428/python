@@ -1,4 +1,4 @@
-def init(self, datadir):
+ef init(self, datadir):
     '''
     This method reads basic data for calculation setting
     The data is stored in self.p dictionary
@@ -130,7 +130,29 @@ def init(self, datadir):
             
     self.p["rsun"] = 6.9598947e+10
     self.p["xr"] = self.p["x"]/self.p["rsun"]
-    
+
+    if self.p["geometry"] == 'YinYang':
+        self.p['jx'] = self.p['jx']*2
+        self.p['kx'] = self.p['jx']*2
+
+        dy =   np.pi/self.p['jx']
+        dz = 2*np.pi/self.p['kx']
+
+        y = np.zeros(self.p['jx'])
+        z = np.zeros(self.p['kx'])
+        
+        y[0] = 0.5*dy
+        z[0] = 0.5*dz - np.pi
+
+        for j in range(1,self.p['jx']):
+            y[j] = y[j-1] + dy
+
+        for k in range(1,self.p['kx']):
+            z[k] = z[k-1] + dz
+
+        self.p['y'] = y
+        self.p['z'] = z
+            
     if self.p['zdcheck'] == 2:
         dimension = '3d'
     else:
@@ -183,28 +205,28 @@ def init(self, datadir):
         self.p["jss"] = self.p["jss"] - 1
         self.p["jee"] = self.p["jee"] - 1
 
-        if os.path.isdir(self.p['datadir']+'slice'):
-            f = open(self.p['datadir']+"slice/params.dac","r")
-            line = f.readline()
-            while line:
-                self.p[line.split()[1]] = int(line.split()[0])
-                line = f.readline()
+        #if os.path.isdir(self.p['datadir']+'slice'):
+        #    f = open(self.p['datadir']+"slice/params.dac","r")
+        #    line = f.readline()
+        #    while line:
+        #        self.p[line.split()[1]] = int(line.split()[0])
+        #        line = f.readline()
 
-            f.close()
+        #    f.close()
 
-            dtype = np.dtype([ \
-                ('x_slice',self.p['endian']+str(self.p['nx_slice'])+'d'),\
-                ('y_slice',self.p['endian']+str(self.p['ny_slice'])+'d'),\
-                ('z_slice',self.p['endian']+str(self.p['nz_slice'])+'d'),\
-            ])
-            f = open(self.p['datadir']+'slice/slice.dac','rb')
-            slice = np.fromfile(f,dtype=dtype)
+        #    dtype = np.dtype([ \
+        #        ('x_slice',self.p['endian']+str(self.p['nx_slice'])+'d'),\
+        #        ('y_slice',self.p['endian']+str(self.p['ny_slice'])+'d'),\
+        #        ('z_slice',self.p['endian']+str(self.p['nz_slice'])+'d'),\
+        #    ])
+        #    f = open(self.p['datadir']+'slice/slice.dac','rb')
+        #    slice = np.fromfile(f,dtype=dtype)
 
-            self.p['x_slice'] = slice['x_slice'].reshape((self.p['nx_slice']),order='F')
-            self.p['y_slice'] = slice['y_slice'].reshape((self.p['ny_slice']),order='F')
-            self.p['z_slice'] = slice['z_slice'].reshape(self.p['nz_slice'],order='F')
+        #    self.p['x_slice'] = slice['x_slice'].reshape((self.p['nx_slice']),order='F')
+        #    self.p['y_slice'] = slice['y_slice'].reshape((self.p['ny_slice']),order='F')
+        #    self.p['z_slice'] = slice['z_slice'].reshape(self.p['nz_slice'],order='F')
             
-            f.close()
+        #    f.close()
     # read order data
     srcdir = datadir[:-5]+'src/all/'
     if os.path.exists(srcdir+'info.txt'):
@@ -243,7 +265,7 @@ def read_qq_select(self,xs,n,silent=False):
     mtype = self.p["mtype"]
     iixl = self.p["iixl"]
     jjxl = self.p["jjxl"]
-    jx = self.p["kx"]
+    jx = self.p["jx"]
     kx = self.p["kx"]
     iss = self.p["iss"]
     jss = self.p["jss"]
@@ -274,9 +296,9 @@ def read_qq_select(self,xs,n,silent=False):
         np0 = self.p["np_ijr"][ir0-1,jr0-1]
         dtyp=np.dtype([ \
                 ("qq",self.p["endian"]+str(mtype*iixl[np0]*jjxl[np0]*kx)+"f"),\
-                ("pr",self.p["endian"]+str(iixl[np0]*jjxl[np0]*kx)+"f"),\
-                ("te",self.p["endian"]+str(iixl[np0]*jjxl[np0]*kx)+"f"),\
-                ("op",self.p["endian"]+str(iixl[np0]*jjxl[np0]*kx)+"f"),\
+#                ("pr",self.p["endian"]+str(iixl[np0]*jjxl[np0]*kx)+"f"),\
+#                ("te",self.p["endian"]+str(iixl[np0]*jjxl[np0]*kx)+"f"),\
+#                ("op",self.p["endian"]+str(iixl[np0]*jjxl[np0]*kx)+"f"),\
         ])
         f = open(self.p['datadir']+"remap/qq/qq.dac."+'{0:08d}'.format(n)+"."+'{0:08d}'.format(np0),'rb')
         qqq = np.fromfile(f,dtype=dtyp,count=1)
@@ -326,9 +348,9 @@ def read_qq_select(self,xs,n,silent=False):
             self.qs["ph"][jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[i0-iss[np0],:,:,8]
 
             
-        self.qs["pr"][jss[np0]:jee[np0]+1,:] = qqq["pr"].reshape((iixl[np0],jjxl[np0],kx),order="F")[i0-iss[np0],:,:]
-        self.qs["te"][jss[np0]:jee[np0]+1,:] = qqq["te"].reshape((iixl[np0],jjxl[np0],kx),order="F")[i0-iss[np0],:,:]
-        self.qs["op"][jss[np0]:jee[np0]+1,:] = qqq["op"].reshape((iixl[np0],jjxl[np0],kx),order="F")[i0-iss[np0],:,:]
+        #self.qs["pr"][jss[np0]:jee[np0]+1,:] = qqq["pr"].reshape((iixl[np0],jjxl[np0],kx),order="F")[i0-iss[np0],:,:]
+        #self.qs["te"][jss[np0]:jee[np0]+1,:] = qqq["te"].reshape((iixl[np0],jjxl[np0],kx),order="F")[i0-iss[np0],:,:]
+        #self.qs["op"][jss[np0]:jee[np0]+1,:] = qqq["op"].reshape((iixl[np0],jjxl[np0],kx),order="F")[i0-iss[np0],:,:]
         info = {}
         info['xs'] = self.p['x'][i0]
         self.qs['info'] = info

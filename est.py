@@ -36,7 +36,10 @@ plt.close('all')
 #n0 = 120
 #nd = 150
 
-if geometry == 'Spherical':
+if geometry == 'Cartesian':
+    sinyy = 1
+    sinyym = 1.
+else:
     xx,yy = np.meshgrid(x,y,indexing='ij')
     sinyy = sin(yy)
     sinyym = np.average(sinyy,axis=1)
@@ -44,9 +47,6 @@ if geometry == 'Spherical':
     xx,yy_flux = np.meshgrid(x_flux,y,indexing='ij')
     sinyy_flux = sin(yy_flux)
     sinyym_flux = np.average(sinyy_flux,axis=1)
-else:
-    sinyy = 1
-    sinyym = 1.
     
 vxrmst = np.zeros((ix,nd-n0+1))
 vyrmst = np.zeros((ix,nd-n0+1))
@@ -91,18 +91,19 @@ for n in range(n0,nd+1):
     print(d.vc['rom'].mean())
 
     ##############################    
-    fsun = 6.306e10
-    if geometry == 'Spherical':
+    if geometry == 'Cartesian':
+        fsun = 6.306e10
+        fe = np.average(d.vc["fe"],axis=1)/sinyym
+        fd = np.average(d.vc["fd"],axis=1)/sinyym
+        fk = np.average(d.vc["fk"],axis=1)/sinyym
+        fr = np.average(d.vc["fr"],axis=1)/sinyym
+        #fr = np.average(d.vc["fr"],axis=1)#*x_flux**2
+    else:
         fsun = 3.86e33/pi/4
         fe = np.average(d.vc["fe"]*sinyy_flux,axis=1)/sinyym_flux*x_flux**2
         fd = np.average(d.vc["fd"]*sinyy_flux,axis=1)/sinyym_flux*x_flux**2
         fk = np.average(d.vc["fk"]*sinyy_flux,axis=1)/sinyym_flux*x_flux**2
         fr = np.average(d.vc["fr"]*sinyy_flux,axis=1)/sinyym_flux#*x_flux**2
-    else:
-        fe = np.average(d.vc["fe"],axis=1)/sinyym
-        fd = np.average(d.vc["fd"],axis=1)/sinyym
-        fk = np.average(d.vc["fk"],axis=1)/sinyym
-        fr = np.average(d.vc["fr"],axis=1)/sinyym
     #fc = np.average(d.vc["fa"],axis=1)
     
     xs = rsun - 2.e8
