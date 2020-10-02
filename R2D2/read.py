@@ -1,4 +1,4 @@
-ef init(self, datadir):
+def init(self, datadir):
     '''
     This method reads basic data for calculation setting
     The data is stored in self.p dictionary
