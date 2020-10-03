@@ -192,8 +192,10 @@ def init(self, datadir):
         value = f.read().split()
         self.p["m2da"] = int(value[0])
         self.p["m2d_flux"] = int(value[1])
+        self.p["m2d_spex"] = int(value[2])
         del value[0]
         del value[1]
+        del value[2]
         self.p["cl"] = list(map(str.strip,value)) ## strip space from character
         f.close()
 
@@ -613,6 +615,7 @@ def read_vc(self,n,silent=False):
     for m in range(self.p["m2da"]):
         self.vc[self.p["cl"][m]] = vl[:,:,m]
 
+    # read flux related value
     f = open(self.p['datadir']+"remap/vl/vl_flux.dac."+'{0:08d}'.format(n),"rb")
     vl = np.fromfile(f,self.p["endian"]+'f',self.p['m2d_flux']*(self.p['ix']+1)*self.p['jx']) \
            .reshape((self.p['ix']+1,self.p['jx'],self.p['m2d_flux']),order="F")
@@ -620,6 +623,16 @@ def read_vc(self,n,silent=False):
 
     for m in range(self.p["m2d_flux"]):
         self.vc[self.p["cl"][m+self.p["m2da"]]] = vl[:,:,m]
+    
+    # read spectra
+    f = open(self.p['datadir']+"remap/vl/vl_spex.dac."+'{0:08d}'.format(n),"rb")
+    vl = np.fromfile(f,self.p["endian"]+'f',self.p['m2d_spex']*self.p['ix']*self.p['kx']//4) \
+           .reshape((self.p['ix'],self.p['kx']//4,self.p['m2d_spex']),order="F")
+    f.close()
+
+    for m in range(self.p["m2d_spex"]):
+        self.vc[self.p["cl"][m+self.p["m2da"]+self.p['m2d_flux']]] = vl[:,:,m]
+    
         
     if not silent :
         print('### variales are stored in self.vc ###')
