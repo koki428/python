@@ -41,8 +41,9 @@ def init_gspread(json_key,project):
     wks.update_acell('O1', 'alpha')
     wks.update_acell('P1', 'RSST')
     wks.update_acell('Q1', 'Omega[Sun]')
-    wks.update_acell('R1', 'upodate time')
-    wks.update_acell('S1', 'origin')
+    wks.update_acell('R1', 'Geometry')
+    wks.update_acell('S1', 'upodate time')
+    wks.update_acell('T1', 'origin')
 
 ######################################################
 ######################################################
@@ -92,6 +93,13 @@ def out_gspread(self,caseid,json_key,project):
         wks.update_acell('H'+str_id, '{:6.2f}'.format(self.p['zmin']*pi2rad)+' [rad]')
         wks.update_acell('I'+str_id, '{:6.2f}'.format(self.p['zmax']*pi2rad)+' [rad]')
 
+    if self.p['geometry'] == 'YinYang':
+        pi2rad = 180/np.pi
+        wks.update_acell('F'+str_id, '0 [rad]')
+        wks.update_acell('G'+str_id, '180 [rad]')
+        wks.update_acell('H'+str_id, '-180 [rad]')
+        wks.update_acell('I'+str_id, '180 [rad]')
+        
     if ((self.p['x'][1] - self.p['x'][0]) == (self.p['x'][self.p['ix']-1] - self.p['x'][self.p['ix']-2])):
         wks.update_acell('J'+str_id,'T')
     else:
@@ -109,5 +117,6 @@ def out_gspread(self,caseid,json_key,project):
         wks.update_acell('P'+str_id,'T')
     
     wks.update_acell('Q'+str_id, '{:5.1f}'.format(self.p['omfac']))
-    wks.update_acell('R'+str_id,str(datetime.datetime.now()).split('.')[0])
-    wks.update_acell('S'+str_id,self.p['origin'])
+    wks.update_acell('R'+str_id,self.p['geometry'])
+    wks.update_acell('S'+str_id,str(datetime.datetime.now()).split('.')[0])
+    wks.update_acell('T'+str_id,self.p['origin'])
