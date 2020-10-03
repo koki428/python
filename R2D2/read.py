@@ -14,6 +14,8 @@ def init(self, datadir):
     self.qq = {}
     self.qt = {}
     self.ql = {}
+    self.ql_yin = {}
+    self.ql_yan = {}
     self.q2 = {}
     self.t = 0
     self.vc = {}
@@ -132,6 +134,31 @@ def init(self, datadir):
     self.p["xr"] = self.p["x"]/self.p["rsun"]
 
     if self.p["geometry"] == 'YinYang':
+        self.p['jx_yy'] = self.p['jx']
+        self.p['kx_yy'] = self.p['kx']
+
+        self.p['y_yy'] = self.p['y']
+        self.p['z_yy'] = self.p['z']
+
+        #self.p['zz_yy'], self['yy_yy'] = np.meshgrid(self.p['z_yy'],self.p['y_yy'])
+        zz_yy, yy_yy = np.meshgrid(self.p['z_yy'],self.p['y_yy'])
+        self.p['yy_yy'] = yy_yy
+        self.p['zz_yy'] = zz_yy
+                
+        self.p['yo_yy'] = np.arccos(np.sin(self.p['yy_yy'])*np.sin(self.p['zz_yy']))
+        self.p['zo_yy'] = np.arcsin(np.cos(self.p['yy_yy'])/np.sin(self.p['yo_yy']))
+
+        sct =  np.sin(self.p['yy_yy'])*np.cos(self.p['zz_yy'])
+        sco = -np.sin(self.p['yo_yy'])*np.cos(self.p['zo_yy'])
+
+
+        tmp = sct*sco < 0
+        self.p['tmp'] = tmp
+        self.p['zo_yy'][tmp] = np.sign(self.p['zo_yy'][tmp])*np.pi - self.p['zo_yy'][tmp]
+
+        self.p['coss_yy'] = -np.sin(self.p['zo_yy'])*np.sin(self.p['zz_yy'])
+        self.p['sins_yy'] =  np.cos(self.p['zo_yy'])/np.sin(self.p['yy_yy'])
+        
         self.p['jx'] = self.p['jx']*2
         self.p['kx'] = self.p['jx']*2
 
@@ -205,28 +232,28 @@ def init(self, datadir):
         self.p["jss"] = self.p["jss"] - 1
         self.p["jee"] = self.p["jee"] - 1
 
-        #if os.path.isdir(self.p['datadir']+'slice'):
-        #    f = open(self.p['datadir']+"slice/params.dac","r")
-        #    line = f.readline()
-        #    while line:
-        #        self.p[line.split()[1]] = int(line.split()[0])
-        #        line = f.readline()
+        if os.path.isdir(self.p['datadir']+'slice'):
+            f = open(self.p['datadir']+"slice/params.dac","r")
+            line = f.readline()
+            while line:
+                self.p[line.split()[1]] = int(line.split()[0])
+                line = f.readline()
 
-        #    f.close()
+            f.close()
 
-        #    dtype = np.dtype([ \
-        #        ('x_slice',self.p['endian']+str(self.p['nx_slice'])+'d'),\
-        #        ('y_slice',self.p['endian']+str(self.p['ny_slice'])+'d'),\
-        #        ('z_slice',self.p['endian']+str(self.p['nz_slice'])+'d'),\
-        #    ])
-        #    f = open(self.p['datadir']+'slice/slice.dac','rb')
-        #    slice = np.fromfile(f,dtype=dtype)
+            dtype = np.dtype([ \
+                ('x_slice',self.p['endian']+str(self.p['nx_slice'])+'d'),\
+                ('y_slice',self.p['endian']+str(self.p['ny_slice'])+'d'),\
+                ('z_slice',self.p['endian']+str(self.p['nz_slice'])+'d'),\
+            ])
+            f = open(self.p['datadir']+'slice/slice.dac','rb')
+            slice = np.fromfile(f,dtype=dtype)
 
-        #    self.p['x_slice'] = slice['x_slice'].reshape((self.p['nx_slice']),order='F')
-        #    self.p['y_slice'] = slice['y_slice'].reshape((self.p['ny_slice']),order='F')
-        #    self.p['z_slice'] = slice['z_slice'].reshape(self.p['nz_slice'],order='F')
+            self.p['x_slice'] = slice['x_slice'].reshape((self.p['nx_slice']),order='F')
+            self.p['y_slice'] = slice['y_slice'].reshape((self.p['ny_slice']),order='F')
+            self.p['z_slice'] = slice['z_slice'].reshape(self.p['nz_slice'],order='F')
             
-        #    f.close()
+            f.close()
     # read order data
     srcdir = datadir[:-5]+'src/all/'
     if os.path.exists(srcdir+'info.txt'):
@@ -661,39 +688,53 @@ def read_qq_slice(self,n_slice,direc,n,silent=False):
     import numpy as np
 
     mtype = self.p['mtype']
-    f = open(self.p['datadir']+'slice/qq'+direc+'.dac.'+'{0:08d}'.format(n)+'.'
-             +'{0:08d}'.format(n_slice+1),'rb')
-    if direc == 'x':
-        n1, n2 = self.p['jx'], self.p['kx']
-    if direc == 'y':
-        n1, n2 = self.p['ix'], self.p['kx']
-    if direc == 'z':
-        n1, n2 = self.p['ix'], self.p['jx']
-    qq_slice = np.fromfile(f,self.p['endian']+'f',(mtype+2)*n1*n2)
 
+    if self.p['geometry'] == 'YinYang':
+        files = ['_yin','_yan']
+        qls = [self.ql_yin,self.ql_yan]
+    else:
+        files = ['']
+        qls = [self.ql]
     
-    self.ql['ro'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[0,:,:]
-    self.ql['vx'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[1,:,:]
-    self.ql['vy'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[2,:,:]
-    self.ql['vz'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[3,:,:]
-    self.ql['bx'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[4,:,:]
-    self.ql['by'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[5,:,:]
-    self.ql['bz'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[6,:,:]
-    self.ql['se'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[7,:,:]
-    self.ql['ph'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[8,:,:]
-    self.ql['pr'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[mtype+0,:,:]
-    self.ql['te'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[mtype+1,:,:]
-    info = {}
-    info['direc'] = direc
-    if direc == 'x': slice = self.p['x_slice']
-    if direc == 'y': slice = self.p['y_slice']
-    if direc == 'z': slice = self.p['z_slice']
-    info['slice'] = slice[n_slice]
-    info['n_slice'] = n_slice
-    self.ql['info'] = info
+    for file,ql in zip(files,qls):
+        f = open(self.p['datadir']+'slice/qq'+direc+file
+                 +'.dac.'+'{0:08d}'.format(n)+'.'
+                 +'{0:08d}'.format(n_slice+1),'rb')
+        if direc == 'x':
+            n1, n2 = self.p['jx_yy'], self.p['kx_yy']
+        if direc == 'y':
+            n1, n2 = self.p['ix'   ], self.p['kx_yy']
+        if direc == 'z':
+            n1, n2 = self.p['ix'   ], self.p['jx_yy']
+        qq_slice = np.fromfile(f,self.p['endian']+'f',(mtype+2)*n1*n2)
+    
+        ql['ro'] = qq_slice.reshape((n1,n2,mtype+2),order='F')[:,:,0]
+        ql['vx'] = qq_slice.reshape((n1,n2,mtype+2),order='F')[:,:,1]
+        ql['vy'] = qq_slice.reshape((n1,n2,mtype+2),order='F')[:,:,2]
+        ql['vz'] = qq_slice.reshape((n1,n2,mtype+2),order='F')[:,:,3]
+        ql['bx'] = qq_slice.reshape((n1,n2,mtype+2),order='F')[:,:,4]
+        ql['by'] = qq_slice.reshape((n1,n2,mtype+2),order='F')[:,:,5]
+        ql['bz'] = qq_slice.reshape((n1,n2,mtype+2),order='F')[:,:,6]
+        ql['se'] = qq_slice.reshape((n1,n2,mtype+2),order='F')[:,:,7]
+        ql['ph'] = qq_slice.reshape((n1,n2,mtype+2),order='F')[:,:,8]
+        ql['pr'] = qq_slice.reshape((n1,n2,mtype+2),order='F')[:,:,9]
+        ql['te'] = qq_slice.reshape((n1,n2,mtype+2),order='F')[:,:,10]
+        info = {}
+        info['direc'] = direc
+        if direc == 'x': slice = self.p['x_slice']
+        if direc == 'y': slice = self.p['y_slice']
+        if direc == 'z': slice = self.p['z_slice']
+        info['slice'] = slice[n_slice]
+        info['n_slice'] = n_slice
+        ql['info'] = info
 
+        f.close()    
+        
     if not silent :
-        print('### variales are stored in self.ql ###')
+        if self.p['geometry'] == 'YinYang':
+            print('### variales are stored in self.ql_yin and self.ql_yan ###')
+        else:
+            print('### variales are stored in self.ql ###')
     
 ##############################
 def read_qq_2d(self,n,silent=False):
