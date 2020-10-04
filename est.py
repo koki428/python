@@ -276,7 +276,7 @@ ax23.legend(loc='upper left',prop={'size': 15})
 ax23.annotate(s="t="+"{:.2f}".format(t/3600./24.)+" [day]"\
                  ,xy=[0.01,0.01],xycoords="figure fraction",fontsize=18)
 
-ax23.hlines(y=1,xmin=xmin/rsun,xmax=xmax/rsun,linestyle='--',color='black')
+ax23.hlines(y=1,xmin=xp.min(),xmax=xp.max(),linestyle='--',color='black')
 
 x_flux_c = (x_flux - rsun)*1.e-8
 
@@ -284,7 +284,7 @@ ax24.plot(x_flux_c,ff/fsun,color="red")
 ax24.plot(x_flux_c,fk/fsun,color="green")
 ax24.plot(x_flux_c,fr/fsun,color="blue")
 ax24.plot(x_flux_c,ft/fsun,color="black")
-ax24.hlines(y=1,xmin=-10,xmax=1,linestyle='--',color='black')
+ax24.hlines(y=1,xmin=x_flux_c.min(),xmax=x_flux_c.max(),linestyle='--',color='black')
 ax24.set_xlim(-10,1)
 ax24.set_ylim(fmin,fmax)
 ax24.set_xlabel("$x - R_{\odot} \ [\mathrm{Mm}]$")
