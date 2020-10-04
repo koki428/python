@@ -14,6 +14,8 @@ def init(self, datadir):
     self.qq = {}
     self.qt = {}
     self.ql = {}
+    self.ql_yin = {}
+    self.ql_yan = {}
     self.q2 = {}
     self.t = 0
     self.vc = {}
@@ -130,7 +132,75 @@ def init(self, datadir):
             
     self.p["rsun"] = 6.9598947e+10
     self.p["xr"] = self.p["x"]/self.p["rsun"]
-    
+
+    if self.p["geometry"] == 'YinYang':
+        self.p['jx_yy'] = self.p['jx']
+        self.p['kx_yy'] = self.p['kx']
+
+        self.p['jxg_yy'] = self.p['jx'] + 2*self.p['margin']
+        self.p['kxg_yy'] = self.p['kx'] + 2*self.p['margin']
+        
+        self.p['y_yy'] = self.p['y']
+        self.p['z_yy'] = self.p['z']
+
+        self.p['yg_yy'] = self.p['yg']
+        self.p['zg_yy'] = self.p['zg']
+        
+        zz_yy, yy_yy = np.meshgrid(self.p['z_yy'],self.p['y_yy'])
+        zzg_yy, yyg_yy = np.meshgrid(self.p['zg_yy'],self.p['yg_yy'])
+
+        self.p['yy_yy'] = yy_yy
+        self.p['zz_yy'] = zz_yy
+
+        self.p['yyg_yy'] = yyg_yy
+        self.p['zzg_yy'] = zzg_yy
+        
+        self.p['yo_yy'] = np.arccos(np.sin(self.p['yy_yy'])*np.sin(self.p['zz_yy']))
+        self.p['zo_yy'] = np.arcsin(np.cos(self.p['yy_yy'])/np.sin(self.p['yo_yy']))
+
+        self.p['yog_yy'] = np.arccos(np.sin(self.p['yyg_yy'])*np.sin(self.p['zzg_yy']))
+        self.p['zog_yy'] = np.arcsin(np.cos(self.p['yyg_yy'])/np.sin(self.p['yog_yy']))
+        
+        sct =  np.sin(self.p['yy_yy'])*np.cos(self.p['zz_yy'])
+        sco = -np.sin(self.p['yo_yy'])*np.cos(self.p['zo_yy'])
+
+        sctg =  np.sin(self.p['yyg_yy'])*np.cos(self.p['zzg_yy'])
+        scog = -np.sin(self.p['yog_yy'])*np.cos(self.p['zog_yy'])
+        
+
+        tmp = sct*sco < 0
+        self.p['zo_yy'][tmp] = np.sign(self.p['zo_yy'][tmp])*np.pi - self.p['zo_yy'][tmp]
+
+        self.p['coss_yy'] = -np.sin(self.p['zo_yy'])*np.sin(self.p['zz_yy'])
+        self.p['sins_yy'] =  np.cos(self.p['zo_yy'])/np.sin(self.p['yy_yy'])
+
+        tmp = sctg*scog < 0
+        self.p['zog_yy'][tmp] = np.sign(self.p['zog_yy'][tmp])*np.pi - self.p['zog_yy'][tmp]
+
+        self.p['cossg_yy'] = -np.sin(self.p['zog_yy'])*np.sin(self.p['zzg_yy'])
+        self.p['sinsg_yy'] =  np.cos(self.p['zog_yy'])/np.sin(self.p['yyg_yy'])
+        
+        self.p['jx'] = self.p['jx']*2
+        self.p['kx'] = self.p['jx']*2
+
+        dy =   np.pi/self.p['jx']
+        dz = 2*np.pi/self.p['kx']
+
+        y = np.zeros(self.p['jx'])
+        z = np.zeros(self.p['kx'])
+        
+        y[0] = 0.5*dy
+        z[0] = 0.5*dz - np.pi
+
+        for j in range(1,self.p['jx']):
+            y[j] = y[j-1] + dy
+
+        for k in range(1,self.p['kx']):
+            z[k] = z[k-1] + dz
+
+        self.p['y'] = y
+        self.p['z'] = z
+            
     if self.p['zdcheck'] == 2:
         dimension = '3d'
     else:
@@ -141,10 +211,14 @@ def init(self, datadir):
     if dimension == "3d":
         f = open(self.p['datadir']+"remap/vl/c.dac","r")
         value = f.read().split()
-        self.p["m2da"] = int(value[0])
-        self.p["m2d_flux"] = int(value[1])
-        del value[0]
-        del value[1]
+        self.p["m2d_xy"] = int(value[0])
+        self.p["m2d_xz"] = int(value[1])
+        self.p["m2d_flux"] = int(value[2])
+        if self.p['geometry'] == 'YinYang':
+            self.p["m2d_spex"] = int(value[3])
+        del value[0:3]
+        if self.p['geometry'] == 'YinYang':
+            del value[0]
         self.p["cl"] = list(map(str.strip,value)) ## strip space from character
         f.close()
 
@@ -243,7 +317,7 @@ def read_qq_select(self,xs,n,silent=False):
     mtype = self.p["mtype"]
     iixl = self.p["iixl"]
     jjxl = self.p["jjxl"]
-    jx = self.p["kx"]
+    jx = self.p["jx"]
     kx = self.p["kx"]
     iss = self.p["iss"]
     jss = self.p["jss"]
@@ -274,9 +348,9 @@ def read_qq_select(self,xs,n,silent=False):
         np0 = self.p["np_ijr"][ir0-1,jr0-1]
         dtyp=np.dtype([ \
                 ("qq",self.p["endian"]+str(mtype*iixl[np0]*jjxl[np0]*kx)+"f"),\
-                ("pr",self.p["endian"]+str(iixl[np0]*jjxl[np0]*kx)+"f"),\
-                ("te",self.p["endian"]+str(iixl[np0]*jjxl[np0]*kx)+"f"),\
-                ("op",self.p["endian"]+str(iixl[np0]*jjxl[np0]*kx)+"f"),\
+#                ("pr",self.p["endian"]+str(iixl[np0]*jjxl[np0]*kx)+"f"),\
+#                ("te",self.p["endian"]+str(iixl[np0]*jjxl[np0]*kx)+"f"),\
+#                ("op",self.p["endian"]+str(iixl[np0]*jjxl[np0]*kx)+"f"),\
         ])
         f = open(self.p['datadir']+"remap/qq/qq.dac."+'{0:08d}'.format(n)+"."+'{0:08d}'.format(np0),'rb')
         qqq = np.fromfile(f,dtype=dtyp,count=1)
@@ -326,9 +400,9 @@ def read_qq_select(self,xs,n,silent=False):
             self.qs["ph"][jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[i0-iss[np0],:,:,8]
 
             
-        self.qs["pr"][jss[np0]:jee[np0]+1,:] = qqq["pr"].reshape((iixl[np0],jjxl[np0],kx),order="F")[i0-iss[np0],:,:]
-        self.qs["te"][jss[np0]:jee[np0]+1,:] = qqq["te"].reshape((iixl[np0],jjxl[np0],kx),order="F")[i0-iss[np0],:,:]
-        self.qs["op"][jss[np0]:jee[np0]+1,:] = qqq["op"].reshape((iixl[np0],jjxl[np0],kx),order="F")[i0-iss[np0],:,:]
+        #self.qs["pr"][jss[np0]:jee[np0]+1,:] = qqq["pr"].reshape((iixl[np0],jjxl[np0],kx),order="F")[i0-iss[np0],:,:]
+        #self.qs["te"][jss[np0]:jee[np0]+1,:] = qqq["te"].reshape((iixl[np0],jjxl[np0],kx),order="F")[i0-iss[np0],:,:]
+        #self.qs["op"][jss[np0]:jee[np0]+1,:] = qqq["op"].reshape((iixl[np0],jjxl[np0],kx),order="F")[i0-iss[np0],:,:]
         info = {}
         info['xs'] = self.p['x'][i0]
         self.qs['info'] = info
@@ -556,21 +630,42 @@ def read_vc(self,n,silent=False):
 
     import numpy as np
 
-    f = open(self.p['datadir']+"remap/vl/vla.dac."+'{0:08d}'.format(n),"rb")
-    vl = np.fromfile(f,self.p["endian"]+'f',self.p['m2da']*self.p['ix']*self.p['jx']) \
-           .reshape((self.p['ix'],self.p['jx'],self.p['m2da']),order="F")
+    # read xy plane data
+    f = open(self.p['datadir']+"remap/vl/vl_xy.dac."+'{0:08d}'.format(n),"rb")
+    vl = np.fromfile(f,self.p["endian"]+'f',self.p['m2d_xy']*self.p['ix']*self.p['jx']) \
+           .reshape((self.p['ix'],self.p['jx'],self.p['m2d_xy']),order="F")
     f.close()
 
-    for m in range(self.p["m2da"]):
+    for m in range(self.p["m2d_xy"]):
         self.vc[self.p["cl"][m]] = vl[:,:,m]
 
+    # read xz plane data
+    f = open(self.p['datadir']+"remap/vl/vl_xz.dac."+'{0:08d}'.format(n),"rb")
+    vl = np.fromfile(f,self.p["endian"]+'f',self.p['m2d_xz']*self.p['ix']*self.p['kx']) \
+           .reshape((self.p['ix'],self.p['kx'],self.p['m2d_xz']),order="F")
+    f.close()
+
+    for m in range(self.p["m2d_xz"]):
+        self.vc[self.p["cl"][m + self.p['m2d_xy']]] = vl[:,:,m]
+        
+    # read flux related value
     f = open(self.p['datadir']+"remap/vl/vl_flux.dac."+'{0:08d}'.format(n),"rb")
     vl = np.fromfile(f,self.p["endian"]+'f',self.p['m2d_flux']*(self.p['ix']+1)*self.p['jx']) \
            .reshape((self.p['ix']+1,self.p['jx'],self.p['m2d_flux']),order="F")
     f.close()
 
     for m in range(self.p["m2d_flux"]):
-        self.vc[self.p["cl"][m+self.p["m2da"]]] = vl[:,:,m]
+        self.vc[self.p["cl"][m+self.p["m2d_xy"]+self.p['m2d_xz']]] = vl[:,:,m]
+    
+    # read spectra
+    f = open(self.p['datadir']+"remap/vl/vl_spex.dac."+'{0:08d}'.format(n),"rb")
+    vl = np.fromfile(f,self.p["endian"]+'f',self.p['m2d_spex']*self.p['ix']*self.p['kx']//4) \
+           .reshape((self.p['ix'],self.p['kx']//4,self.p['m2d_spex']),order="F")
+    f.close()
+
+    for m in range(self.p["m2d_spex"]):
+        self.vc[self.p["cl"][m+self.p["m2d_xy"]+self.p['m2d_xz']+self.p['m2d_flux']]] = vl[:,:,m]
+    
         
     if not silent :
         print('### variales are stored in self.vc ###')
@@ -639,39 +734,56 @@ def read_qq_slice(self,n_slice,direc,n,silent=False):
     import numpy as np
 
     mtype = self.p['mtype']
-    f = open(self.p['datadir']+'slice/qq'+direc+'.dac.'+'{0:08d}'.format(n)+'.'
-             +'{0:08d}'.format(n_slice+1),'rb')
-    if direc == 'x':
-        n1, n2 = self.p['jx'], self.p['kx']
-    if direc == 'y':
-        n1, n2 = self.p['ix'], self.p['kx']
-    if direc == 'z':
-        n1, n2 = self.p['ix'], self.p['jx']
-    qq_slice = np.fromfile(f,self.p['endian']+'f',(mtype+2)*n1*n2)
 
+    if self.p['geometry'] == 'YinYang':
+        files = ['_yin','_yan']
+        qls = [self.ql_yin,self.ql_yan]
+    else:
+        files = ['']
+        qls = [self.ql]
     
-    self.ql['ro'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[0,:,:]
-    self.ql['vx'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[1,:,:]
-    self.ql['vy'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[2,:,:]
-    self.ql['vz'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[3,:,:]
-    self.ql['bx'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[4,:,:]
-    self.ql['by'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[5,:,:]
-    self.ql['bz'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[6,:,:]
-    self.ql['se'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[7,:,:]
-    self.ql['ph'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[8,:,:]
-    self.ql['pr'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[mtype+0,:,:]
-    self.ql['te'] = qq_slice.reshape((mtype+2,n1,n2),order='F')[mtype+1,:,:]
-    info = {}
-    info['direc'] = direc
-    if direc == 'x': slice = self.p['x_slice']
-    if direc == 'y': slice = self.p['y_slice']
-    if direc == 'z': slice = self.p['z_slice']
-    info['slice'] = slice[n_slice]
-    info['n_slice'] = n_slice
-    self.ql['info'] = info
+    for file,ql in zip(files,qls):
+        f = open(self.p['datadir']+'slice/qq'+direc+file
+                 +'.dac.'+'{0:08d}'.format(n)+'.'
+                 +'{0:08d}'.format(n_slice+1),'rb')
+        if direc == 'x':
+            if self.p['geometry'] == 'YinYang':
+                n1, n2 = self.p['jx_yy']+2*self.p['margin'], self.p['kx_yy']+2*self.p['margin']
+            else:
+                n1, n2 = self.p['jx_yy'], self.p['kx_yy']
+        if direc == 'y':
+            n1, n2 = self.p['ix'   ], self.p['kx_yy']
+        if direc == 'z':
+            n1, n2 = self.p['ix'   ], self.p['jx_yy']
+        qq_slice = np.fromfile(f,self.p['endian']+'f',(mtype+2)*n1*n2)
+    
+        ql['ro'] = qq_slice.reshape((n1,n2,mtype+2),order='F')[:,:,0]
+        ql['vx'] = qq_slice.reshape((n1,n2,mtype+2),order='F')[:,:,1]
+        ql['vy'] = qq_slice.reshape((n1,n2,mtype+2),order='F')[:,:,2]
+        ql['vz'] = qq_slice.reshape((n1,n2,mtype+2),order='F')[:,:,3]
+        ql['bx'] = qq_slice.reshape((n1,n2,mtype+2),order='F')[:,:,4]
+        ql['by'] = qq_slice.reshape((n1,n2,mtype+2),order='F')[:,:,5]
+        ql['bz'] = qq_slice.reshape((n1,n2,mtype+2),order='F')[:,:,6]
+        ql['se'] = qq_slice.reshape((n1,n2,mtype+2),order='F')[:,:,7]
+        ql['ph'] = qq_slice.reshape((n1,n2,mtype+2),order='F')[:,:,8]
+        ql['pr'] = qq_slice.reshape((n1,n2,mtype+2),order='F')[:,:,9]
+        ql['te'] = qq_slice.reshape((n1,n2,mtype+2),order='F')[:,:,10]
+        info = {}
+        info['direc'] = direc
+        if direc == 'x': slice = self.p['x_slice']
+        if direc == 'y': slice = self.p['y_slice']
+        if direc == 'z': slice = self.p['z_slice']
+        info['slice'] = slice[n_slice]
+        info['n_slice'] = n_slice
+        ql['info'] = info
 
+        f.close()    
+        
     if not silent :
-        print('### variales are stored in self.ql ###')
+        if self.p['geometry'] == 'YinYang':
+            print('### variales are stored in self.ql_yin and self.ql_yan ###')
+        else:
+            print('### variales are stored in self.ql ###')
     
 ##############################
 def read_qq_2d(self,n,silent=False):

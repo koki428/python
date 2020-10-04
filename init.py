@@ -60,3 +60,20 @@ if geometry == 'Spherical':
     print('time step (nd) =',nd)
     t = d.read_time(nd)
     print('time =','{:.2f}'.format(t/3600),' [hour]')
+
+if geometry == 'YinYang':
+    pi2rad = 180/pi
+    print('### calculation domain ###')
+    print('xmax - rsun = ', '{:6.2f}'.format((xmax - rsun)*1.e-8),'[Mm],  xmin - rsun = ', '{:6.2f}'.format((xmin - rsun)*1.e-8),'[Mm]')
+    print('Yin-Yang grid is used to cover the whole sphere')
+
+    print('')
+    print('### number of grid ###')
+    print('(ix,jx,kx)=(',ix,',',jx,',',kx,')')
+
+    print('')
+    print('### calculation time ###')
+    print('time step (nd) =',nd)
+    t = d.read_time(nd)
+    print('time =','{:.2f}'.format(t/3600),' [hour]')
+    
