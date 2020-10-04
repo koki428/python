@@ -137,27 +137,48 @@ def init(self, datadir):
         self.p['jx_yy'] = self.p['jx']
         self.p['kx_yy'] = self.p['kx']
 
+        self.p['jxg_yy'] = self.p['jx'] + 2*self.p['margin']
+        self.p['kxg_yy'] = self.p['kx'] + 2*self.p['margin']
+        
         self.p['y_yy'] = self.p['y']
         self.p['z_yy'] = self.p['z']
 
-        #self.p['zz_yy'], self['yy_yy'] = np.meshgrid(self.p['z_yy'],self.p['y_yy'])
+        self.p['yg_yy'] = self.p['yg']
+        self.p['zg_yy'] = self.p['zg']
+        
         zz_yy, yy_yy = np.meshgrid(self.p['z_yy'],self.p['y_yy'])
+        zzg_yy, yyg_yy = np.meshgrid(self.p['zg_yy'],self.p['yg_yy'])
+
         self.p['yy_yy'] = yy_yy
         self.p['zz_yy'] = zz_yy
-                
+
+        self.p['yyg_yy'] = yyg_yy
+        self.p['zzg_yy'] = zzg_yy
+        
         self.p['yo_yy'] = np.arccos(np.sin(self.p['yy_yy'])*np.sin(self.p['zz_yy']))
         self.p['zo_yy'] = np.arcsin(np.cos(self.p['yy_yy'])/np.sin(self.p['yo_yy']))
 
+        self.p['yog_yy'] = np.arccos(np.sin(self.p['yyg_yy'])*np.sin(self.p['zzg_yy']))
+        self.p['zog_yy'] = np.arcsin(np.cos(self.p['yyg_yy'])/np.sin(self.p['yog_yy']))
+        
         sct =  np.sin(self.p['yy_yy'])*np.cos(self.p['zz_yy'])
         sco = -np.sin(self.p['yo_yy'])*np.cos(self.p['zo_yy'])
 
+        sctg =  np.sin(self.p['yyg_yy'])*np.cos(self.p['zzg_yy'])
+        scog = -np.sin(self.p['yog_yy'])*np.cos(self.p['zog_yy'])
+        
 
         tmp = sct*sco < 0
-        self.p['tmp'] = tmp
         self.p['zo_yy'][tmp] = np.sign(self.p['zo_yy'][tmp])*np.pi - self.p['zo_yy'][tmp]
 
         self.p['coss_yy'] = -np.sin(self.p['zo_yy'])*np.sin(self.p['zz_yy'])
         self.p['sins_yy'] =  np.cos(self.p['zo_yy'])/np.sin(self.p['yy_yy'])
+
+        tmp = sctg*scog < 0
+        self.p['zog_yy'][tmp] = np.sign(self.p['zog_yy'][tmp])*np.pi - self.p['zog_yy'][tmp]
+
+        self.p['cossg_yy'] = -np.sin(self.p['zog_yy'])*np.sin(self.p['zzg_yy'])
+        self.p['sinsg_yy'] =  np.cos(self.p['zog_yy'])/np.sin(self.p['yyg_yy'])
         
         self.p['jx'] = self.p['jx']*2
         self.p['kx'] = self.p['jx']*2
@@ -190,12 +211,14 @@ def init(self, datadir):
     if dimension == "3d":
         f = open(self.p['datadir']+"remap/vl/c.dac","r")
         value = f.read().split()
-        self.p["m2da"] = int(value[0])
-        self.p["m2d_flux"] = int(value[1])
-        self.p["m2d_spex"] = int(value[2])
-        del value[0]
-        del value[1]
-        del value[2]
+        self.p["m2d_xy"] = int(value[0])
+        self.p["m2d_xz"] = int(value[1])
+        self.p["m2d_flux"] = int(value[2])
+        if self.p['geometry'] == 'YinYang':
+            self.p["m2d_spex"] = int(value[3])
+        del value[0:3]
+        if self.p['geometry'] == 'YinYang':
+            del value[0]
         self.p["cl"] = list(map(str.strip,value)) ## strip space from character
         f.close()
 
@@ -607,14 +630,24 @@ def read_vc(self,n,silent=False):
 
     import numpy as np
 
-    f = open(self.p['datadir']+"remap/vl/vla.dac."+'{0:08d}'.format(n),"rb")
-    vl = np.fromfile(f,self.p["endian"]+'f',self.p['m2da']*self.p['ix']*self.p['jx']) \
-           .reshape((self.p['ix'],self.p['jx'],self.p['m2da']),order="F")
+    # read xy plane data
+    f = open(self.p['datadir']+"remap/vl/vl_xy.dac."+'{0:08d}'.format(n),"rb")
+    vl = np.fromfile(f,self.p["endian"]+'f',self.p['m2d_xy']*self.p['ix']*self.p['jx']) \
+           .reshape((self.p['ix'],self.p['jx'],self.p['m2d_xy']),order="F")
     f.close()
 
-    for m in range(self.p["m2da"]):
+    for m in range(self.p["m2d_xy"]):
         self.vc[self.p["cl"][m]] = vl[:,:,m]
 
+    # read xz plane data
+    f = open(self.p['datadir']+"remap/vl/vl_xz.dac."+'{0:08d}'.format(n),"rb")
+    vl = np.fromfile(f,self.p["endian"]+'f',self.p['m2d_xz']*self.p['ix']*self.p['kx']) \
+           .reshape((self.p['ix'],self.p['kx'],self.p['m2d_xz']),order="F")
+    f.close()
+
+    for m in range(self.p["m2d_xz"]):
+        self.vc[self.p["cl"][m + self.p['m2d_xy']]] = vl[:,:,m]
+        
     # read flux related value
     f = open(self.p['datadir']+"remap/vl/vl_flux.dac."+'{0:08d}'.format(n),"rb")
     vl = np.fromfile(f,self.p["endian"]+'f',self.p['m2d_flux']*(self.p['ix']+1)*self.p['jx']) \
@@ -622,7 +655,7 @@ def read_vc(self,n,silent=False):
     f.close()
 
     for m in range(self.p["m2d_flux"]):
-        self.vc[self.p["cl"][m+self.p["m2da"]]] = vl[:,:,m]
+        self.vc[self.p["cl"][m+self.p["m2d_xy"]+self.p['m2d_xz']]] = vl[:,:,m]
     
     # read spectra
     f = open(self.p['datadir']+"remap/vl/vl_spex.dac."+'{0:08d}'.format(n),"rb")
@@ -631,7 +664,7 @@ def read_vc(self,n,silent=False):
     f.close()
 
     for m in range(self.p["m2d_spex"]):
-        self.vc[self.p["cl"][m+self.p["m2da"]+self.p['m2d_flux']]] = vl[:,:,m]
+        self.vc[self.p["cl"][m+self.p["m2d_xy"]+self.p['m2d_xz']+self.p['m2d_flux']]] = vl[:,:,m]
     
         
     if not silent :
@@ -714,7 +747,10 @@ def read_qq_slice(self,n_slice,direc,n,silent=False):
                  +'.dac.'+'{0:08d}'.format(n)+'.'
                  +'{0:08d}'.format(n_slice+1),'rb')
         if direc == 'x':
-            n1, n2 = self.p['jx_yy'], self.p['kx_yy']
+            if self.p['geometry'] == 'YinYang':
+                n1, n2 = self.p['jx_yy']+2*self.p['margin'], self.p['kx_yy']+2*self.p['margin']
+            else:
+                n1, n2 = self.p['jx_yy'], self.p['kx_yy']
         if direc == 'y':
             n1, n2 = self.p['ix'   ], self.p['kx_yy']
         if direc == 'z':

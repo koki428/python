@@ -82,31 +82,31 @@ for n in range(n0,nd+1):
 
     if xmax > rsun:
         d.read_qq_tau(n*int(ifac),silent=True)
-        ax1.pcolormesh(zz,yy,d.qt['vx'])
-        ax2.pcolormesh(zz,yy,d.qt['bx'])
+        ax1.pcolormesh(zz,yy,d.qt['vx'],shading='auto')
+        ax2.pcolormesh(zz,yy,d.qt['bx'],shading='auto')
     else:
         d.read_qq_select(xmax,n,silent=True)
         vx = d.qs['vx']
         bx = d.qs['bx']
-        ax1.pcolormesh(zz,yy,vx)
-        ax2.pcolormesh(zz,yy,bx)
+        ax1.pcolormesh(zz,yy,vx,shading='auto')
+        ax2.pcolormesh(zz,yy,bx,shading='auto')
         for ax in [ax1,ax2]:
             ax.set_xticklabels('')
             ax.set_yticklabels('')
         
     sem, tmp   = np.meshgrid((d.vc['sem']*SINY).sum(axis=1)/SINYM,y,indexing='ij')
     serms, tmp = np.meshgrid(sqrt((d.vc['serms']**2*SINY).sum(axis=1)/SINYM),y,indexing='ij')
-    bbp = sqrt(d.vc['bxp']**2 + d.vc['byp']**2 + d.vc['bzp']**2)
+    bbp = sqrt(d.vc['bx_xy']**2 + d.vc['by_xy']**2 + d.vc['bz_xy']**2)
     om = d.vc['vzm']/RA/sin(TH)
     
     if serms.max() != 0:
-        se_plot = (d.vc['sep']-sem)/serms
+        se_plot = (d.vc['se_xy']-sem)/serms
     else:
         se_plot = np.zeros((ix,jx))
 
     lfac = 1/rsun
-    ax3.pcolormesh(XX.T*lfac,YY.T*lfac,se_plot.T,vmin=-2.,vmax=2.)
-    ax4.pcolormesh(XX.T*lfac,YY.T*lfac,om.T)
+    ax3.pcolormesh(XX.T*lfac,YY.T*lfac,se_plot.T,vmin=-2.,vmax=2.,shading='auto')
+    ax4.pcolormesh(XX.T*lfac,YY.T*lfac,om.T,shading='auto')
     
     if(n == n0):
         fig.tight_layout()

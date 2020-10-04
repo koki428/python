@@ -45,12 +45,12 @@ vmax =  2.e3
 
 var = 'vx'
 
-ax.pcolormesh(zo_yy[jx_yy//2:jx_yy,:],yo_yy[jx_yy//2:jx_yy,:]-0.5*pi,d.ql_yan[var][jx_yy//2:jx_yy,:]
+ax.pcolormesh(zog_yy[jxg_yy//2:jxg_yy,:],yog_yy[jxg_yy//2:jxg_yy,:]-0.5*pi,d.ql_yan[var][jxg_yy//2:jxg_yy,:]
               ,vmin=vmin,vmax=vmax,shading='auto')
 
-ax.pcolormesh(zo_yy[0:jx_yy//2,:],yo_yy[0:jx_yy//2,:]-0.5*pi,d.ql_yan[var][0:jx_yy//2,:]              
+ax.pcolormesh(zog_yy[0:jxg_yy//2,:],yog_yy[0:jxg_yy//2,:]-0.5*pi,d.ql_yan[var][0:jxg_yy//2,:]              
               ,vmin=vmin,vmax=vmax,shading='auto')
-ax.pcolormesh(zz_yy,yy_yy-0.5*pi,d.ql_yin[var],vmin=vmin,vmax=vmax,shading='auto')
+ax.pcolormesh(zzg_yy,yyg_yy-0.5*pi,d.ql_yin[var],vmin=vmin,vmax=vmax,shading='auto')
 ax.set_xticklabels('')
 ax.set_yticklabels('')
 
