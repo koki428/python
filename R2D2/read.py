@@ -348,9 +348,9 @@ def read_qq_select(self,xs,n,silent=False):
         np0 = self.p["np_ijr"][ir0-1,jr0-1]
         dtyp=np.dtype([ \
                 ("qq",self.p["endian"]+str(mtype*iixl[np0]*jjxl[np0]*kx)+"f"),\
-#                ("pr",self.p["endian"]+str(iixl[np0]*jjxl[np0]*kx)+"f"),\
-#                ("te",self.p["endian"]+str(iixl[np0]*jjxl[np0]*kx)+"f"),\
-#                ("op",self.p["endian"]+str(iixl[np0]*jjxl[np0]*kx)+"f"),\
+                ("pr",self.p["endian"]+str(iixl[np0]*jjxl[np0]*kx)+"f"),\
+                ("te",self.p["endian"]+str(iixl[np0]*jjxl[np0]*kx)+"f"),\
+                ("op",self.p["endian"]+str(iixl[np0]*jjxl[np0]*kx)+"f"),\
         ])
         f = open(self.p['datadir']+"remap/qq/qq.dac."+'{0:08d}'.format(n)+"."+'{0:08d}'.format(np0),'rb')
         qqq = np.fromfile(f,dtype=dtyp,count=1)
@@ -400,9 +400,9 @@ def read_qq_select(self,xs,n,silent=False):
             self.qs["ph"][jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[i0-iss[np0],:,:,8]
 
             
-        #self.qs["pr"][jss[np0]:jee[np0]+1,:] = qqq["pr"].reshape((iixl[np0],jjxl[np0],kx),order="F")[i0-iss[np0],:,:]
-        #self.qs["te"][jss[np0]:jee[np0]+1,:] = qqq["te"].reshape((iixl[np0],jjxl[np0],kx),order="F")[i0-iss[np0],:,:]
-        #self.qs["op"][jss[np0]:jee[np0]+1,:] = qqq["op"].reshape((iixl[np0],jjxl[np0],kx),order="F")[i0-iss[np0],:,:]
+        self.qs["pr"][jss[np0]:jee[np0]+1,:] = qqq["pr"].reshape((iixl[np0],jjxl[np0],kx),order="F")[i0-iss[np0],:,:]
+        self.qs["te"][jss[np0]:jee[np0]+1,:] = qqq["te"].reshape((iixl[np0],jjxl[np0],kx),order="F")[i0-iss[np0],:,:]
+        self.qs["op"][jss[np0]:jee[np0]+1,:] = qqq["op"].reshape((iixl[np0],jjxl[np0],kx),order="F")[i0-iss[np0],:,:]
         info = {}
         info['xs'] = self.p['x'][i0]
         self.qs['info'] = info
