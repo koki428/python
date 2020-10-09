@@ -658,15 +658,15 @@ def read_vc(self,n,silent=False):
         self.vc[self.p["cl"][m+self.p["m2d_xy"]+self.p['m2d_xz']]] = vl[:,:,m]
     
     # read spectra
-    f = open(self.p['datadir']+"remap/vl/vl_spex.dac."+'{0:08d}'.format(n),"rb")
-    vl = np.fromfile(f,self.p["endian"]+'f',self.p['m2d_spex']*self.p['ix']*self.p['kx']//4) \
-           .reshape((self.p['ix'],self.p['kx']//4,self.p['m2d_spex']),order="F")
-    f.close()
+    if self.p['geometry'] == 'YinYang':
+        f = open(self.p['datadir']+"remap/vl/vl_spex.dac."+'{0:08d}'.format(n),"rb")
+        vl = np.fromfile(f,self.p["endian"]+'f',self.p['m2d_spex']*self.p['ix']*self.p['kx']//4) \
+               .reshape((self.p['ix'],self.p['kx']//4,self.p['m2d_spex']),order="F")
+        f.close()
 
-    for m in range(self.p["m2d_spex"]):
-        self.vc[self.p["cl"][m+self.p["m2d_xy"]+self.p['m2d_xz']+self.p['m2d_flux']]] = vl[:,:,m]
-    
-        
+        for m in range(self.p["m2d_spex"]):
+            self.vc[self.p["cl"][m+self.p["m2d_xy"]+self.p['m2d_xz']+self.p['m2d_flux']]] = vl[:,:,m]
+            
     if not silent :
         print('### variales are stored in self.vc ###')
 

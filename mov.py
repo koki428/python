@@ -58,7 +58,8 @@ for n in range(n0,nd+1):
         
     ##############################
     # read time
-    d.read_qq_tau(n*int(ifac),silent=True)
+    if xmax > rsun:
+        d.read_qq_tau(n*int(ifac),silent=True)
 
     ##############################
     # read value
@@ -85,7 +86,7 @@ for n in range(n0,nd+1):
         ax1.set_ylabel("z [Mm]")
         ax1.set_title("Vertical velocity")
         sem, tmp = np.meshgrid(d.vc['sem'].mean(axis=1),y,indexing='ij')
-        ax3.pcolormesh(y*lfac,(x-rsun)*lfac,(d.vc['sep']-d.vc['sem'])/d.vc['serms'],cmap='gist_heat',vmax=3,vmin=-3)
+        ax3.pcolormesh(y*lfac,(x-rsun)*lfac,(d.vc['se_xy']-d.vc['sem'])/d.vc['serms'],cmap='gist_heat',vmax=3,vmin=-3)
         ax3.set_title(r'$(s-\langle s\rangle)/s_{rms}$')
     else:
         in0 = d.qt["in"].copy()
@@ -93,28 +94,28 @@ for n in range(n0,nd+1):
         ax1.pcolormesh(y*lfac,z*lfac,in0s.transpose(),cmap='gist_gray',vmax=3.2e10,vmin=1.e10,shading=shading)
         ax1.set_ylabel("z [Mm]")
         ax1.set_title("Emergent intensity")
-        ax3.pcolormesh(y*lfac,(x-rsun)*lfac,d.vc['tep']+te2,vmin=2000.,vmax=20000,cmap='gist_heat',shading=shading)
-        tus = np.roll(d.vc["tup"],[jx//2-jc],axis=1)
+        ax3.pcolormesh(y*lfac,(x-rsun)*lfac,d.vc['te_xy']+te2,vmin=2000.,vmax=20000,cmap='gist_heat',shading=shading)
+        tus = np.roll(d.vc["tu_xy"],[jx//2-jc],axis=1)
         ax3.contour(y*lfac,(x-rsun)*lfac,tus,levels=[1.],colors="w")
         ax3.set_title(r"$T$")
         ax4.contour(y*lfac,(x-rsun)*lfac,tus,levels=[1.],colors="w")
 
-    bx = np.roll(d.qt["bx"],[jx//2-jc,kx//2-kc],axis=[0,1])
-    by = np.roll(d.qt["by"],[jx//2-jc,kx//2-kc],axis=[0,1])
-    bz = np.roll(d.qt["bz"],[jx//2-jc,kx//2-kc],axis=[0,1])
-    ax2.tick_params(labelbottom=False)
-    ax2.tick_params(labelleft=False)
-    ax2.pcolormesh(y*lfac,z*lfac,bx.transpose(),cmap='gist_gray',vmax=2.5e3,vmin=-2.5e3,shading=shading)
-    ax2.set_title(r"LOS magnetic field@$\tau=1$")
+    #bx = np.roll(d.qt["bx"],[jx//2-jc,kx//2-kc],axis=[0,1])
+    #by = np.roll(d.qt["by"],[jx//2-jc,kx//2-kc],axis=[0,1])
+    #bz = np.roll(d.qt["bz"],[jx//2-jc,kx//2-kc],axis=[0,1])
+    #ax2.tick_params(labelbottom=False)
+    #ax2.tick_params(labelleft=False)
+    #ax2.pcolormesh(y*lfac,z*lfac,bx.transpose(),cmap='gist_gray',vmax=2.5e3,vmin=-2.5e3,shading=shading)
+    #ax2.set_title(r"LOS magnetic field@$\tau=1$")
 
-    #ses = np.roll((d.vc['sep']-d.vc['sem'])/d.vc['serms'],jx//2-jc,axis=1)
+    #ses = np.roll((d.vc['se_xy']-d.vc['sem'])/d.vc['serms'],jx//2-jc,axis=1)
     #ax3.pcolormesh(y*lfac,(x-rsun)*lfac,ses,vmin=-3.,vmax=3.,cmap='gist_heat',shading=shading)
 
     ax3.set_ylim((max(xmax-yran,xmin)-rsun)*lfac,(xmax-rsun)*lfac)
     ax3.set_ylabel("x [Mm]")
     ax3.set_xlabel("y [Mm]")
     
-    bb = np.sqrt(d.vc["bxp"]**2 + d.vc["byp"]**2 + d.vc["bzp"]**2)
+    bb = np.sqrt(d.vc["bx_xy"]**2 + d.vc["by_xy"]**2 + d.vc["bz_xy"]**2)
     bbs = np.roll(bb,[jx//2-jc],axis=1)
     ax4.tick_params(labelleft=False)
     ax4.pcolormesh(y*lfac,(x-rsun)*lfac,bbs,vmax=8.e3,vmin=0.,cmap='gist_heat',shading=shading)

@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import R2D2
 import sys
 import os
+import cartopy.crs as ccrs
 
 try:
     caseid
@@ -43,8 +44,8 @@ t0 = d.read_time(0,silent=True)
 yran = ymax - ymin
 xran = min(xmax-xmin,yran)
 
-xsize = 12
-ysize = 12
+xsize = 6
+ysize = 6
 fig = plt.figure(num=1,figsize=(xsize,ysize))
 
 #grid = GridSpec(2,2,height_ratios=[yran,xran])
@@ -75,8 +76,10 @@ for n in range(n0,nd+1):
     shading = "flat"
     #shading = "groroud"
 
-    ax1 = fig.add_subplot(221,projection='mollweide')
-    ax2 = fig.add_subplot(222,projection='mollweide')
+    #ax1 = fig.add_subplot(221,projection=ccrs.Mollweide())
+    #ax2 = fig.add_subplot(222,projection=ccrs.Mollweide())
+    ax1 = fig.add_subplot(221,aspect='equal')
+    ax2 = fig.add_subplot(222,aspect='equal')
     ax3 = fig.add_subplot(223,aspect='equal')
     ax4 = fig.add_subplot(224,aspect='equal')
 
