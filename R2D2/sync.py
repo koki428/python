@@ -44,6 +44,7 @@ def sync_tau(self,server,project=os.getcwd().split('/')[-2]):
               +' --exclude="param" ' \
               +' --exclude="qq" ' \
               +' --exclude="remap" ' \
+              +' --exclude="slice" ' \
               +' --exclude="time/mhd" ' \
               +server+':work/'+project+'/run/'+caseid+'/data/ '+self.p['datadir'] )
     
@@ -63,14 +64,14 @@ def sync_select(self,xs,server,project=os.getcwd().split('/')[-2]):
     i0 = np.argmin(np.abs(self.p["x"]-xs))
     ir0 = self.p["i2ir"][i0]
     
-    nps = np.char.zfill(self.p['np_ijr'][ir0,:].astype(np.str),8)
+    nps = np.char.zfill(self.p['np_ijr'][ir0-1,:].astype(np.str),8)
 
     files = ''
     caseid = self.p['datadir'].split('/')[-3]
 
     for np in nps:
         files = files + server+':work/'+project+'/run/'+caseid \
-                +'/data/remap/qq/qq.dac.' + np + '.* '
+                +'/data/remap/qq/qq.dac.' + '"*".' + np + " "
     
     os.system('rsync -avP ' \
           +files \
