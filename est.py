@@ -208,7 +208,7 @@ for n in range(n0,nd+1):
     if n == n0:
         plt.tight_layout()
 
-    ax3.annotate(s="t="+"{:.2f}".format(t/3600./24.)+" [day]"\
+    ax3.annotate(text="t="+"{:.2f}".format(t/3600./24.)+" [day]"\
                      ,xy=[0.01,0.01],xycoords="figure fraction",fontsize=18)
 
     plt.pause(0.001)
@@ -273,7 +273,7 @@ ax23.set_xlabel(xlabel)
 ax23.set_ylabel("$F/F_{\odot}$")
 ax23.set_title("Full convection zone")
 ax23.legend(loc='upper left',prop={'size': 15})
-ax23.annotate(s="t="+"{:.2f}".format(t/3600./24.)+" [day]"\
+ax23.annotate(text="t="+"{:.2f}".format(t/3600./24.)+" [day]"\
                  ,xy=[0.01,0.01],xycoords="figure fraction",fontsize=18)
 
 ax23.hlines(y=1,xmin=xp.min(),xmax=xp.max(),linestyle='--',color='black')

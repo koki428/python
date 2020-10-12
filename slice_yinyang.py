@@ -42,14 +42,16 @@ for n in range(n0,nd_tau+1):
     #d.read_qq_slice(5,'x',0)
     d.read_qq_slice(5,'x',n,silent=True)
     ax = fig.add_subplot(111,projection='mollweide')
-
-    vmin = -3.e3
-    vmax =  3.e3
-
+    
     var = 'vx'
+    vmax = d.ql_yin[var].max()
+    #vmax_yan = d.ql_yan[var].max()
+    #vmax = np.array([vmax_yin,vmax_yan]).max()
+    vmax = 5.e3
+    vmin = -vmax
 
     ax.pcolormesh(zog_yy[jxg_yy//2:jxg_yy,:],yog_yy[jxg_yy//2:jxg_yy,:]-0.5*pi,d.ql_yan[var][jxg_yy//2:jxg_yy,:]
-                  ,vmin=vmin,vmax=vmax,shading=shading)
+                  ,vmin=vmin,vmax=vmax,shading=shading,cmap='gray')
 
     #ax.pcolormesh(zog_yy,yog_yy-0.5*pi,d.ql_yan[var]
     #              ,vmin=vmin,vmax=vmax,shading=shading)

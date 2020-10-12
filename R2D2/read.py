@@ -13,6 +13,8 @@ def init(self, datadir):
     self.qs = {}
     self.qq = {}
     self.qt = {}
+    self.qt_yin = {}
+    self.qt_yan = {}
     self.ql = {}
     self.ql_yin = {}
     self.ql_yan = {}
@@ -535,59 +537,75 @@ def read_qq_tau(self,n,silent=False):
     '''
     import numpy as np
 
-    f = open(self.p['datadir']+"tau/qq.dac."+'{0:08d}'.format(n),"rb")
-    qq_in0 = np.fromfile(f,self.p["endian"]+'f',self.p["m_tu"]*self.p["m_in"]*self.p["jx"]*self.p["kx"])
-    f.close()
+    if self.p['geometry'] == 'YinYang':
+        files = ['_yin','_yan']
+        qts = [self.qt_yin,self.qt_yan]
+    else:
+        files=['']
+        qts = [self.qt]
 
     m_tu = self.p['m_tu']
     m_in = self.p['m_in']
-    jx = self.p['jx']
-    kx = self.p['kx']
+
+    if(self.p['geometry'] == 'YinYang'):
+        jx = self.p['jx_yy']
+        kx = self.p['kx_yy']
+    else:
+        jx = self.p['jx']
+        kx = self.p['kx']
         
-    self.qt["in"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[0,0,:,:]
-    self.qt["ro"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[0,1,:,:]
-    self.qt["se"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[0,2,:,:]
-    self.qt["pr"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[0,3,:,:]
-    self.qt["te"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[0,4,:,:]
-    self.qt["vx"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[0,5,:,:]
-    self.qt["vy"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[0,6,:,:]
-    self.qt["vz"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[0,7,:,:]
-    self.qt["bx"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[0,8,:,:]
-    self.qt["by"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[0,9,:,:]
-    self.qt["bz"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[0,10,:,:]
-    self.qt["he"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[0,11,:,:]
-    self.qt["fr"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[0,12,:,:]
+    for file,qt in zip(files,qts):
+        f = open(self.p['datadir']+"tau/qq"+file+".dac."+'{0:08d}'.format(n),"rb")
+        qq_in0 = np.fromfile(f,self.p["endian"]+'f',self.p["m_tu"]*self.p["m_in"]*jx*kx)
+        f.close()
+        
+        qt["in"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[0,0,:,:]
+        qt["ro"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[0,1,:,:]
+        qt["se"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[0,2,:,:]
+        qt["pr"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[0,3,:,:]
+        qt["te"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[0,4,:,:]
+        qt["vx"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[0,5,:,:]
+        qt["vy"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[0,6,:,:]
+        qt["vz"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[0,7,:,:]
+        qt["bx"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[0,8,:,:]
+        qt["by"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[0,9,:,:]
+        qt["bz"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[0,10,:,:]
+        qt["he"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[0,11,:,:]
+        qt["fr"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[0,12,:,:]
 
-    self.qt["in01"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[1,0,:,:]
-    self.qt["ro01"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[1,1,:,:]
-    self.qt["se01"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[1,2,:,:]
-    self.qt["pr01"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[1,3,:,:]
-    self.qt["te01"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[1,4,:,:]
-    self.qt["vx01"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[1,5,:,:]
-    self.qt["vy01"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[1,6,:,:]
-    self.qt["vz01"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[1,7,:,:]
-    self.qt["bx01"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[1,8,:,:]
-    self.qt["by01"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[1,9,:,:]
-    self.qt["bz01"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[1,10,:,:]
-    self.qt["he01"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[1,11,:,:]
-    self.qt["fr01"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[1,12,:,:]
+        qt["in01"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[1,0,:,:]
+        qt["ro01"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[1,1,:,:]
+        qt["se01"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[1,2,:,:]
+        qt["pr01"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[1,3,:,:]
+        qt["te01"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[1,4,:,:]
+        qt["vx01"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[1,5,:,:]
+        qt["vy01"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[1,6,:,:]
+        qt["vz01"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[1,7,:,:]
+        qt["bx01"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[1,8,:,:]
+        qt["by01"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[1,9,:,:]
+        qt["bz01"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[1,10,:,:]
+        qt["he01"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[1,11,:,:]
+        qt["fr01"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[1,12,:,:]
 
-    self.qt["in001"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[2,0,:,:]
-    self.qt["ro001"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[2,1,:,:]
-    self.qt["se001"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[2,2,:,:]
-    self.qt["pr001"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[2,3,:,:]
-    self.qt["te001"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[2,4,:,:]
-    self.qt["vx001"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[2,5,:,:]
-    self.qt["vy001"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[2,6,:,:]
-    self.qt["vz001"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[2,7,:,:]
-    self.qt["bx001"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[2,8,:,:]
-    self.qt["by001"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[2,9,:,:]
-    self.qt["bz001"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[2,10,:,:]
-    self.qt["he001"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[2,11,:,:]
-    self.qt["fr001"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[2,12,:,:]
+        qt["in001"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[2,0,:,:]
+        qt["ro001"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[2,1,:,:]
+        qt["se001"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[2,2,:,:]
+        qt["pr001"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[2,3,:,:]
+        qt["te001"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[2,4,:,:]
+        qt["vx001"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[2,5,:,:]
+        qt["vy001"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[2,6,:,:]
+        qt["vz001"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[2,7,:,:]
+        qt["bx001"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[2,8,:,:]
+        qt["by001"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[2,9,:,:]
+        qt["bz001"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[2,10,:,:]
+        qt["he001"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[2,11,:,:]
+        qt["fr001"] = np.reshape(qq_in0,(m_tu,m_in,jx,kx),order="F")[2,12,:,:]
 
     if not silent :
-        print('### variales are stored in self.qt ###')
+        if self.p['geometry'] == 'YinYang':
+            print('### variales are stored in self.qt_yin and self.qt_yan ###')
+        else:
+            print('### variales are stored in self.qt ###')
                 
 ##############################
 def read_time(self,n,tau=False,silent=True):
@@ -750,11 +768,11 @@ def read_qq_slice(self,n_slice,direc,n,silent=False):
             if self.p['geometry'] == 'YinYang':
                 n1, n2 = self.p['jx_yy']+2*self.p['margin'], self.p['kx_yy']+2*self.p['margin']
             else:
-                n1, n2 = self.p['jx_yy'], self.p['kx_yy']
+                n1, n2 = self.p['jx'], self.p['kx']
         if direc == 'y':
-            n1, n2 = self.p['ix'   ], self.p['kx_yy']
+            n1, n2 = self.p['ix'   ], self.p['kx']
         if direc == 'z':
-            n1, n2 = self.p['ix'   ], self.p['jx_yy']
+            n1, n2 = self.p['ix'   ], self.p['jx']
         qq_slice = np.fromfile(f,self.p['endian']+'f',(mtype+2)*n1*n2)
     
         ql['ro'] = qq_slice.reshape((n1,n2,mtype+2),order='F')[:,:,0]
