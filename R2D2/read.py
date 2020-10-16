@@ -823,7 +823,8 @@ def read_qq_2d(self,n,silent=False):
     ### and the size of array is different
     ### memory is allocated
     memflag = True
-    if 'ro' in self.qq:
+    
+    if 'ro' in self.q2:
         memflag = not self.q2['ro'].shape == (ix,jx)
     if 'ro' not in self.q2 or memflag:
         print('memory is newly allocated')
@@ -841,23 +842,23 @@ def read_qq_2d(self,n,silent=False):
         self.q2["tu"] = np.zeros((ix,jx))
         self.q2["fr"] = np.zeros((ix,jx))
 
-        dtyp=np.dtype([ ("qq",self.p["endian"]+str((mtype+5)*ix*jx)+"f") ])
-        f = open(self.p['datadir']+"remap/qq/qq.dac."+'{0:08d}'.format(n),'rb')
-        qqq = np.fromfile(f,dtype=dtyp,count=1)
-        self.q2["ro"] = qqq["qq"].reshape((mtype+5,ix,jx),order="F")[0,:,:]
-        self.q2["vx"] = qqq["qq"].reshape((mtype+5,ix,jx),order="F")[1,:,:]
-        self.q2["vy"] = qqq["qq"].reshape((mtype+5,ix,jx),order="F")[2,:,:]
-        self.q2["vz"] = qqq["qq"].reshape((mtype+5,ix,jx),order="F")[3,:,:]
-        self.q2["bx"] = qqq["qq"].reshape((mtype+5,ix,jx),order="F")[4,:,:]
-        self.q2["by"] = qqq["qq"].reshape((mtype+5,ix,jx),order="F")[5,:,:]
-        self.q2["bz"] = qqq["qq"].reshape((mtype+5,ix,jx),order="F")[6,:,:]
-        self.q2["se"] = qqq["qq"].reshape((mtype+5,ix,jx),order="F")[7,:,:]
-        self.q2["pr"] = qqq["qq"].reshape((mtype+5,ix,jx),order="F")[8,:,:]
-        self.q2["te"] = qqq["qq"].reshape((mtype+5,ix,jx),order="F")[9,:,:]
-        self.q2["op"] = qqq["qq"].reshape((mtype+5,ix,jx),order="F")[10,:,:]
-        self.q2["tu"] = qqq["qq"].reshape((mtype+5,ix,jx),order="F")[11,:,:]
-        self.q2["fr"] = qqq["qq"].reshape((mtype+5,ix,jx),order="F")[12,:,:]
-        f.close()
+    dtyp=np.dtype([ ("qq",self.p["endian"]+str((mtype+5)*ix*jx)+"f") ])
+    f = open(self.p['datadir']+"remap/qq/qq.dac."+'{0:08d}'.format(n),'rb')
+    qqq = np.fromfile(f,dtype=dtyp,count=1)
+    self.q2["ro"] = qqq["qq"].reshape((mtype+5,ix,jx),order="F")[0,:,:]
+    self.q2["vx"] = qqq["qq"].reshape((mtype+5,ix,jx),order="F")[1,:,:]
+    self.q2["vy"] = qqq["qq"].reshape((mtype+5,ix,jx),order="F")[2,:,:]
+    self.q2["vz"] = qqq["qq"].reshape((mtype+5,ix,jx),order="F")[3,:,:]
+    self.q2["bx"] = qqq["qq"].reshape((mtype+5,ix,jx),order="F")[4,:,:]
+    self.q2["by"] = qqq["qq"].reshape((mtype+5,ix,jx),order="F")[5,:,:]
+    self.q2["bz"] = qqq["qq"].reshape((mtype+5,ix,jx),order="F")[6,:,:]
+    self.q2["se"] = qqq["qq"].reshape((mtype+5,ix,jx),order="F")[7,:,:]
+    self.q2["pr"] = qqq["qq"].reshape((mtype+5,ix,jx),order="F")[8,:,:]
+    self.q2["te"] = qqq["qq"].reshape((mtype+5,ix,jx),order="F")[9,:,:]
+    self.q2["op"] = qqq["qq"].reshape((mtype+5,ix,jx),order="F")[10,:,:]
+    self.q2["tu"] = qqq["qq"].reshape((mtype+5,ix,jx),order="F")[11,:,:]
+    self.q2["fr"] = qqq["qq"].reshape((mtype+5,ix,jx),order="F")[12,:,:]
+    f.close()
 
     if not silent :
         print('### variales are stored in self.q2 ###')

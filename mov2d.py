@@ -56,8 +56,8 @@ for n in range(n0,nd+1):
     d.read_qq_2d(n,silent=True)
     ##############################
 
-    shading = "flat"
-    #shading = "groroud"
+    #shading = "flat"
+    shading = "groroud"
 
     lfac = 1.e-8
     
@@ -75,7 +75,7 @@ for n in range(n0,nd+1):
 
     bb = np.sqrt(d.q2['bx']**2 + d.q2['by']**2 + d.q2['bz']**2)
 
-    ax2.pcolormesh(y*1.e-8,(x-rsun)*1.e-8,bb,vmax=200,vmin=0)
+    ax2.pcolormesh(y*1.e-8,(x-rsun)*1.e-8,log10(bb),vmax=4,vmin=1,cmap='gray',shading=shading)
     ax2.contour(y*1.e-8,(x-rsun)*1.e-8,d.q2['tu'],levels=[1.])
     
 #    ax1.annotate(s="t="+"{:.2f}".format((t-t0)/60/60)+" [hour]"\
