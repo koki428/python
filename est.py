@@ -68,6 +68,7 @@ temt = np.zeros((ix,nd-n0+1))
 
 
 fet = np.zeros((ix+1,nd-n0+1))
+fmt = np.zeros((ix+1,nd-n0+1))
 fdt = np.zeros((ix+1,nd-n0+1))
 fkt = np.zeros((ix+1,nd-n0+1))
 frt = np.zeros((ix+1,nd-n0+1))
@@ -97,12 +98,14 @@ for n in range(n0,nd+1):
         fd = np.average(d.vc["fd"],axis=1)/sinyym
         fk = np.average(d.vc["fk"],axis=1)/sinyym
         fr = np.average(d.vc["fr"],axis=1)/sinyym
+        fm = np.average(d.vc["fm"],axis=1)/sinyym
         #fr = np.average(d.vc["fr"],axis=1)#*x_flux**2
     else:
         fsun = 3.86e33/pi/4
         fe = np.average(d.vc["fe"]*sinyy_flux,axis=1)/sinyym_flux*x_flux**2
         fd = np.average(d.vc["fd"]*sinyy_flux,axis=1)/sinyym_flux*x_flux**2
         fk = np.average(d.vc["fk"]*sinyy_flux,axis=1)/sinyym_flux*x_flux**2
+        fm = np.average(d.vc["fm"]*sinyy_flux,axis=1)/sinyym_flux*x_flux**2
         fr = np.average(d.vc["fr"]*sinyy_flux,axis=1)/sinyym_flux#*x_flux**2
     #fc = np.average(d.vc["fa"],axis=1)
     
@@ -112,7 +115,7 @@ for n in range(n0,nd+1):
     SR, sry = np.meshgrid(sr,y,indexing="ij")
     
     ff = fd*sr + fe*(1.e0-sr)
-    ft = ff + fk + fr 
+    ft = ff + fk + fr + fm
 
     vxrmst[:,n-n0] = np.sqrt(np.average(d.vc["vxrms"]**2*sinyy,axis=1))/sinyym
     vyrmst[:,n-n0] = np.sqrt(np.average(d.vc["vyrms"]**2*sinyy,axis=1))/sinyym
@@ -133,6 +136,7 @@ for n in range(n0,nd+1):
     temt[:,n-n0] = np.average(d.vc["tem"]*sinyy,axis=1)/sinyym
 
     fet[:,n-n0] = fe
+    fmt[:,n-n0] = fm
     fdt[:,n-n0] = fd
     fkt[:,n-n0] = fk
     frt[:,n-n0] = fr
@@ -164,6 +168,7 @@ for n in range(n0,nd+1):
     ax1.plot(xp,ff/fsun,label=r'$F_\mathrm{e}$',color="red")
     ax1.plot(xp,fk/fsun,label=r'$F_\mathrm{k}$',color="green")
     ax1.plot(xp,fr/fsun,label=r'$F_\mathrm{r}$',color="blue")
+    ax1.plot(xp,fm/fsun,label=r'$F_\mathrm{r}$',color="blue")
     ax1.plot(xp,ft/fsun,label=r'$F_\mathrm{t}$',color="black")
 
     ax1.hlines(y=1,xmin=xp.min(),xmax=xp.max(),linestyle='--',color='black')
