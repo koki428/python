@@ -142,8 +142,8 @@ def init(self, datadir):
         self.p['jxg_yy'] = self.p['jx'] + 2*self.p['margin']
         self.p['kxg_yy'] = self.p['kx'] + 2*self.p['margin']
         
-        self.p['y_yy'] = self.p['y']
-        self.p['z_yy'] = self.p['z']
+        self.p['y_yy'] = self.p['y'] - 0.5*(self.p['y'][1] - self.p['y'][0])
+        self.p['z_yy'] = self.p['z'] - 0.5*(self.p['z'][1] - self.p['z'][0])
 
         self.p['yg_yy'] = self.p['yg']
         self.p['zg_yy'] = self.p['zg']
@@ -159,7 +159,7 @@ def init(self, datadir):
         
         self.p['yo_yy'] = np.arccos(np.sin(self.p['yy_yy'])*np.sin(self.p['zz_yy']))
         self.p['zo_yy'] = np.arcsin(np.cos(self.p['yy_yy'])/np.sin(self.p['yo_yy']))
-
+        
         self.p['yog_yy'] = np.arccos(np.sin(self.p['yyg_yy'])*np.sin(self.p['zzg_yy']))
         self.p['zog_yy'] = np.arcsin(np.cos(self.p['yyg_yy'])/np.sin(self.p['yog_yy']))
         
@@ -169,7 +169,6 @@ def init(self, datadir):
         sctg =  np.sin(self.p['yyg_yy'])*np.cos(self.p['zzg_yy'])
         scog = -np.sin(self.p['yog_yy'])*np.cos(self.p['zog_yy'])
         
-
         tmp = sct*sco < 0
         self.p['zo_yy'][tmp] = np.sign(self.p['zo_yy'][tmp])*np.pi - self.p['zo_yy'][tmp]
 
