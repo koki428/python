@@ -117,21 +117,27 @@ def sync_check(self,n,server,project=os.getcwd().split('/')[-2],end_step=False):
               +server+':work/'+project+'/run/'+caseid+'/data/qq/qq.dac.'+step+' ' \
               +self.p['datadir']+'qq/' )
 
-def sync_slice(self,server,project=os.getcwd().split('/')[-2]):
+def sync_slice(self,n,server,project=os.getcwd().split('/')[-2]):
     '''
     This method downloads slice data
 
     Parameters:
+        n (int): step to be downloaded
         server (str): name of remote server
         project (str): name of project such as 'R2D2'
     '''
     import numpy as np
     import os
+
+    step = str(n).zfill(8)
     
     caseid = self.p['datadir'].split('/')[-3]
     os.system('rsync -avP ' \
-              +server+':work/'+project+'/run/'+caseid+'/data/slice ' \
-              +self.p['datadir'] )
+              +server+':work/'+project+'/run/'+caseid+'/data/slice/slice.dac ' \
+              +self.p['datadir']+'/slice' )
+    os.system('rsync -avP ' \
+              +server+':work/'+project+'/run/'+caseid+'/data/slice/qq"*".dac.'+step+'."*" ' \
+              +self.p['datadir']+'/slice' )
         
 def sync_all(self,server,project=os.getcwd().split('/')[-2],dist='../run/'):
     '''
