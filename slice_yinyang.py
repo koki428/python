@@ -38,32 +38,29 @@ plt.close('all')
 
 shading='flat'
 
-n0 = 80
-nd_tau = 80
+n0 = 500
+nd_tau = 1400
 
-n0 = 40
-nd_tau = 40
-
-fig = plt.figure(100,figsize=(18,9))
+fig = plt.figure(100,figsize=(20,10))
 for n in range(n0,nd_tau+1):
     print(n)
     #d.read_qq_slice(5,'x',0)
-    #d.read_qq_slice(3,'x',n,silent=True)
-    d.read_qq_tau(n,silent=True)    
+    d.read_qq_slice(3,'x',n,silent=True)
+    #d.read_qq_tau(n,silent=True)    
 
-    var = 'in'
-    qq_yin = d.qt_yin[var]
-    qq_yan = d.qt_yan[var]
+    var = 'se'
+    #qq_yin = d.qt_yin[var]
+    #qq_yan = d.qt_yan[var]
 
-    #qq_yin = d.ql_yin[var][margin:jxg_yy-margin,margin:kxg_yy-margin]
-    #qq_yan = d.ql_yan[var][margin:jxg_yy-margin,margin:kxg_yy-margin]
+    qq_yin = d.ql_yin[var][margin:jxg_yy-margin,margin:kxg_yy-margin]
+    qq_yan = d.ql_yan[var][margin:jxg_yy-margin,margin:kxg_yy-margin]
     
     qqm = np.array([qq_yin,qq_yan]).mean()
 
     qq_yin = qq_yin - qqm
     qq_yan = qq_yan - qqm
     
-    ax1 = fig.add_subplot(121,projection=ccrs.Orthographic(central_longitude=0.0,central_latitude=10.0))
+    ax1 = fig.add_subplot(121,projection=ccrs.Orthographic(central_longitude=0.0,central_latitude=20.0))
     ax2 = fig.add_subplot(122,aspect='equal')
     #ax1 = fig.add_subplot(111,projection=ccrs.Mollweide())
     
@@ -72,16 +69,21 @@ for n in range(n0,nd_tau+1):
     
     vmax = np.array([qq_yin,qq_yan]).max()*0.5
     vmin = -vmax
+
+    vmax = 1500
+    vmin = -1500
     #vmax = 5.e3
     #vmin = -vmax
 
     rad2deg = 180/pi
+
+    cmap = 'inferno'
     
     ax1.pcolormesh((zo_yy[jx_yy//2:jx_yy,:])*rad2deg,(yo_yy[jx_yy//2:jx_yy,:]-0.5*pi)*rad2deg,qq_yan[jx_yy//2:jx_yy,:]
-                ,transform=ccrs.PlateCarree(),vmin=vmin,vmax=vmax,shading=shading,cmap='gray')
+                   ,transform=ccrs.PlateCarree(),vmin=vmin,vmax=vmax,shading=shading,cmap=cmap)
     ax1.pcolormesh(zo_yy[0:jx_yy//2,:]*rad2deg,(yo_yy[0:jx_yy//2,:]-0.5*pi)*rad2deg,qq_yan[0:jx_yy//2,:] \
-                  ,transform=ccrs.PlateCarree(),vmin=vmin,vmax=vmax,shading=shading)
-    ax1.pcolormesh((zz_yy)*rad2deg,(yy_yy-0.5*pi)*rad2deg,qq_yin,transform=ccrs.PlateCarree(),vmin=vmin,vmax=vmax,shading=shading)
+                   ,transform=ccrs.PlateCarree(),vmin=vmin,vmax=vmax,shading=shading,cmap=cmap)
+    ax1.pcolormesh((zz_yy)*rad2deg,(yy_yy-0.5*pi)*rad2deg,qq_yin,transform=ccrs.PlateCarree(),vmin=vmin,vmax=vmax,shading=shading,cmap=cmap)
 
     #box = sgeom.box(minx=30,maxx=50,miny=40,maxy=60)
     #ax1.add_geometries([box],ccrs.PlateCarree(),facecolor='none',edgecolor='black')
@@ -89,10 +91,10 @@ for n in range(n0,nd_tau+1):
     yt_yy = (y_yy - 0.5*pi + 0.5*(y_yy[1] - y_yy[0]) )*rad2deg
     zt_yy = (z_yy + 0.5*(z_yy[1] - z_yy[0]))*rad2deg
 
-    y0 = -5
-    y1 = +5
-    z0 = -5
-    z1 = +5
+    y0 = -20
+    y1 = +20
+    z0 = -20
+    z1 = +20
     
     j0 = np.argmin(np.abs(yt_yy - y0))
     j1 = np.argmin(np.abs(yt_yy - y1))
@@ -105,7 +107,7 @@ for n in range(n0,nd_tau+1):
     #k0 = kx_yy//2 - kx_yy//10
     #k1 = kx_yy//2 + kx_yy//10
     
-    ax2.pcolormesh((zz_yy[j0:j1,k0:k1])*rad2deg,(yy_yy[j0:j1,k0:k1]-0.5*pi)*rad2deg,qq_yin[j0:j1,k0:k1],vmin=vmin,vmax=vmax,shading=shading)
+    ax2.pcolormesh((zz_yy[j0:j1,k0:k1])*rad2deg,(yy_yy[j0:j1,k0:k1]-0.5*pi)*rad2deg,qq_yin[j0:j1,k0:k1],vmin=vmin,vmax=vmax,shading='gouraud',cmap=cmap)
     
     #ax.pcolormesh(zog_yy[jxg_yy//2:jxg_yy,:],yog_yy[jxg_yy//2:jxg_yy,:]-0.5*pi,d.ql_yan[var][jxg_yy//2:jxg_yy,:]
     #              ,vmin=vmin,vmax=vmax,shading=shading,cmap='gray')
@@ -128,8 +130,8 @@ for n in range(n0,nd_tau+1):
     #ax.set_xticklabels('')
     #ax.set_yticklabels('')
 
-    plt.pause(0.01)
-    plt.savefig(pngdir+"py"+'{0:08d}'.format(n)+".png")
+    #plt.pause(0.01)
+    plt.savefig(pngdir+"py"+'{0:08d}'.format(n-n0)+".png")
 
     if(n != nd_tau):
         plt.clf()
