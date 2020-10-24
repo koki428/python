@@ -36,6 +36,8 @@ plt.close('all')
 #n0 = 120
 #nd = 150
 
+print(nd)
+
 if geometry == 'Cartesian':
     sinyy = 1
     sinyym = 1.
@@ -52,6 +54,10 @@ vxrmst = np.zeros((ix,nd-n0+1))
 vyrmst = np.zeros((ix,nd-n0+1))
 vzrmst = np.zeros((ix,nd-n0+1))
 
+bxmt = np.zeros((ix,jx,nd-n0+1))
+bymt = np.zeros((ix,jx,nd-n0+1))
+bzmt = np.zeros((ix,jx,nd-n0+1))
+
 bxrmst = np.zeros((ix,nd-n0+1))
 byrmst = np.zeros((ix,nd-n0+1))
 bzrmst = np.zeros((ix,nd-n0+1))
@@ -65,7 +71,6 @@ romt = np.zeros((ix,nd-n0+1))
 semt = np.zeros((ix,nd-n0+1))
 prmt = np.zeros((ix,nd-n0+1))
 temt = np.zeros((ix,nd-n0+1))
-
 
 fet = np.zeros((ix+1,nd-n0+1))
 fmt = np.zeros((ix+1,nd-n0+1))
@@ -124,6 +129,10 @@ for n in range(n0,nd+1):
     bxrmst[:,n-n0] = np.sqrt(np.average(d.vc["bxrms"]**2*sinyy,axis=1))/sinyym
     byrmst[:,n-n0] = np.sqrt(np.average(d.vc["byrms"]**2*sinyy,axis=1))/sinyym
     bzrmst[:,n-n0] = np.sqrt(np.average(d.vc["bzrms"]**2*sinyy,axis=1))/sinyym
+
+    bxmt[:,:,n-n0] = d.vc['bxm']
+    bymt[:,:,n-n0] = d.vc['bym']
+    bzmt[:,:,n-n0] = d.vc['bzm']
 
     rormst[:,n-n0] = np.sqrt(np.average(d.vc["rorms"]**2*sinyy,axis=1))/sinyym
     sermst[:,n-n0] = np.sqrt(np.average(d.vc["serms"]**2*sinyy,axis=1))/sinyym
@@ -248,11 +257,13 @@ tem = np.average(temt,axis=1)
 fe = np.average(fet,axis=1)
 fd = np.average(fdt,axis=1)
 
+fd = np.average(fmt,axis=1)
+
 ff = fd*sr + fe*(1.e0-sr)
 
 fk = np.average(fkt,axis=1)
 fr = np.average(frt,axis=1)
-ft = ff + fk + fr
+ft = ff + fk + fr + fm
 
 np.savez(d.p['datadir']+"est.npz"\
              ,x=x,y=y,z=z,rsun=rsun\
@@ -272,6 +283,7 @@ ax23.plot(xp,ff/fsun,color="red",label="$F_\mathrm{e}$")
 ax23.plot(xp,fk/fsun,color="green",label="$F_\mathrm{k}$")
 ax23.plot(xp,fr/fsun,color="blue",label="$F_\mathrm{r}$")
 ax23.plot(xp,ft/fsun,color="black",label="$F_\mathrm{t}$")
+ax23.plot(xp,fm/fsun,color="purple",label="$F_\mathrm{m}$")
 #ax23.set_xlim(xmin/rsun,xmax/rsun)
 ax23.set_ylim(fmin,fmax)
 ax23.set_xlabel(xlabel)
@@ -289,6 +301,7 @@ ax24.plot(x_flux_c,ff/fsun,color="red")
 ax24.plot(x_flux_c,fk/fsun,color="green")
 ax24.plot(x_flux_c,fr/fsun,color="blue")
 ax24.plot(x_flux_c,ft/fsun,color="black")
+ax24.plot(x_flux_c,fm/fsun,color="purple",label="$F_\mathrm{m}$")
 ax24.hlines(y=1,xmin=x_flux_c.min(),xmax=x_flux_c.max(),linestyle='--',color='black')
 ax24.set_xlim(-10,1)
 ax24.set_ylim(fmin,fmax)
