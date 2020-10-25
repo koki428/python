@@ -86,11 +86,13 @@ def sync_vc(self,server,project=os.getcwd().split('/')[-2]):
 
     import os
     caseid = self.p['datadir'].split('/')[-3]
+
+    set(server,caseid,project=project)
     os.system('rsync -avP' \
               +' --exclude="time/mhd" ' \
               +server+':work/'+project+'/run/'+caseid+'/data/remap/vl '
               +self.p['datadir']+'remap/' )
-
+    
 def sync_check(self,n,server,project=os.getcwd().split('/')[-2],end_step=False):
     '''
     This method downloads checkpoint data
