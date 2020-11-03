@@ -44,8 +44,8 @@ t0 = d.read_time(0,silent=True)
 yran = ymax - ymin
 xran = min(xmax-xmin,yran)
 
-xsize = 6
-ysize = 6
+xsize = 12
+ysize = 12
 fig = plt.figure(num=1,figsize=(xsize,ysize))
 
 #grid = GridSpec(2,2,height_ratios=[yran,xran])
@@ -76,10 +76,10 @@ for n in range(n0,nd+1):
     shading = "flat"
     #shading = "groroud"
 
-    #ax1 = fig.add_subplot(221,projection=ccrs.Mollweide())
-    #ax2 = fig.add_subplot(222,projection=ccrs.Mollweide())
-    ax1 = fig.add_subplot(221,aspect='equal')
-    ax2 = fig.add_subplot(222,aspect='equal')
+    ax1 = fig.add_subplot(221,projection='mollweide')
+    ax2 = fig.add_subplot(222,projection='mollweide')
+    #ax1 = fig.add_subplot(221,aspect='equal')
+    #ax2 = fig.add_subplot(222,aspect='equal')
     ax3 = fig.add_subplot(223,aspect='equal')
     ax4 = fig.add_subplot(224,aspect='equal')
 
@@ -101,6 +101,7 @@ for n in range(n0,nd+1):
     serms, tmp = np.meshgrid(sqrt((d.vc['serms']**2*SINY).sum(axis=1)/SINYM),y,indexing='ij')
     bbp = sqrt(d.vc['bx_xy']**2 + d.vc['by_xy']**2 + d.vc['bz_xy']**2)
     om = d.vc['vzm']/RA/sin(TH)
+    bzm = d.vc['bzm']
     
     if serms.max() != 0:
         se_plot = (d.vc['se_xy']-sem)/serms
@@ -109,7 +110,7 @@ for n in range(n0,nd+1):
 
     lfac = 1/rsun
     ax3.pcolormesh(XX.T*lfac,YY.T*lfac,se_plot.T,vmin=-2.,vmax=2.,shading='auto')
-    ax4.pcolormesh(XX.T*lfac,YY.T*lfac,om.T,shading='auto')
+    ax4.pcolormesh(XX.T*lfac,YY.T*lfac,bzm.T,shading='auto',vmin=-8000.,vmax=8000)
     
     if(n == n0):
         fig.tight_layout()
