@@ -88,17 +88,17 @@ def out_gspread(self,caseid,json_key,project):
 
     if self.p['geometry'] == 'Spherical':
         pi2rad = 180/np.pi
-        wks.update_acell('F'+str_id, '{:6.2f}'.format(self.p['ymin']*pi2rad)+' [rad]')
-        wks.update_acell('G'+str_id, '{:6.2f}'.format(self.p['ymax']*pi2rad)+' [rad]')
-        wks.update_acell('H'+str_id, '{:6.2f}'.format(self.p['zmin']*pi2rad)+' [rad]')
-        wks.update_acell('I'+str_id, '{:6.2f}'.format(self.p['zmax']*pi2rad)+' [rad]')
+        wks.update_acell('F'+str_id, '{:6.2f}'.format(self.p['ymin']*pi2rad)+' [deg]')
+        wks.update_acell('G'+str_id, '{:6.2f}'.format(self.p['ymax']*pi2rad)+' [deg]')
+        wks.update_acell('H'+str_id, '{:6.2f}'.format(self.p['zmin']*pi2rad)+' [deg]')
+        wks.update_acell('I'+str_id, '{:6.2f}'.format(self.p['zmax']*pi2rad)+' [deg]')
 
     if self.p['geometry'] == 'YinYang':
         pi2rad = 180/np.pi
-        wks.update_acell('F'+str_id, '0 [rad]')
-        wks.update_acell('G'+str_id, '180 [rad]')
-        wks.update_acell('H'+str_id, '-180 [rad]')
-        wks.update_acell('I'+str_id, '180 [rad]')
+        wks.update_acell('F'+str_id, '0 [deg]')
+        wks.update_acell('G'+str_id, '180 [deg]')
+        wks.update_acell('H'+str_id, '-180 [deg]')
+        wks.update_acell('I'+str_id, '180 [deg]')
         
     if ((self.p['x'][1] - self.p['x'][0]) == (self.p['x'][self.p['ix']-1] - self.p['x'][self.p['ix']-2])):
         wks.update_acell('J'+str_id,'T')
