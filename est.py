@@ -174,14 +174,14 @@ for n in range(n0,nd+1):
         xlabel = r'$x-R_\odot\ \mathrm{[Mm]}$'
 
         
-    ax1.plot(xp,ff/fsun,label=r'$F_\mathrm{e}$',color="red")
-    ax1.plot(xp,fk/fsun,label=r'$F_\mathrm{k}$',color="green")
-    ax1.plot(xp,fr/fsun,label=r'$F_\mathrm{r}$',color="blue")
-    ax1.plot(xp,fm/fsun,label=r'$F_\mathrm{r}$',color="blue")
-    ax1.plot(xp,ft/fsun,label=r'$F_\mathrm{t}$',color="black")
+    ax1.plot(xp,ff,label=r'$F_\mathrm{e}$',color="red")
+    ax1.plot(xp,fk,label=r'$F_\mathrm{k}$',color="green")
+    ax1.plot(xp,fr,label=r'$F_\mathrm{r}$',color="blue")
+    ax1.plot(xp,fm,label=r'$F_\mathrm{r}$',color="blue")
+    ax1.plot(xp,ft,label=r'$F_\mathrm{t}$',color="black")
 
     ax1.hlines(y=1,xmin=xp.min(),xmax=xp.max(),linestyle='--',color='black')
-    ax1.set_ylim(fmin,fmax)
+    #ax1.set_ylim(fmin,fmax)
     ax1.set_xlabel(xlabel)
     ax1.set_ylabel("$F/F_{\odot}$")
     ax1.set_title("Energy fluxes")
