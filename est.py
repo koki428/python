@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
+from tqdm import tqdm
 import R2D2
 import sys
 
@@ -29,13 +30,6 @@ print("Maximum time step= ",nd," time ="\
       ,dtout*float(nd)/3600./24.," [day]")
 
 plt.close('all')
-
-#n0 = 20
-#nd = 40
-
-#n0 = 120
-#nd = 150
-
 print(nd)
 
 if geometry == 'Cartesian':
@@ -82,8 +76,8 @@ ftt = np.zeros((ix+1,nd-n0+1))
 plt.close('all')
 plt.clf()
 
-for n in range(n0,nd+1):
-    print(n)
+for n in tqdm(range(n0,nd+1)):
+    #print(n)
     ##############################
     # read time
     t = d.read_time(n)
@@ -91,10 +85,6 @@ for n in range(n0,nd+1):
     ##############################
     # read value
     d.read_vc(n,silent=True)
-
-    print(d.vc['sem'].mean())
-    #print(d.vc['rzm'].mean())
-    print(d.vc['rom'].mean())
 
     ##############################    
     if geometry == 'Cartesian':
@@ -104,7 +94,6 @@ for n in range(n0,nd+1):
         fk = np.average(d.vc["fk"],axis=1)/sinyym
         fr = np.average(d.vc["fr"],axis=1)/sinyym
         fm = np.average(d.vc["fm"],axis=1)/sinyym
-        #fr = np.average(d.vc["fr"],axis=1)#*x_flux**2
     else:
         fsun = 3.86e33/pi/4
         fe = np.average(d.vc["fe"]*sinyy_flux,axis=1)/sinyym_flux*x_flux**2
@@ -112,7 +101,6 @@ for n in range(n0,nd+1):
         fk = np.average(d.vc["fk"]*sinyy_flux,axis=1)/sinyym_flux*x_flux**2
         fm = np.average(d.vc["fm"]*sinyy_flux,axis=1)/sinyym_flux*x_flux**2
         fr = np.average(d.vc["fr"]*sinyy_flux,axis=1)/sinyym_flux#*x_flux**2
-    #fc = np.average(d.vc["fa"],axis=1)
     
     xs = rsun - 2.e8
     ds = 2.e7
@@ -155,12 +143,11 @@ for n in range(n0,nd+1):
     fmax = 2.0
     fmin = -1.0
 
-    plt.rcParams["font.size"] = 15
-    fig1 = plt.figure(num='est',figsize=(12,8))
-    ax1 = fig1.add_subplot(221)
-    ax2 = fig1.add_subplot(222)
-    ax3 = fig1.add_subplot(223)
-    ax4 = fig1.add_subplot(224)
+    fig = plt.figure(num='est',figsize=(12,8))
+    ax1 = fig.add_subplot(221)
+    ax2 = fig.add_subplot(222)
+    ax3 = fig.add_subplot(223)
+    ax4 = fig.add_subplot(224)
 
 
     #####################
@@ -174,14 +161,13 @@ for n in range(n0,nd+1):
         xlabel = r'$x-R_\odot\ \mathrm{[Mm]}$'
 
         
-    ax1.plot(xp,ff,label=r'$F_\mathrm{e}$',color="red")
-    ax1.plot(xp,fk,label=r'$F_\mathrm{k}$',color="green")
-    ax1.plot(xp,fr,label=r'$F_\mathrm{r}$',color="blue")
-    ax1.plot(xp,fm,label=r'$F_\mathrm{r}$',color="blue")
-    ax1.plot(xp,ft,label=r'$F_\mathrm{t}$',color="black")
+    ax1.plot(xp,ff/fsun,label=r'$F_\mathrm{e}$',color=R2D2.magenta)
+    ax1.plot(xp,fk/fsun,label=r'$F_\mathrm{k}$',color=R2D2.green)
+    ax1.plot(xp,fr/fsun,label=r'$F_\mathrm{r}$',color=R2D2.blue)
+    ax1.plot(xp,fm/fsun,label=r'$F_\mathrm{r}$',color=R2D2.orange)
+    ax1.plot(xp,ft/fsun,label=r'$F_\mathrm{t}$',color=R2D2.ash)
 
-    ax1.hlines(y=1,xmin=xp.min(),xmax=xp.max(),linestyle='--',color='black')
-    #ax1.set_ylim(fmin,fmax)
+    ax1.hlines(y=1,xmin=xp.min(),xmax=xp.max(),linestyle='--',color=R2D2.ash)
     ax1.set_xlabel(xlabel)
     ax1.set_ylabel("$F/F_{\odot}$")
     ax1.set_title("Energy fluxes")
@@ -190,8 +176,8 @@ for n in range(n0,nd+1):
     #####################
     vxrms = np.sqrt((d.vc['vxrms']**2).mean(axis=1))
     vhrms = np.sqrt((d.vc['vyrms']**2 + d.vc['vzrms']**2).mean(axis=1))
-    ax2.plot(xpp,vxrms*1.e-5,label=r'$v_{x\mathrm{(rms)}}$',color='blue')
-    ax2.plot(xpp,vhrms*1.e-5,label=r'$v_\mathrm{h(rms)}$',color='red')
+    ax2.plot(xpp,vxrms*1.e-5,label=r'$v_{x\mathrm{(rms)}}$',color=R2D2.blue)
+    ax2.plot(xpp,vhrms*1.e-5,label=r'$v_\mathrm{h(rms)}$',color=R2D2.magenta)
     ax2.set_xlabel(xlabel)
     ax2.set_ylabel(r"velocities [km/s]")
     ax2.set_label('RMS velocities')
@@ -202,25 +188,18 @@ for n in range(n0,nd+1):
     #####################
     bxrms = np.sqrt((d.vc['bxrms']**2).mean(axis=1))
     bhrms = np.sqrt((d.vc['byrms']**2 + d.vc['bzrms']**2).mean(axis=1))
-    ax3.plot(xpp,bxrms,label=r'$B_{x\mathrm{(rms)}}$',color='blue')
-    ax3.plot(xpp,bhrms,label=r'$B_\mathrm{h(rms)}$',color='red')
+    ax3.plot(xpp,bxrms,label=r'$B_{x\mathrm{(rms)}}$',color=R2D2.blue)
+    ax3.plot(xpp,bhrms,label=r'$B_\mathrm{h(rms)}$',color=R2D2.magenta)
     ax3.set_xlabel(xlabel)
     ax3.set_ylabel(r"Magnetic field [G]")
     ax3.set_label('RMS magnetic field')
-    #ax3.set_yscale('log')
     ax3.legend()
 
-    hp = pr0/ro0/gx
-    semx = np.zeros(ix)
-    for i in range(1,ix):
-        semx[i] = (semt[i,n-n0] - semt[i-1,n-n0])/(x[i] - x[i-1])
-
-    #ax4.plot(semx*hp/cp)
-    ax4.plot(x/rsun,semt[:,n-n0]+se0)
-    
-    
+    #####################
+    ax4.plot(x/rsun,semt[:,n-n0]+se0,color=R2D2.blue)
+        
     if n == n0:
-        plt.tight_layout()
+        fig.tight_layout()
 
     ax3.annotate(text="t="+"{:.2f}".format(t/3600./24.)+" [day]"\
                      ,xy=[0.01,0.01],xycoords="figure fraction",fontsize=18)
@@ -257,8 +236,6 @@ tem = np.average(temt,axis=1)
 fe = np.average(fet,axis=1)
 fd = np.average(fdt,axis=1)
 
-fd = np.average(fmt,axis=1)
-
 ff = fd*sr + fe*(1.e0-sr)
 
 fk = np.average(fkt,axis=1)
@@ -275,15 +252,14 @@ np.savez(d.p['datadir']+"est.npz"\
              ,ff=ff,fk=fk,fr=fr,ft=ft\
              )
          
-plt.rcParams["font.size"] = 15
 fig2 = plt.figure(num=100,figsize=(12,5))
 ax23 = fig2.add_subplot(121)
 ax24 = fig2.add_subplot(122)
-ax23.plot(xp,ff/fsun,color="red",label="$F_\mathrm{e}$")
-ax23.plot(xp,fk/fsun,color="green",label="$F_\mathrm{k}$")
-ax23.plot(xp,fr/fsun,color="blue",label="$F_\mathrm{r}$")
-ax23.plot(xp,ft/fsun,color="black",label="$F_\mathrm{t}$")
-ax23.plot(xp,fm/fsun,color="purple",label="$F_\mathrm{m}$")
+ax23.plot(xp,ff/fsun,color=R2D2.magenta,label="$F_\mathrm{e}$")
+ax23.plot(xp,fk/fsun,color=R2D2.green,label="$F_\mathrm{k}$")
+ax23.plot(xp,fr/fsun,color=R2D2.blue,label="$F_\mathrm{r}$")
+ax23.plot(xp,ft/fsun,color=R2D2.orange,label="$F_\mathrm{t}$")
+ax23.plot(xp,fm/fsun,color=R2D2.ash,label="$F_\mathrm{m}$")
 #ax23.set_xlim(xmin/rsun,xmax/rsun)
 ax23.set_ylim(fmin,fmax)
 ax23.set_xlabel(xlabel)
@@ -297,11 +273,11 @@ ax23.hlines(y=1,xmin=xp.min(),xmax=xp.max(),linestyle='--',color='black')
 
 x_flux_c = (x_flux - rsun)*1.e-8
 
-ax24.plot(x_flux_c,ff/fsun,color="red")
-ax24.plot(x_flux_c,fk/fsun,color="green")
-ax24.plot(x_flux_c,fr/fsun,color="blue")
-ax24.plot(x_flux_c,ft/fsun,color="black")
-ax24.plot(x_flux_c,fm/fsun,color="purple",label="$F_\mathrm{m}$")
+ax24.plot(x_flux_c,ff/fsun,color=R2D2.magenta)
+ax24.plot(x_flux_c,fk/fsun,color=R2D2.green)
+ax24.plot(x_flux_c,fr/fsun,color=R2D2.blue)
+ax24.plot(x_flux_c,ft/fsun,color=R2D2.orange)
+ax24.plot(x_flux_c,fm/fsun,color=R2D2.ash,label="$F_\mathrm{m}$")
 ax24.hlines(y=1,xmin=x_flux_c.min(),xmax=x_flux_c.max(),linestyle='--',color='black')
 ax24.set_xlim(-10,1)
 ax24.set_ylim(fmin,fmax)

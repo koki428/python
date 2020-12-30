@@ -15,7 +15,7 @@ except NameError:
     caseid = "d"+caseid.zfill(3)
     
 datadir="../run/"+caseid+"/data/"
-pngdir="../figs/"+caseid+"/mov/"
+pngdir="../figs/"+caseid+"/mov_photo/"
 os.makedirs(pngdir,exist_ok=True)
 
 d = R2D2.R2D2_data(datadir)
@@ -26,10 +26,10 @@ try:
     n0
 except NameError:
     n0 = 0
-if  n0 > d.p["nd"]:
-    n0 = d.p["nd"]
+if  n0 > d.p["nd_tau"]:
+    n0 = d.p["nd_tau"]
 
-print("Maximum time step= ",nd," time ="\
+print("Maximum time step (nd_tau) = ",nd_tau," time ="\
           ,dtout*float(nd)/3600./24.," [day]")
 
 plt.close('all')
@@ -48,22 +48,25 @@ grid = GridSpec(2,2,height_ratios=[yran,xran])
 
 te2, tmp = np.meshgrid(te0,y,indexing='ij')
 
-for n in tqdm(range(n0,nd+1)):
+
+for n in tqdm(range(n0,nd_tau+1)):
 #for n in range(0,1):
     #print(n)
     ##############################
     # read time
-    t = d.read_time(n,silent=True)
+    t = d.read_time(n,tau=True,silent=True)
         
     ##############################
     # read time
     if xmax > rsun:
-        d.read_qq_tau(n*int(ifac),silent=True)
+        d.read_qq_tau(n,silent=True)
 
     ##############################
     # read value
 
-    d.read_vc(n,silent=True)
+    k_slice = 1
+    d.read_qq_slice(k_slice,'z',n,silent=True)
+    kl = np.argmin(np.abs(z - z_slice[k_slice]))
     ##############################
 
     shading = "auto"
@@ -92,11 +95,10 @@ for n in tqdm(range(n0,nd+1)):
         ax1.pcolormesh(y*lfac,z*lfac,in0s.transpose(),cmap='gist_gray',vmax=3.2e10,vmin=1.e10,shading=shading)
         ax1.set_ylabel("z [Mm]")
         ax1.set_title("Emergent intensity")
-        ax3.pcolormesh(y*lfac,(x-rsun)*lfac,d.vc['te_xy']+te2,vmin=2000.,vmax=20000,cmap='gist_heat',shading=shading)
-        tus = np.roll(d.vc["tu_xy"],[jx//2-jc],axis=1)
-        ax3.contour(y*lfac,(x-rsun)*lfac,tus,levels=[1.],colors="w")
+        ax3.pcolormesh(y*lfac,(x-rsun)*lfac,d.ql['te']+te2,vmin=2000.,vmax=20000,cmap='gist_heat',shading=shading)
+        ax3.plot(y*lfac,(d.qt['he'][:,kl]-rsun)*lfac,color='w')
         ax3.set_title(r"$T$")
-        ax4.contour(y*lfac,(x-rsun)*lfac,tus,levels=[1.],colors="w")
+        ax4.plot(y*lfac,(d.qt['he'][:,kl]-rsun)*lfac,color='w')
 
     bx = np.roll(d.qt["bx"],[jx//2-jc,kx//2-kc],axis=[0,1])
     ax2.tick_params(labelbottom=False)
@@ -108,7 +110,7 @@ for n in tqdm(range(n0,nd+1)):
     ax3.set_ylabel("$x$ [Mm]")
     ax3.set_xlabel("$y$ [Mm]")
     
-    bb = np.sqrt(d.vc["bx_xy"]**2 + d.vc["by_xy"]**2 + d.vc["bz_xy"]**2)
+    bb = np.sqrt(d.ql["bx"]**2 + d.ql["by"]**2 + d.ql["bz"]**2)
     bbs = np.roll(bb,[jx//2-jc],axis=1)
     ax4.tick_params(labelleft=False)
     ax4.pcolormesh(y*lfac,(x-rsun)*lfac,bbs,vmax=8.e3,vmin=0.,cmap='gist_heat',shading=shading)
@@ -126,5 +128,5 @@ for n in tqdm(range(n0,nd+1)):
     plt.pause(0.1)
     plt.savefig(pngdir+"py"+'{0:08d}'.format(n)+".png")
 
-    if(n != nd):
+    if(n != nd_tau):
         clf()
