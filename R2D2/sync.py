@@ -67,9 +67,9 @@ def sync_select(self,xs,server,project=os.getcwd().split('/')[-2]):
     files = ''
     caseid = self.p['datadir'].split('/')[-3]
 
-    for np in nps:
+    for ns in nps:
         files = files + server+':work/'+project+'/run/'+caseid \
-                +'/data/remap/qq/qq.dac.' + '"*".' + np + " "
+                +'/data/remap/qq/qq.dac.' + '"*".' + ns + " "
     
     os.system('rsync -avP ' \
           +files \
