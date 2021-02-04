@@ -12,6 +12,7 @@ def init(self, datadir):
     self.p = {}
     self.qs = {}
     self.qq = {}
+    self.qv = np.zeros((1,1,1))
     self.qt = {}
     self.qt_yin = {}
     self.qt_yan = {}
@@ -522,6 +523,84 @@ def read_qq(self,n,silent=False):
     if not silent :
         print('### variales are stored in self.qq ###')
 
+##############################
+def read_qq_variable(self,n,variable,silent=False):
+    '''
+    This method reads 3D data of a variable.
+    The data is stored in self.qv dictionary
+
+    Parameters:
+        n (int): a selected time step for data
+        variable (str): name of variable to read
+        silent (bool): True suppresses a message of store
+    '''
+    import numpy as np
+
+    mtype = self.p["mtype"]
+    iixl = self.p["iixl"]
+    jjxl = self.p["jjxl"]
+    kx = self.p["kx"]
+    iss = self.p["iss"]
+    iee = self.p["iee"]
+    jss = self.p["jss"]
+    jee = self.p["jee"]
+    ix = self.p["ix"]
+    jx = self.p["jx"]
+    kx = self.p["kx"]
+
+    if variable == 'ro':
+        m = 0
+    elif variable == 'vx':
+        m = 1
+    elif variable == 'vy':
+        m = 2
+    elif variable == 'vz':
+        m = 3
+    elif variable == 'bx':
+        m = 4
+    elif variable == 'by':
+        m = 5
+    elif variable == 'bz':
+        m = 6
+    elif variable == 'se':
+        m = 7
+    elif variable == 'ph':
+        m = 8
+    elif variable == 'ph':
+        m = 8
+    elif variable == 'pr' or variable == 'te' or variable == 'op':
+        pass
+    else:
+        print('Please specify defined variable')
+        return
+            
+    ### Only when memory is not allocated 
+    ### and the size of array is different
+    ### memory is allocated
+    if self.qv.shape != (ix,jx,kx):
+        self.qv = np.zeros((ix,jx,kx))
+
+    for ir0 in range(1,self.p["ixr"]+1):
+        for jr0 in range(1,self.p["jxr"]+1):
+            np0 = self.p["np_ijr"][ir0-1,jr0-1]
+            dtyp=np.dtype([ \
+                ("qq",self.p["endian"]+str(mtype*iixl[np0]*jjxl[np0]*kx)+"f"),\
+                ("pr",self.p["endian"]+str(iixl[np0]*jjxl[np0]*kx)+"f"),\
+                ("te",self.p["endian"]+str(iixl[np0]*jjxl[np0]*kx)+"f"),\
+                ("op",self.p["endian"]+str(iixl[np0]*jjxl[np0]*kx)+"f"),\
+            ])
+            f = open(self.p['datadir']+"remap/qq/qq.dac."+'{0:08d}'.format(n)+"."+'{0:08d}'.format(np0),'rb')
+            qqq = np.fromfile(f,dtype=dtyp,count=1)
+            index = [iixl[np0], jjxl[np0], kx, mtype]
+            if variable == 'pr' or variable == 'te' or variable == 'op':
+                self.qv[iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = \
+                    qqq[variable].reshape((index[0],index[1],index[2],index[3]),order="F")
+            else:
+                self.qv[iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = \
+                    qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,:,:,m]
+
+    if not silent :
+        print('### variales are stored in self.qv ###')
 
 ##############################
 def read_qq_tau(self,n,silent=False):
