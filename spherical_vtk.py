@@ -23,12 +23,12 @@ if  n0 > d.p["nd"]:
     n0 = d.p["nd"]
 
 n = 200
-ixc = 3072
-jxc = 3072
-kxc = 3072
+ixc = 2048
+jxc = 2048
+kxc = 2048
 var = 'se'
 
-READ    = False
+READ    = True
 CONVERT = True
 WRITE   = True
 
@@ -37,8 +37,8 @@ file = 'test.vtk'
 print('### Time step =',n)
 if READ:
     print('- Read data')
-    d.read_qq_variable(200,var)
-    d.read_vc(200)
+    d.read_qq_variable(200,var,silent=True)
+    d.read_vc(200,silent=True)
 
     qqm0  ,tmp = np.meshgrid(d.vc[var+'m']  ,z,indexing='ij')
     qqrms0,tmp = np.meshgrid(d.vc[var+'rms'],z,indexing='ij')

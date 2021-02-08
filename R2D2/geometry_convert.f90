@@ -90,7 +90,7 @@ subroutine spherical2cartesian(qqs,rr,th,ph,ixs,jxs,kxs,ixc,jxc,kxc,qqc,xc,yc,zc
         kk0 = kc
         kk1 = kc + 1
 
-        if(kc == kx) then
+        if(kc == kxc) then
             kk1 = 1
         endif
 
