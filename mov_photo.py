@@ -48,6 +48,8 @@ grid = GridSpec(2,2,height_ratios=[yran,xran])
 
 te2, tmp = np.meshgrid(te0,y,indexing='ij')
 
+#n0 = 18
+#nd_tau = n0
 
 for n in tqdm(range(n0,nd_tau+1)):
 #for n in range(0,1):

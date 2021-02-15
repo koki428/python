@@ -44,14 +44,29 @@ t0 = d.read_time(0,silent=True)
 yran = ymax - ymin
 xran = min(xmax-xmin,yran)
 
-xsize = 12
+xsize = 20
 ysize = 12
 fig = plt.figure(num=1,figsize=(xsize,ysize))
 
 #grid = GridSpec(2,2,height_ratios=[yran,xran])
 
+xe = np.zeros(ix+1)
+ye = np.zeros(jx+1)
+
+xe[0] = xmin
+xe[ix] = xmax
+ye[0] = 0.e0
+ye[jx] = np.pi
+for i in range(1,ix):
+    xe[i] = xe[i-1] + 2*(x[i-1] - xe[i-1])
+
+for j in range(1,jx):
+    ye[j] = ye[j-1] + 2*(y[j-1] - ye[j-1])
+
 RA, TH = np.meshgrid(x,y,indexing='ij')
-XX, YY = RA*cos(TH), RA*sin(TH)
+
+RAE, THE = np.meshgrid(xe,ye,indexing='ij')
+XX, YY = RAE*cos(THE), RAE*sin(THE)
 
 zz,yy = np.meshgrid(z,y-0.5*np.pi)
 
@@ -91,7 +106,10 @@ for n in range(n0,nd+1):
         d.read_qq_select(xmax,n,silent=True)
         vx = d.qs['vx']
         bx = d.qs['bx']
-        ax1.pcolormesh(zz,yy,vx,shading='auto')
+        vxrms = np.sqrt((vx**2).mean())
+        vmax = 2*vxrms
+        vmin = -vmax
+        ax1.pcolormesh(zz,yy,vx,shading='auto',cmap='inferno',vmax=vmax,vmin=vmin)
         ax2.pcolormesh(zz,yy,bx,shading='auto')
         for ax in [ax1,ax2]:
             ax.set_xticklabels('')
