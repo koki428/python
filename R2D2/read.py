@@ -8,7 +8,7 @@ def init(self, datadir):
     '''
     import numpy as np
     import os,sys
-        
+    
     self.p = {}
     self.qs = {}
     self.qq = {}

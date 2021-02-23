@@ -110,7 +110,10 @@ for n in range(n0,nd+1):
         vmax = 2*vxrms
         vmin = -vmax
         ax1.pcolormesh(zz,yy,vx,shading='auto',cmap='inferno',vmax=vmax,vmin=vmin)
-        ax2.pcolormesh(zz,yy,bx,shading='auto')
+        bxrms = np.sqrt((bx**2).mean())
+        vmax = 2*bxrms
+        vmin = -vmax
+        ax2.pcolormesh(zz,yy,bx,shading='auto',cmap='gray',vmax=vmax,vmin=vmin)
         for ax in [ax1,ax2]:
             ax.set_xticklabels('')
             ax.set_yticklabels('')

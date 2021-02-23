@@ -31,9 +31,13 @@ if  n0 > d.p["nd"]:
 n0 = 0
 t = np.zeros(nd-n0+1)
 ekm = np.zeros(nd-n0+1)
+anm = np.zeros(nd-n0+1)
 bxmt = np.zeros((ix,jx,nd-n0+1))
 bymt = np.zeros((ix,jx,nd-n0+1))
 bzmt = np.zeros((ix,jx,nd-n0+1))
+
+RR, TH = np.meshgrid(x,y,indexing='ij')
+ro2, tmp = np.meshgrid(ro0,y,indexing='ij')
 
 for n in range(n0,nd+1):
     print(n)
@@ -41,8 +45,10 @@ for n in range(n0,nd+1):
     d.read_time(n)
     t[n-n0] = d.t
 
+
     d.read_vc(n,silent=True)
-    #ekm[n-n0] = (RR**2*sin(TH)*d.vc['vzm']**2).mean()/(RR*2*sin(TH)).mean()
+    ekm[n-n0] = (RR**2*sin(TH)*d.vc['vzm']**2).mean()/(RR**2*sin(TH)).mean()
+    anm[n-n0] = ((RR*sin(TH)*d.vc['vzm'])*RR**2*sin(TH)*ro2).sum()
     bxmt[:,:,n-n0] = d.vc['bxm']
     bymt[:,:,n-n0] = d.vc['bym']
     bzmt[:,:,n-n0] = d.vc['bzm']

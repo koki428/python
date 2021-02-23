@@ -30,7 +30,6 @@ print("Maximum time step= ",nd," time ="\
       ,dtout*float(nd)/3600./24.," [day]")
 
 plt.close('all')
-print(nd)
 
 if geometry == 'Cartesian':
     sinyy = 1
@@ -44,6 +43,10 @@ else:
     sinyy_flux = sin(yy_flux)
     sinyym_flux = np.average(sinyy_flux,axis=1)
     
+
+#n0 = 150
+#nd = 200
+
 vxrmst = np.zeros((ix,nd-n0+1))
 vyrmst = np.zeros((ix,nd-n0+1))
 vzrmst = np.zeros((ix,nd-n0+1))
