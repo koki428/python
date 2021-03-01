@@ -38,10 +38,11 @@ plt.close('all')
 
 shading='flat'
 
-n0 = 5
-nd_tau = 5
-
 fig = plt.figure(100,figsize=(20,10))
+
+#n0 = 22
+#nd_tau = 22
+
 for n in range(n0,nd_tau+1):
     print(n)
     #d.read_qq_slice(5,'x',0)

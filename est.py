@@ -44,8 +44,8 @@ else:
     sinyym_flux = np.average(sinyy_flux,axis=1)
     
 
-#n0 = 150
-#nd = 200
+#n0 = 4
+#nd = n0
 
 vxrmst = np.zeros((ix,nd-n0+1))
 vyrmst = np.zeros((ix,nd-n0+1))
@@ -97,6 +97,7 @@ for n in tqdm(range(n0,nd+1)):
         fk = np.average(d.vc["fk"],axis=1)/sinyym
         fr = np.average(d.vc["fr"],axis=1)/sinyym
         fm = np.average(d.vc["fm"],axis=1)/sinyym
+
     else:
         fsun = 3.86e33/pi/4
         fe = np.average(d.vc["fe"]*sinyy_flux,axis=1)/sinyym_flux*x_flux**2
@@ -111,6 +112,7 @@ for n in tqdm(range(n0,nd+1)):
     SR, sry = np.meshgrid(sr,y,indexing="ij")
     
     ff = fd*sr + fe*(1.e0-sr)
+    #ff = fd
     ft = ff + fk + fr + fm
 
     vxrmst[:,n-n0] = np.sqrt(np.average(d.vc["vxrms"]**2*sinyy,axis=1))/sinyym
@@ -162,7 +164,6 @@ for n in tqdm(range(n0,nd+1)):
         xp = (x_flux - rsun)*1.e-8
         xpp = (x - rsun)*1.e-8
         xlabel = r'$x-R_\odot\ \mathrm{[Mm]}$'
-
         
     ax1.plot(xp,ff/fsun,label=r'$F_\mathrm{e}$',color=R2D2.magenta)
     ax1.plot(xp,fk/fsun,label=r'$F_\mathrm{k}$',color=R2D2.green)
@@ -174,7 +175,7 @@ for n in tqdm(range(n0,nd+1)):
     ax1.set_xlabel(xlabel)
     ax1.set_ylabel("$F/F_{\odot}$")
     ax1.set_title("Energy fluxes")
-    ax1.legend()
+    #ax1.legend()
 
     #####################
     vxrms = np.sqrt((d.vc['vxrms']**2).mean(axis=1))
@@ -240,6 +241,7 @@ fe = np.average(fet,axis=1)
 fd = np.average(fdt,axis=1)
 
 ff = fd*sr + fe*(1.e0-sr)
+#ff = fd
 
 fk = np.average(fkt,axis=1)
 fr = np.average(frt,axis=1)
