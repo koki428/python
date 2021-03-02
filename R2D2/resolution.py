@@ -190,7 +190,6 @@ def upgrade_resolution(
     import os
     import os.path
     import numpy as np
-    from scipy.interpolate import RegularGridInterpolator
     import R2D2.regrid
     from . import common
     import sys
@@ -274,6 +273,7 @@ def upgrade_resolution(
             
 
     if not memory_saving:
+        print('### Save data ###')
         self.qu.reshape([self.p['mtype']*self.up['ixg']*self.up['jxg']*self.up['kxg']] \
                         ,order='F').astype(endian+'d').tofile('../run/'+caseid+'/data/qq/qq.dac.e')
 
@@ -324,7 +324,6 @@ def upgrade_resolution(
     f.write('xmax = rsun '+sign_judge(value)+'{:.4e}'.format(abs(value))+' or '
             +'{:.3f}'.format(self.p['xmax']/self.p['rsun'])+'*rsun'
             +change_judge(xmax,self,'xmax',enp=False)+'\n')
-    print(self.p['geometry'])
     if self.p['geometry'] == 'Spherical':
         print(self.p['ymin']/np.pi*180)
         f.write('ymin = '+'{:.4e}'.format(self.p['ymin']/np.pi*180)+' [rad] '+change_judge(ymin,self,'ymin',enp=False)+'\n')
