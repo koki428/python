@@ -800,7 +800,6 @@ def read_qq_check(self,n,silent=False,end_step=False):
             step = 'o'
 
     f = open(self.p['datadir']+"qq/qq.dac."+step,'rb')
-    print(order_3D)
     if(order_3D == 1):
         self.qc = np.fromfile(f,self.p['endian']+'d',mtype*ixg*jxg*kxg).reshape((mtype,ixg,jxg,kxg),order="F")    
     if(order_3D == 2):

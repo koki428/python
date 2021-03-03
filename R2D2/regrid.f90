@@ -32,7 +32,6 @@ subroutine interp(x,y,z,xu,yu,zu,qq,ix,jx,kx,ixu,jxu,kxu,qu)
   call id_loc(x,xu,ix,ixu,imin,imax,iloc,dx0,dx1)
   call id_loc(y,yu,jx,jxu,jmin,jmax,jloc,dy0,dy1)
   call id_loc(z,zu,kx,kxu,kmin,kmax,kloc,dz0,dz1)
-
   
   qu = 0.d0
 
@@ -60,7 +59,7 @@ subroutine interp(x,y,z,xu,yu,zu,qq,ix,jx,kx,ixu,jxu,kxu,qu)
           & + qq(iloc(i)+1,jloc(j)+1,kloc(k)+0)*dz1(k)*dy0(j)*dx0(i) &
           & + qq(iloc(i)+1,jloc(j)+1,kloc(k)+1)*dz0(k)*dy0(j)*dx0(i) &
           & )/(dx0(i) + dx1(i))/(dy0(j) + dy1(j))/(dz0(k) + dz1(k))
-enddo
+  enddo
   enddo
   enddo
 
@@ -97,8 +96,7 @@ subroutine id_loc(x,xu,ix,ixu,imin,imax,iloc,dx0,dx1)
      endif
   enddo
 3000 continue
-  
-  
+    
   do i = 1,ixu
      do ii = ix,1,-1
         if(xu(i) >= x(ii)) then
