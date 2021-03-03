@@ -98,7 +98,7 @@ for n in tqdm(range(n0,nd+1)):
         ax3.set_title(r"$T$")
         ax4.contour(y*lfac,(x-rsun)*lfac,tus,levels=[1.],colors="w")
 
-    bx = np.roll(d.qs["bx"],[jx//2-jc,kx//2-kc],axis=[0,1])
+    bx = np.roll(d.qt["bx"],[jx//2-jc,kx//2-kc],axis=[0,1])
     ax2.tick_params(labelbottom=False)
     ax2.tick_params(labelleft=False)
     ax2.pcolormesh(y*lfac,z*lfac,bx.transpose(),cmap='gist_gray',vmax=2.5e3,vmin=-2.5e3,shading=shading)
