@@ -51,6 +51,8 @@ te2, tmp = np.meshgrid(te0,y,indexing='ij')
 #n0 = 18
 #nd_tau = n0
 
+d.read_vc(0,silent=True)
+
 for n in tqdm(range(n0,nd_tau+1)):
 #for n in range(0,1):
     #print(n)
@@ -97,9 +99,9 @@ for n in tqdm(range(n0,nd_tau+1)):
         ax1.pcolormesh(y*lfac,z*lfac,in0s.transpose(),cmap='gist_gray',vmax=3.2e10,vmin=1.e10,shading=shading)
         ax1.set_ylabel("z [Mm]")
         ax1.set_title("Emergent intensity")
-        ax3.pcolormesh(y*lfac,(x-rsun)*lfac,d.ql['te']+te2,vmin=2000.,vmax=20000,cmap='gist_heat',shading=shading)
+        ax3.pcolormesh(y*lfac,(x-rsun)*lfac,(d.ql['se'] - d.vc['sem'])/d.vc['serms'],vmin=-2,vmax=2,cmap='gist_heat',shading=shading)
         ax3.plot(y*lfac,(d.qt['he'][:,kl]-rsun)*lfac,color='w')
-        ax3.set_title(r"$T$")
+        ax3.set_title(r"$s$")
         ax4.plot(y*lfac,(d.qt['he'][:,kl]-rsun)*lfac,color='w')
 
     bx = np.roll(d.qt["bx"],[jx//2-jc,kx//2-kc],axis=[0,1])
