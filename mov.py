@@ -57,8 +57,8 @@ for n in tqdm(range(n0,nd+1)):
         
     ##############################
     # read time
-    if xmax > rsun:
-        d.read_qq_tau(n*int(ifac),silent=True)
+#    if xmax > rsun:
+    d.read_qq_tau(n*int(ifac),silent=True)
 
     ##############################
     # read value

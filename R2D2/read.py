@@ -807,6 +807,7 @@ def read_qq_check(self,n,silent=False,end_step=False):
     if(order_3D == 3):
         self.qc = np.fromfile(f,self.p['endian']+'d',mtype*ixg*jxg*kxg).reshape((ixg,jxg,mtype,kxg),order="F")    
     if(order_3D == 4):
+        print(ixg,jxg,kxg,mtype)
         self.qc = np.fromfile(f,self.p['endian']+'d',mtype*ixg*jxg*kxg).reshape((ixg,jxg,kxg,mtype),order="F")    
 
     f.close()

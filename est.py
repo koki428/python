@@ -14,6 +14,8 @@ except NameError:
     caseid = "d"+caseid.zfill(3)
 
 datadir="../run/"+caseid+"/data/"
+pngdir="../figs/"+caseid+"/est/"
+os.makedirs(pngdir,exist_ok=True)
 
 d = R2D2.R2D2_data(datadir)
 for key in d.p:
@@ -209,6 +211,7 @@ for n in tqdm(range(n0,nd+1)):
                      ,xy=[0.01,0.01],xycoords="figure fraction",fontsize=18)
 
     plt.pause(0.001)
+    plt.savefig(pngdir+"py"+'{0:08d}'.format(n)+".png")
 
     
     if n != nd:

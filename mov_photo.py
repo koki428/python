@@ -40,7 +40,7 @@ t0 = d.read_time(0,silent=True)
 yran = ymax - ymin
 xran = min(xmax-xmin,yran)
 
-xsize = 12
+xsize = 18
 ysize = xsize*(yran + xran)/2/yran
 fig = plt.figure(num=1,figsize=(xsize,ysize))
 
@@ -83,26 +83,15 @@ for n in tqdm(range(n0,nd_tau+1)):
     ax4 = fig.add_subplot(grid[1,1],aspect='equal')
     
     ax1.tick_params(labelbottom=False)
-    if deep_flag == 1:
-        d.read_qq_select(xmax,n,silent=True)
-        in0 = d.qs["vx"].copy()
-        in0s = np.roll(in0,[jx//2-jc,kx//2-kc],axis=[0,1])
-        ax1.pcolormesh(y*lfac,z*lfac,in0s.transpose(),cmap='gist_gray',vmax=1.e4,vmin=-1.e4,shading=shading)
-        ax1.set_ylabel("z [Mm]")
-        ax1.set_title("Vertical velocity")
-        sem, tmp = np.meshgrid(d.vc['sem'].mean(axis=1),y,indexing='ij')
-        ax3.pcolormesh(y*lfac,(x-rsun)*lfac,(d.vc['se_xy']-d.vc['sem'])/d.vc['serms'],cmap='gist_heat',vmax=3,vmin=-3)
-        ax3.set_title(r'$(s-\langle s\rangle)/s_{rms}$')
-    else:
-        in0 = d.qt["in"].copy()
-        in0s = np.roll(in0,[jx//2-jc,kx//2-kc],axis=[0,1])
-        ax1.pcolormesh(y*lfac,z*lfac,in0s.transpose(),cmap='gist_gray',vmax=3.2e10,vmin=1.e10,shading=shading)
-        ax1.set_ylabel("z [Mm]")
-        ax1.set_title("Emergent intensity")
-        ax3.pcolormesh(y*lfac,(x-rsun)*lfac,(d.ql['se'] - d.vc['sem'])/d.vc['serms'],vmin=-2,vmax=2,cmap='gist_heat',shading=shading)
-        ax3.plot(y*lfac,(d.qt['he'][:,kl]-rsun)*lfac,color='w')
-        ax3.set_title(r"$s$")
-        ax4.plot(y*lfac,(d.qt['he'][:,kl]-rsun)*lfac,color='w')
+    in0 = d.qt["in"].copy()
+    in0s = np.roll(in0,[jx//2-jc,kx//2-kc],axis=[0,1])
+    ax1.pcolormesh(y*lfac,z*lfac,in0s.transpose(),cmap='gist_gray',vmax=3.2e10,vmin=1.e10,shading=shading)
+    ax1.set_ylabel("z [Mm]")
+    ax1.set_title("Emergent intensity")
+    ax3.pcolormesh(y*lfac,(x-rsun)*lfac,d.ql['te']+te2,vmin=3000,vmax=20000,cmap='gist_heat',shading=shading)
+    ax3.plot(y*lfac,(d.qt['he'][:,kl]-rsun)*lfac,color='w')
+    ax3.set_title(r"$T$")
+    ax4.plot(y*lfac,(d.qt['he'][:,kl]-rsun)*lfac,color='w')
 
     bx = np.roll(d.qt["bx"],[jx//2-jc,kx//2-kc],axis=[0,1])
     ax2.tick_params(labelbottom=False)

@@ -31,10 +31,10 @@ if  n0 > d.p["nd"]:
 n0 = 0
 t = np.zeros(nd-n0+1)
 ekm = np.zeros(nd-n0+1)
+ekt = np.zeros(nd-n0+1)
+emm = np.zeros(nd-n0+1)
+emt = np.zeros(nd-n0+1)
 anm = np.zeros(nd-n0+1)
-bxmt = np.zeros((ix,jx,nd-n0+1))
-bymt = np.zeros((ix,jx,nd-n0+1))
-bzmt = np.zeros((ix,jx,nd-n0+1))
 
 RR, TH = np.meshgrid(x,y,indexing='ij')
 ro2, tmp = np.meshgrid(ro0,y,indexing='ij')
@@ -45,20 +45,26 @@ for n in range(n0,nd+1):
     d.read_time(n)
     t[n-n0] = d.t
 
-
     d.read_vc(n,silent=True)
-    ekm[n-n0] = (RR**2*sin(TH)*d.vc['vzm']**2).mean()/(RR**2*sin(TH)).mean()
+    ekm[n-n0] = (RR**2*sin(TH)*(d.vc['vxm']**2   + d.vc['vym']**2   + d.vc['vzm']**2)).mean()/(RR**2*sin(TH)).mean()
+    ekt[n-n0] = (RR**2*sin(TH)*(d.vc['vxrms']**2 + d.vc['vyrms']**2 + d.vc['vzm']**2)).mean()/(RR**2*sin(TH)).mean()
+    emm[n-n0] = (RR**2*sin(TH)*(d.vc['bxm']**2   + d.vc['bym']**2   + d.vc['bzm']**2)).mean()/(RR**2*sin(TH)).mean()
+    emt[n-n0] = (RR**2*sin(TH)*(d.vc['bxrms']**2 + d.vc['byrms']**2 + d.vc['bzm']**2)).mean()/(RR**2*sin(TH)).mean()
     anm[n-n0] = ((RR*sin(TH)*d.vc['vzm'])*RR**2*sin(TH)*ro2).sum()
-    bxmt[:,:,n-n0] = d.vc['bxm']
-    bymt[:,:,n-n0] = d.vc['bym']
-    bzmt[:,:,n-n0] = d.vc['bzm']
 
 plt.close('all')
 plt.clf()
-plt.figure(100,figsize=(8,4))
-plt.pcolormesh(t/86400/365,90-y/np.pi*180,bzmt[0,:,:],vmin=-8.e3,vmax=8.e3,cmap='bwr',shading='auto',rasterized=True)
-plt.xlabel('t [year]')
-plt.ylabel('latitude [degree]')
-plt.xlim(0,30)
+fig = plt.figure(100,figsize=(8,4))
+
+ax = fig.add_subplot(111)
+t_day = 86400
+ax.plot(t/t_day,ekm,label='kin, mean',color=R2D2.blue)
+ax.plot(t/t_day,ekt,label='kin, turb',color=R2D2.magenta)
+ax.plot(t/t_day,emm,label='mag, mean',color=R2D2.green)
+ax.plot(t/t_day,emt,label='mag, turb',color=R2D2.orange)
+ax.legend()
+plt.xlabel('t [day]')
+plt.yscale('log')
+plt.ylim(1.e4,1.e9)
 plt.tight_layout()
 plt.savefig(caseid+'.pdf')
