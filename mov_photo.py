@@ -40,7 +40,7 @@ t0 = d.read_time(0,silent=True)
 yran = ymax - ymin
 xran = min(xmax-xmin,yran)
 
-xsize = 18
+xsize = 12
 ysize = xsize*(yran + xran)/2/yran
 fig = plt.figure(num=1,figsize=(xsize,ysize))
 
@@ -86,7 +86,7 @@ for n in tqdm(range(n0,nd_tau+1)):
     in0 = d.qt["in"].copy()
     in0s = np.roll(in0,[jx//2-jc,kx//2-kc],axis=[0,1])
     ax1.pcolormesh(y*lfac,z*lfac,in0s.transpose(),cmap='gist_gray',vmax=3.2e10,vmin=1.e10,shading=shading)
-    ax1.set_ylabel("z [Mm]")
+    ax1.set_ylabel("Mm")
     ax1.set_title("Emergent intensity")
     ax3.pcolormesh(y*lfac,(x-rsun)*lfac,d.ql['te']+te2,vmin=3000,vmax=20000,cmap='gist_heat',shading=shading)
     ax3.plot(y*lfac,(d.qt['he'][:,kl]-rsun)*lfac,color='w')
@@ -96,17 +96,17 @@ for n in tqdm(range(n0,nd_tau+1)):
     bx = np.roll(d.qt["bx"],[jx//2-jc,kx//2-kc],axis=[0,1])
     ax2.tick_params(labelbottom=False)
     ax2.tick_params(labelleft=False)
-    ax2.pcolormesh(y*lfac,z*lfac,bx.transpose(),cmap='gist_gray',vmax=2.5e3,vmin=-2.5e3,shading=shading)
+    ax2.pcolormesh(y*lfac,z*lfac,bx.transpose(),cmap='gist_gray',vmax=0.25e3,vmin=-0.25e3,shading=shading)
     ax2.set_title(r"LOS magnetic field@$\tau=1$")
 
     ax3.set_ylim((max(xmax-yran,xmin)-rsun)*lfac,(xmax-rsun)*lfac)
-    ax3.set_ylabel("$x$ [Mm]")
-    ax3.set_xlabel("$y$ [Mm]")
+    ax3.set_ylabel("Mm")
+    ax3.set_xlabel("Mm")
     
     bb = np.sqrt(d.ql["bx"]**2 + d.ql["by"]**2 + d.ql["bz"]**2)
     bbs = np.roll(bb,[jx//2-jc],axis=1)
     ax4.tick_params(labelleft=False)
-    ax4.pcolormesh(y*lfac,(x-rsun)*lfac,bbs,vmax=8.e3,vmin=0.,cmap='gist_heat',shading=shading)
+    ax4.pcolormesh(y*lfac,(x-rsun)*lfac,bbs,vmax=2.e3,vmin=0.,cmap='gist_heat',shading=shading)
     ax4.set_ylim((max(xmax-yran,xmin)-rsun)*lfac,(xmax-rsun)*lfac)
     ax4.set_xlabel("$y$ [Mm]")
     ax4.set_title(r"$|B|$")
