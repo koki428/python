@@ -414,13 +414,21 @@ def read_qq_select(self,xs,n,silent=False):
         print('### variales are stored in self.qs ###')
             
 ##############################
-def read_qq(self,n,silent=False):
+def read_qq(self,n,value,silent=False):
     '''
     This method reads 3D full data
     The data is stored in self.qq dictionary
 
     Parameters:
         n (int): a selected time step for data
+        value (char): kind of value
+        "ro": density
+        "vx", "vy", "vz": velocity
+        "bx", "by", "bz": magnetic field
+        "se": entropy
+        "ph": div B cleaning
+        "te": temperature
+        "op": Opacity
         silent (bool): True suppresses a message of store
     '''
     import numpy as np
@@ -438,26 +446,24 @@ def read_qq(self,n,silent=False):
     kx = self.p["kx"]
     order_3D = self.p["order_3D"]
 
+    values = ['ro','vx','vy','vz','bx','by','bz','se','ph','pr','te','op']
+    
+    if value not in values:
+        print('######')
+        print('value =',value)
+        print('value should be one of ',values)
+        print('return')
+        return
+    
     ### Only when memory is not allocated 
     ### and the size of array is different
     ### memory is allocated
     memflag = True
-    if 'ro' in self.qq:
-        memflag = not self.qq['ro'].shape == (ix,jx,kx)
-    if 'ro' not in self.qq or memflag:
+    if value in self.qq:
+        memflag = not self.qq[value].shape == (ix,jx,kx)
+    if  value not in self.qq or memflag:
         print('memory is newly allocated')
-        self.qq["ro"] = np.zeros((ix,jx,kx))
-        self.qq["vx"] = np.zeros((ix,jx,kx))
-        self.qq["vy"] = np.zeros((ix,jx,kx))
-        self.qq["vz"] = np.zeros((ix,jx,kx))
-        self.qq["bx"] = np.zeros((ix,jx,kx))
-        self.qq["by"] = np.zeros((ix,jx,kx))
-        self.qq["bz"] = np.zeros((ix,jx,kx))
-        self.qq["se"] = np.zeros((ix,jx,kx))
-        self.qq["ph"] = np.zeros((ix,jx,kx))
-        self.qq["pr"] = np.zeros((ix,jx,kx))
-        self.qq["te"] = np.zeros((ix,jx,kx))
-        self.qq["op"] = np.zeros((ix,jx,kx))
+        self.qq[value] = np.zeros((ix,jx,kx),dtype=np.float32)
 
     for ir0 in range(1,self.p["ixr"]+1):
         for jr0 in range(1,self.p["jxr"]+1):
@@ -470,54 +476,14 @@ def read_qq(self,n,silent=False):
             ])
             f = open(self.p['datadir']+"remap/qq/qq.dac."+'{0:08d}'.format(n)+"."+'{0:08d}'.format(np0),'rb')
             qqq = np.fromfile(f,dtype=dtyp,count=1)
-            if(order_3D == 1):
-                index = [mtype, iixl[np0], jjxl[np0], kx]
-                self.qq["ro"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[0,:,:,:] 
-                self.qq["vx"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[1,:,:,:] 
-                self.qq["vy"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[2,:,:,:] 
-                self.qq["vz"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[3,:,:,:] 
-                self.qq["bx"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[4,:,:,:] 
-                self.qq["by"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[5,:,:,:] 
-                self.qq["bz"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[6,:,:,:] 
-                self.qq["se"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[7,:,:,:] 
-                self.qq["ph"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[8,:,:,:]
-            if(order_3D == 2):
-                index = [iixl[np0], mtype, jjxl[np0], kx]
-                self.qq["ro"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,0,:,:] 
-                self.qq["vx"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,1,:,:] 
-                self.qq["vy"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,2,:,:] 
-                self.qq["vz"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,3,:,:] 
-                self.qq["bx"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,4,:,:] 
-                self.qq["by"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,5,:,:] 
-                self.qq["bz"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,6,:,:] 
-                self.qq["se"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,7,:,:] 
-                self.qq["ph"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,8,:,:] 
-            if(order_3D == 3):
-                index = [iixl[np0], jjxl[np0], mtype, kx]
-                self.qq["ro"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,:,0,:] 
-                self.qq["vx"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,:,1,:] 
-                self.qq["vy"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,:,2,:] 
-                self.qq["vz"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,:,3,:] 
-                self.qq["bx"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,:,4,:]
-                self.qq["by"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,:,5,:] 
-                self.qq["bz"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,:,6,:] 
-                self.qq["se"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,:,7,:] 
-                self.qq["ph"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,:,8,:] 
-            if(order_3D == 4):
-                index = [iixl[np0], jjxl[np0], kx, mtype]
-                self.qq["ro"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,:,:,0] 
-                self.qq["vx"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,:,:,1] 
-                self.qq["vy"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,:,:,2] 
-                self.qq["vz"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,:,:,3] 
-                self.qq["bx"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,:,:,4] 
-                self.qq["by"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,:,:,5] 
-                self.qq["bz"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,:,:,6] 
-                self.qq["se"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,:,:,7] 
-                self.qq["ph"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,:,:,8] 
-            
-            self.qq["pr"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["pr"].reshape((iixl[np0],jjxl[np0],kx),order="F")
-            self.qq["te"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["te"].reshape((iixl[np0],jjxl[np0],kx),order="F")
-            self.qq["op"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["op"].reshape((iixl[np0],jjxl[np0],kx),order="F")
+
+            if value in values[:-3]:
+                qqq = qqq["qq"].reshape((iixl[np0],jjxl[np0],kx,mtype),order="F")
+                m = values.index(value)
+                self.qq[value][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq[:,:,:,m]
+            else:
+                qqq = qqq[value].reshape((iixl[np0],jjxl[np0],kx),order="F")
+                self.qq[value][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq
             f.close()
 
     if not silent :
