@@ -84,30 +84,30 @@ def init(self, datadir):
         
     endian = self.p["endian"]
     dtyp=np.dtype([ \
-                    ("head",endian+"i"),\
-                    ("x",endian+str(ixg)+"d"),\
-                    ("y",endian+str(jxg)+"d"),\
-                    ("z",endian+str(kxg)+"d"),\
-                    ("pr0",endian+str(ixg)+"d"),\
-                    ("te0",endian+str(ixg)+"d"),\
-                    ("ro0",endian+str(ixg)+"d"),\
-                    ("se0",endian+str(ixg)+"d"),\
-                    ("en0",endian+str(ixg)+"d"),\
-                    ("op0",endian+str(ixg)+"d"),\
-                    ("tu0",endian+str(ixg)+"d"),\
-                    ("dsedr0",endian+str(ixg)+"d"),\
-                    ("dtedr0",endian+str(ixg)+"d"),\
-                    ("dprdro",endian+str(ixg)+"d"),\
-                    ("dprdse",endian+str(ixg)+"d"),\
-                    ("dtedro",endian+str(ixg)+"d"),\
-                    ("dtedse",endian+str(ixg)+"d"),\
-                    ("dendro",endian+str(ixg)+"d"),\
-                    ("dendse",endian+str(ixg)+"d"),\
-                    ("gx",endian+str(ixg)+"d"),\
-                    ("cp",endian+str(ixg)+"d"),\
-                    ("fa",endian+str(ixg)+"d"),\
-                    ("sa",endian+str(ixg)+"d"),\
-                    ("xi",endian+str(ixg)+"d"),\
+                    ("head",endian+"i",),\
+                    ("x",endian+"d",(ixg,)),\
+                    ("y",endian+"d",(jxg,)),\
+                    ("z",endian+"d",(kxg,)),\
+                    ("pr0",endian+"d",(ixg,)),\
+                    ("te0",endian+"d",(ixg,)),\
+                    ("ro0",endian+"d",(ixg,)),\
+                    ("se0",endian+"d",(ixg,)),\
+                    ("en0",endian+"d",(ixg,)),\
+                    ("op0",endian+"d",(ixg,)),\
+                    ("tu0",endian+"d",(ixg,)),\
+                    ("dsedr0",endian+"d",(ixg,)),\
+                    ("dtedr0",endian+"d",(ixg,)),\
+                    ("dprdro",endian+"d",(ixg,)),\
+                    ("dprdse",endian+"d",(ixg,)),\
+                    ("dtedro",endian+"d",(ixg,)),\
+                    ("dtedse",endian+"d",(ixg,)),\
+                    ("dendro",endian+"d",(ixg,)),\
+                    ("dendse",endian+"d",(ixg,)),\
+                    ("gx",endian+"d",(ixg,)),\
+                    ("cp",endian+"d",(ixg,)),\
+                    ("fa",endian+"d",(ixg,)),\
+                    ("sa",endian+"d",(ixg,)),\
+                    ("xi",endian+"d",(ixg,)),\
                     ("tail",endian+"i")\
     ])
     f = open(self.p['datadir']+"param/back.dac",'rb')
