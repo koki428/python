@@ -35,9 +35,12 @@ ekt = np.zeros(nd-n0+1)
 emm = np.zeros(nd-n0+1)
 emt = np.zeros(nd-n0+1)
 anm = np.zeros(nd-n0+1)
+bzmt = np.zeros((ix,jx,nd-n0+1))
 
 RR, TH = np.meshgrid(x,y,indexing='ij')
 ro2, tmp = np.meshgrid(ro0,y,indexing='ij')
+
+pii8 = 1/pi/8
 
 for n in range(n0,nd+1):
     print(n)
@@ -46,11 +49,12 @@ for n in range(n0,nd+1):
     t[n-n0] = d.t
 
     d.read_vc(n,silent=True)
-    ekm[n-n0] = (RR**2*sin(TH)*(d.vc['vxm']**2   + d.vc['vym']**2   + d.vc['vzm']**2)).mean()/(RR**2*sin(TH)).mean()
-    ekt[n-n0] = (RR**2*sin(TH)*(d.vc['vxrms']**2 + d.vc['vyrms']**2 + d.vc['vzm']**2)).mean()/(RR**2*sin(TH)).mean()
-    emm[n-n0] = (RR**2*sin(TH)*(d.vc['bxm']**2   + d.vc['bym']**2   + d.vc['bzm']**2)).mean()/(RR**2*sin(TH)).mean()
-    emt[n-n0] = (RR**2*sin(TH)*(d.vc['bxrms']**2 + d.vc['byrms']**2 + d.vc['bzm']**2)).mean()/(RR**2*sin(TH)).mean()
+    ekm[n-n0] = (RR**2*sin(TH)*0.5*ro2*(d.vc['vxm']**2   + d.vc['vym']**2   + d.vc['vzm']**2)).mean()/(RR**2*sin(TH)).mean()
+    ekt[n-n0] = (RR**2*sin(TH)*0.5*ro2*(d.vc['vxrms']**2 + d.vc['vyrms']**2 + d.vc['vzrms']**2)).mean()/(RR**2*sin(TH)).mean()
+    emm[n-n0] = (RR**2*sin(TH)*pii8*(d.vc['bxm']**2   + d.vc['bym']**2   + d.vc['bzm']**2)).mean()/(RR**2*sin(TH)).mean()
+    emt[n-n0] = (RR**2*sin(TH)*pii8*(d.vc['bxrms']**2 + d.vc['byrms']**2 + d.vc['bzrms']**2)).mean()/(RR**2*sin(TH)).mean()
     anm[n-n0] = ((RR*sin(TH)*d.vc['vzm'])*RR**2*sin(TH)*ro2).sum()
+    bzmt[:,:,n-n0] = d.vc['bzm']
 
 plt.close('all')
 plt.clf()

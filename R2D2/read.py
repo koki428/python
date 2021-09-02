@@ -11,6 +11,7 @@ def init(self, datadir):
     
     self.p = {}
     self.qs = {}
+    self.qz = {}
     self.qq = {}
     self.qv = np.zeros((1,1,1))
     self.qt = {}
@@ -412,7 +413,92 @@ def read_qq_select(self,xs,n,silent=False):
         
     if not silent :
         print('### variales are stored in self.qs ###')
+
+##############################
+def read_qq_select_z(self,zs,n,silent=False):
+    '''
+    This method reads 2D slice data at a selected height.
+    The data is stored in self.qs dictionary
+
+    Parameters:
+        zs (float): a selected z for data
+        n (int): a setected time step for data
+        silent (bool): True suppresses a message of store
+        
+    '''
+
+    import numpy as np
+    k0 = np.argmin(np.abs(self.p["z"]-zs))
+    mtype = self.p["mtype"]
+    iixl = self.p["iixl"]
+    jjxl = self.p["jjxl"]
+    ix = self.p["ix"]
+    jx = self.p["jx"]
+    kx = self.p["kx"]
+    iss = self.p["iss"]
+    iee = self.p["iee"]
+    jss = self.p["jss"]
+    jee = self.p["jee"]
+    order_3D = self.p["order_3D"]
+    
+    ### Only when memory is not allocated 
+    ### and the size of array is different
+    ### memory is allocated
+    memflag = True
+    if 'ro' in self.qz:
+        memflag = not self.qz['ro'].shape == (ix,jx)
+    if 'ro' not in self.qz or memflag:
+        print('memory is newly allocated')
+        self.qz["ro"] = np.zeros((ix,jx))
+        self.qz["vx"] = np.zeros((ix,jx))
+        self.qz["vy"] = np.zeros((ix,jx))
+        self.qz["vz"] = np.zeros((ix,jx))
+        self.qz["bx"] = np.zeros((ix,jx))
+        self.qz["by"] = np.zeros((ix,jx))
+        self.qz["bz"] = np.zeros((ix,jx))
+        self.qz["se"] = np.zeros((ix,jx))
+        self.qz["ph"] = np.zeros((ix,jx))
+        self.qz["pr"] = np.zeros((ix,jx))
+        self.qz["te"] = np.zeros((ix,jx))
+        self.qz["op"] = np.zeros((ix,jx))
+
+    for ir0 in range(1,self.p["ixr"]+1):
+        print(ir0,self.p['ixr'])
+        for jr0 in range(1,self.p["jxr"]+1):
+            np0 = self.p["np_ijr"][ir0-1,jr0-1]
+            dtyp=np.dtype([ \
+                            ("qq",self.p["endian"]+str(mtype*iixl[np0]*jjxl[np0]*kx)+"f"),\
+                            ("pr",self.p["endian"]+str(iixl[np0]*jjxl[np0]*kx)+"f"),\
+                            ("te",self.p["endian"]+str(iixl[np0]*jjxl[np0]*kx)+"f"),\
+                            ("op",self.p["endian"]+str(iixl[np0]*jjxl[np0]*kx)+"f"),\
+            ])
+            f = open(self.p['datadir']+"remap/qq/qq.dac."+'{0:08d}'.format(n)+"."+'{0:08d}'.format(np0),'rb')
+            qqq = np.fromfile(f,dtype=dtyp,count=1)
+            if(order_3D == 4):
+                index = [iixl[np0], jjxl[np0], kx, mtype]
+                self.qz["ro"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,:,k0,0] 
+                self.qz["vx"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,:,k0,1] 
+                self.qz["vy"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,:,k0,2]
+                self.qz["vz"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,:,k0,3]
+                self.qz["bx"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,:,k0,4]
+                self.qz["by"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,:,k0,5]
+                self.qz["bz"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,:,k0,6]
+                self.qz["se"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,:,k0,7]
+                self.qz["ph"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1] = qqq["qq"].reshape((index[0],index[1],index[2],index[3]),order="F")[:,:,k0,8]
             
+                self.qz["pr"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1] = qqq["pr"].reshape((iixl[np0],jjxl[np0],kx),order="F")[:,:,k0]
+                self.qz["te"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1] = qqq["te"].reshape((iixl[np0],jjxl[np0],kx),order="F")[:,:,k0]
+                self.qz["op"][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1] = qqq["op"].reshape((iixl[np0],jjxl[np0],kx),order="F")[:,:,k0]
+
+            f.close()
+                
+        info = {}
+        info['zs'] = self.p['z'][k0]
+        self.qz['info'] = info
+        
+    if not silent :
+        print('### variales are stored in self.qz ###')
+        
 ##############################
 def read_qq(self,n,value,silent=False):
     '''

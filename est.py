@@ -45,7 +45,6 @@ else:
     sinyy_flux = sin(yy_flux)
     sinyym_flux = np.average(sinyy_flux,axis=1)
     
-
 #n0 = 4
 #nd = n0
 
@@ -78,8 +77,6 @@ fkt = np.zeros((ix+1,nd-n0+1))
 frt = np.zeros((ix+1,nd-n0+1))
 ftt = np.zeros((ix+1,nd-n0+1))
 
-plt.close('all')
-plt.clf()
 
 for n in tqdm(range(n0,nd+1)):
     #print(n)
@@ -117,22 +114,22 @@ for n in tqdm(range(n0,nd+1)):
     #ff = fd
     ft = ff + fk + fr + fm
 
-    vxrmst[:,n-n0] = np.sqrt(np.average(d.vc["vxrms"]**2*sinyy,axis=1))/sinyym
-    vyrmst[:,n-n0] = np.sqrt(np.average(d.vc["vyrms"]**2*sinyy,axis=1))/sinyym
-    vzrmst[:,n-n0] = np.sqrt(np.average(d.vc["vzrms"]**2*sinyy,axis=1))/sinyym
+    vxrmst[:,n-n0] = np.sqrt(np.average(d.vc["vxrms"]**2*sinyy,axis=1)/sinyym)
+    vyrmst[:,n-n0] = np.sqrt(np.average(d.vc["vyrms"]**2*sinyy,axis=1)/sinyym)
+    vzrmst[:,n-n0] = np.sqrt(np.average(d.vc["vzrms"]**2*sinyy,axis=1)/sinyym)
 
-    bxrmst[:,n-n0] = np.sqrt(np.average(d.vc["bxrms"]**2*sinyy,axis=1))/sinyym
-    byrmst[:,n-n0] = np.sqrt(np.average(d.vc["byrms"]**2*sinyy,axis=1))/sinyym
-    bzrmst[:,n-n0] = np.sqrt(np.average(d.vc["bzrms"]**2*sinyy,axis=1))/sinyym
+    bxrmst[:,n-n0] = np.sqrt(np.average(d.vc["bxrms"]**2*sinyy,axis=1)/sinyym)
+    byrmst[:,n-n0] = np.sqrt(np.average(d.vc["byrms"]**2*sinyy,axis=1)/sinyym)
+    bzrmst[:,n-n0] = np.sqrt(np.average(d.vc["bzrms"]**2*sinyy,axis=1)/sinyym)
 
     bxmt[:,:,n-n0] = d.vc['bxm']
     bymt[:,:,n-n0] = d.vc['bym']
     bzmt[:,:,n-n0] = d.vc['bzm']
 
-    rormst[:,n-n0] = np.sqrt(np.average(d.vc["rorms"]**2*sinyy,axis=1))/sinyym
-    sermst[:,n-n0] = np.sqrt(np.average(d.vc["serms"]**2*sinyy,axis=1))/sinyym
-    prrmst[:,n-n0] = np.sqrt(np.average(d.vc["prrms"]**2*sinyy,axis=1))/sinyym
-    termst[:,n-n0] = np.sqrt(np.average(d.vc["terms"]**2*sinyy,axis=1))/sinyym
+    rormst[:,n-n0] = np.sqrt(np.average(d.vc["rorms"]**2*sinyy,axis=1)/sinyym)
+    sermst[:,n-n0] = np.sqrt(np.average(d.vc["serms"]**2*sinyy,axis=1)/sinyym)
+    prrmst[:,n-n0] = np.sqrt(np.average(d.vc["prrms"]**2*sinyy,axis=1)/sinyym)
+    termst[:,n-n0] = np.sqrt(np.average(d.vc["terms"]**2*sinyy,axis=1)/sinyym)
 
     romt[:,n-n0] = np.average(d.vc["rom"]*sinyy,axis=1)/sinyym
     semt[:,n-n0] = np.average(d.vc["sem"]*sinyy,axis=1)/sinyym

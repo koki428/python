@@ -96,6 +96,7 @@ for n in tqdm(range(n0,nd+1)):
 #        ax3.pcolormesh(y*lfac,(x-rsun)*lfac,d.vc['te_xy']+te2,vmin=2000.,vmax=20000,cmap='gist_heat',shading=shading)
         tus = np.roll(d.vc["tu_xy"],[jx//2-jc],axis=1)
         ax3.contour(y*lfac,(x-rsun)*lfac,tus,levels=[1.],colors="w")
+        ax3.plot(y*lfac,(d.qt['he'][jx//2-jc,:]-rsun)*lfac,color='red')
         ax3.set_title(r"$T$")
         ax4.contour(y*lfac,(x-rsun)*lfac,tus,levels=[1.],colors="w")
 
@@ -128,4 +129,4 @@ for n in tqdm(range(n0,nd+1)):
     plt.savefig(pngdir+"py"+'{0:08d}'.format(n)+".png")
 
     if(n != nd):
-        clf()
+        plt.clf()
