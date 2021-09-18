@@ -8,21 +8,21 @@ def init(self, datadir):
     '''
     import numpy as np
     import os,sys
-    
-    self.p = {}
-    self.qs = {}
-    self.qz = {}
-    self.qq = {}
-    self.qv = np.zeros((1,1,1))
-    self.qt = {}
-    self.qt_yin = {}
-    self.qt_yan = {}
-    self.ql = {}
-    self.ql_yin = {}
-    self.ql_yan = {}
-    self.q2 = {}
-    self.t = 0
-    self.vc = {}
+
+    if not hasattr(self,'p'): self.p = {}
+    if not hasattr(self,'qs'): self.qs = {}
+    if not hasattr(self,'qz'): self.qz = {}
+    if not hasattr(self,'qq'): self.qq = {}
+    if not hasattr(self,'qv'): self.qv = {}
+    if not hasattr(self,'qt'): self.qt = {}
+    if not hasattr(self,'qt_yin'): self.qt_yin = {}
+    if not hasattr(self,'qt_yan'): self.qt_yan = {}
+    if not hasattr(self,'ql'): self.ql = {}
+    if not hasattr(self,'ql_yin'): self.ql_yin = {}
+    if not hasattr(self,'ql_yan'): self.ql_yan = {}
+    if not hasattr(self,'q2'): self.q2 = {}
+    if not hasattr(self,'t'): self.t = {}
+    if not hasattr(self,'vc'): self.vc = {}
         
     self.p['datadir'] = datadir 
 
@@ -533,23 +533,29 @@ def read_qq(self,n,value,silent=False):
     order_3D = self.p["order_3D"]
 
     values = ['ro','vx','vy','vz','bx','by','bz','se','ph','pr','te','op']
-    
-    if value not in values:
-        print('######')
-        print('value =',value)
-        print('value should be one of ',values)
-        print('return')
-        return
+
+    if type(value) == str:
+        values_input = [value]
+    if type(value) == list:
+        values_input = value
+
+#    if value not in values:
+#        print('######')
+#        print('value =',value)
+#        print('value should be one of ',values)
+#        print('return')
+#        return
     
     ### Only when memory is not allocated 
     ### and the size of array is different
     ### memory is allocated
-    memflag = True
-    if value in self.qq:
-        memflag = not self.qq[value].shape == (ix,jx,kx)
-    if  value not in self.qq or memflag:
-        print('memory is newly allocated')
-        self.qq[value] = np.zeros((ix,jx,kx),dtype=np.float32)
+    for value in values_input:
+        memflag = True    
+        if value in self.qq:
+            memflag = not self.qq[value].shape == (ix,jx,kx)
+        if  value not in self.qq or memflag:
+            print('memory is newly allocated')
+            self.qq[value] = np.zeros((ix,jx,kx),dtype=np.float32)
 
     for ir0 in range(1,self.p["ixr"]+1):
         for jr0 in range(1,self.p["jxr"]+1):
@@ -563,13 +569,13 @@ def read_qq(self,n,value,silent=False):
             f = open(self.p['datadir']+"remap/qq/qq.dac."+'{0:08d}'.format(n)+"."+'{0:08d}'.format(np0),'rb')
             qqq = np.fromfile(f,dtype=dtyp,count=1)
 
-            if value in values[:-3]:
-                qqq = qqq["qq"].reshape((iixl[np0],jjxl[np0],kx,mtype),order="F")
-                m = values.index(value)
-                self.qq[value][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq[:,:,:,m]
-            else:
-                qqq = qqq[value].reshape((iixl[np0],jjxl[np0],kx),order="F")
-                self.qq[value][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq
+            for value in values_input:
+                if value in values[:-3]:
+                    m = values.index(value)
+                    self.qq[value][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq["qq"].reshape((iixl[np0],jjxl[np0],kx,mtype),order="F")[:,:,:,m]
+                else:
+                    qqq = qqq[value].reshape((iixl[np0],jjxl[np0],kx),order="F")
+                    self.qq[value][iss[np0]:iee[np0]+1,jss[np0]:jee[np0]+1,:] = qqq
             f.close()
 
     if not silent :
