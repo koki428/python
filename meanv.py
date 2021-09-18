@@ -56,19 +56,21 @@ for n in range(n0,nd+1):
     anm[n-n0] = ((RR*sin(TH)*d.vc['vzm'])*RR**2*sin(TH)*ro2).sum()
     bzmt[:,:,n-n0] = d.vc['bzm']
 
-plt.close('all')
 plt.clf()
-fig = plt.figure(100,figsize=(8,4))
+plt.close('all')
+fig = plt.figure('meanv',figsize=(8,8))
 
 ax = fig.add_subplot(111)
 t_day = 86400
 ax.plot(t/t_day,ekm,label='kin, mean',color=R2D2.blue)
 ax.plot(t/t_day,ekt,label='kin, turb',color=R2D2.magenta)
+ax.plot(t/t_day,ekm+ekt,label='kin, all',color=R2D2.gray,linestyle='--')
 ax.plot(t/t_day,emm,label='mag, mean',color=R2D2.green)
 ax.plot(t/t_day,emt,label='mag, turb',color=R2D2.orange)
+ax.plot(t/t_day,emm+emt,label='mag, all',color=R2D2.gray,linestyle=':')
 ax.legend()
 plt.xlabel('t [day]')
 plt.yscale('log')
-plt.ylim(1.e4,1.e9)
+plt.ylim(1.e5,1.e8)
 plt.tight_layout()
 plt.savefig(caseid+'.pdf')
