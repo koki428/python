@@ -17,9 +17,19 @@ datadir="../run/"+caseid+"/data/"
 pngdir="../figs/"+caseid+"/est/"
 os.makedirs(pngdir,exist_ok=True)
 
-d = R2D2.R2D2_data(datadir)
-for key in d.p:
-    exec('%s = %s%s%s' % (key, 'd.p["',key,'"]'))
+ReadFlag = False
+try:
+    d
+except NameError:
+    ReadFlag = True
+else:
+    if d.p['datadir'] != datadir:
+        ReadFlag = True
+
+if ReadFlag:
+    d = R2D2.R2D2_data(datadir)
+    for key in d.p:
+        exec('%s = %s%s%s' % (key, 'd.p["',key,'"]'))
 
 try:
     n0
@@ -47,6 +57,8 @@ else:
     
 #n0 = 4
 #nd = n0
+
+#nd = 10
 
 vxrmst = np.zeros((ix,nd-n0+1))
 vyrmst = np.zeros((ix,nd-n0+1))
@@ -99,8 +111,16 @@ for n in tqdm(range(n0,nd+1)):
 
     else:
         fsun = 3.86e33/pi/4
-        fe = np.average(d.vc["fe"]*sinyy_flux,axis=1)/sinyym_flux*x_flux**2
-        fd = np.average(d.vc["fd"]*sinyy_flux,axis=1)/sinyym_flux*x_flux**2
+        j1 = jx//2 - 512
+        j2 = jx//2 + 512
+        #fe = np.average(d.vc["fe"]*sinyy_flux,axis=1)/sinyym_flux*x_flux**2
+        #fd = np.average(d.vc["fd"]*sinyy_flux,axis=1)/sinyym_flux*x_flux**2
+
+        sinyym_flux0 = np.average(sinyy_flux[:,j1:j2],axis=1)
+        
+        fe = np.average(d.vc["fe"][:,j1:j2]*sinyy_flux[:,j1:j2],axis=1)/sinyym_flux0*x_flux**2
+        fd = np.average(d.vc["fd"][:,j1:j2]*sinyy_flux[:,j1:j2],axis=1)/sinyym_flux0*x_flux**2
+        
         fk = np.average(d.vc["fk"]*sinyy_flux,axis=1)/sinyym_flux*x_flux**2
         fm = np.average(d.vc["fm"]*sinyy_flux,axis=1)/sinyym_flux*x_flux**2
         fr = np.average(d.vc["fr"]*sinyy_flux,axis=1)/sinyym_flux#*x_flux**2
@@ -111,6 +131,7 @@ for n in tqdm(range(n0,nd+1)):
     SR, sry = np.meshgrid(sr,y,indexing="ij")
     
     ff = fd*sr + fe*(1.e0-sr)
+    #ff = fe
     #ff = fd
     ft = ff + fk + fr + fm
 

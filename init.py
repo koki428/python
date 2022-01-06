@@ -15,9 +15,19 @@ datadir="../run/"+caseid+"/data/"
 casedir="../figs/"+caseid
 os.makedirs(casedir,exist_ok=True)
 
-d = R2D2.R2D2_data(datadir)
-for key in d.p:
-    exec('%s = %s%s%s' % (key, 'd.p["',key,'"]'))
+ReadFlag = False
+try:
+    d
+except NameError:
+    ReadFlag = True
+else:
+    if d.p['datadir'] != datadir:
+        ReadFlag = True
+
+if ReadFlag:
+    d = R2D2.R2D2_data(datadir)
+    for key in d.p:
+        exec('%s = %s%s%s' % (key, 'd.p["',key,'"]'))
 
 try:
     n0

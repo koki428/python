@@ -11,9 +11,19 @@ if caseid_tmp != '':
 
 datadir="../run/"+caseid+"/data/"
 
-d = R2D2.R2D2_data(datadir)
-for key in d.p:
-    exec('%s = %s%s%s' % (key, 'd.p["',key,'"]'))
+ReadFlag = False
+try:
+    d
+except NameError:
+    ReadFlag = True
+else:
+    if d.p['datadir'] != datadir:
+        ReadFlag = True
+
+if ReadFlag:
+    d = R2D2.R2D2_data(datadir)
+    for key in d.p:
+        exec('%s = %s%s%s' % (key, 'd.p["',key,'"]'))
 
 json_key = glob.glob(os.environ['HOME']+'/json/*')[0]
 project = os.getcwd().split('/')[-2]

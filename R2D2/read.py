@@ -9,20 +9,20 @@ def init(self, datadir):
     import numpy as np
     import os,sys
 
-    if not hasattr(self,'p'): self.p = {}
-    if not hasattr(self,'qs'): self.qs = {}
-    if not hasattr(self,'qz'): self.qz = {}
-    if not hasattr(self,'qq'): self.qq = {}
-    if not hasattr(self,'qv'): self.qv = {}
-    if not hasattr(self,'qt'): self.qt = {}
-    if not hasattr(self,'qt_yin'): self.qt_yin = {}
-    if not hasattr(self,'qt_yan'): self.qt_yan = {}
-    if not hasattr(self,'ql'): self.ql = {}
-    if not hasattr(self,'ql_yin'): self.ql_yin = {}
-    if not hasattr(self,'ql_yan'): self.ql_yan = {}
-    if not hasattr(self,'q2'): self.q2 = {}
-    if not hasattr(self,'t'): self.t = {}
-    if not hasattr(self,'vc'): self.vc = {}
+    self.p = {}
+    self.qs = {}
+    self.qz = {}
+    self.qq = {}
+    self.qv = {}
+    self.qt = {}
+    self.qt_yin = {}
+    self.qt_yan = {}
+    self.ql = {}
+    self.ql_yin = {}
+    self.ql_yan = {}
+    self.q2 = {}
+    self.t = {}
+    self.vc = {}
         
     self.p['datadir'] = datadir 
 
