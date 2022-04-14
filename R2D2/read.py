@@ -354,8 +354,10 @@ def read_qq_select(self,xs,n,silent=False):
                 ("pr",self.p["endian"]+str(iixl[np0]*jjxl[np0]*kx)+"f"),\
                 ("te",self.p["endian"]+str(iixl[np0]*jjxl[np0]*kx)+"f"),\
                 ("op",self.p["endian"]+str(iixl[np0]*jjxl[np0]*kx)+"f"),\
-        ])
-        f = open(self.p['datadir']+"remap/qq/qq.dac."+'{0:08d}'.format(n)+"."+'{0:08d}'.format(np0),'rb')
+        ])        
+        cnou = '{0:05d}'.format(np0//1000)
+        cno  = '{0:08d}'.format(np0)
+        f = open(self.p['datadir']+"remap/qq/"+cnou+"/"+cno+"/qq.dac."+'{0:08d}'.format(n)+"."+'{0:08d}'.format(np0),'rb')
         qqq = np.fromfile(f,dtype=dtyp,count=1)
         if(order_3D == 1):
             index = [mtype, iixl[np0], jjxl[np0], kx]
@@ -566,7 +568,11 @@ def read_qq(self,n,value,silent=False):
                 ("te",self.p["endian"]+str(iixl[np0]*jjxl[np0]*kx)+"f"),\
                 ("op",self.p["endian"]+str(iixl[np0]*jjxl[np0]*kx)+"f"),\
             ])
-            f = open(self.p['datadir']+"remap/qq/qq.dac."+'{0:08d}'.format(n)+"."+'{0:08d}'.format(np0),'rb')
+
+            cnou = '{0:05d}'.format(np0//1000)
+            cno  = '{0:08d}'.format(np0)
+            f = open(self.p['datadir']+"remap/qq/"+cnou+"/"+cno+"/qq.dac."+'{0:08d}'.format(n)+"."+'{0:08d}'.format(np0),'rb')            
+            #f = open(self.p['datadir']+"remap/qq/qq.dac."+'{0:08d}'.format(n)+"."+'{0:08d}'.format(np0),'rb')
             qqq = np.fromfile(f,dtype=dtyp,count=1)
 
             for value in values_input:
