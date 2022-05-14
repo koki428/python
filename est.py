@@ -198,10 +198,12 @@ for n in tqdm(range(n0,nd+1)):
     #ax1.legend()
 
     #####################
-    vxrms = np.sqrt((d.vc['vxrms']**2).mean(axis=1))
-    vhrms = np.sqrt((d.vc['vyrms']**2 + d.vc['vzrms']**2).mean(axis=1))
+    vxrms = vxrmst[:,n-n0]
+    vhrms = np.sqrt(vyrmst[:,n-n0]**2 + vzrmst[:,n-n0]**2)
+    vrms = np.sqrt(vxrms**2 + vhrms**2)
     ax2.plot(xpp,vxrms*1.e-5,label=r'$v_{x\mathrm{(rms)}}$',color=R2D2.blue)
     ax2.plot(xpp,vhrms*1.e-5,label=r'$v_\mathrm{h(rms)}$',color=R2D2.magenta)
+    ax2.plot(xpp,vrms*1.e-5,label=r'$v_\mathrm{(rms)}$',color=R2D2.green)
     ax2.set_xlabel(xlabel)
     ax2.set_ylabel(r"velocities [km/s]")
     ax2.set_label('RMS velocities')
@@ -210,10 +212,12 @@ for n in tqdm(range(n0,nd+1)):
     ax2.legend()
 
     #####################
-    bxrms = np.sqrt((d.vc['bxrms']**2).mean(axis=1))
-    bhrms = np.sqrt((d.vc['byrms']**2 + d.vc['bzrms']**2).mean(axis=1))
+    bxrms = bxrmst[:,n-n0]
+    bhrms = np.sqrt(byrmst[:,n-n0]**2 + bzrmst[:,n-n0]**2)
+    brms = np.sqrt(bxrms**2 + bhrms**2)
     ax3.plot(xpp,bxrms,label=r'$B_{x\mathrm{(rms)}}$',color=R2D2.blue)
     ax3.plot(xpp,bhrms,label=r'$B_\mathrm{h(rms)}$',color=R2D2.magenta)
+    ax3.plot(xpp,brms,label=r'$B_\mathrm{(rms)}$',color=R2D2.green)
     ax3.set_xlabel(xlabel)
     ax3.set_ylabel(r"Magnetic field [G]")
     ax3.set_label('RMS magnetic field')
