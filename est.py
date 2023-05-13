@@ -17,19 +17,9 @@ datadir="../run/"+caseid+"/data/"
 pngdir="../figs/"+caseid+"/est/"
 os.makedirs(pngdir,exist_ok=True)
 
-ReadFlag = False
-try:
-    d
-except NameError:
-    ReadFlag = True
-else:
-    if d.p['datadir'] != datadir:
-        ReadFlag = True
-
-if ReadFlag:
-    d = R2D2.R2D2_data(datadir)
-    for key in d.p:
-        exec('%s = %s%s%s' % (key, 'd.p["',key,'"]'))
+d = R2D2.R2D2_data(datadir)
+for key in d.p:
+    exec('%s = %s%s%s' % (key, 'd.p["',key,'"]'))
 
 try:
     n0
@@ -54,7 +44,7 @@ else:
     xx,yy_flux = np.meshgrid(x_flux,y,indexing='ij')
     sinyy_flux = sin(yy_flux)
     sinyym_flux = np.average(sinyy_flux,axis=1)
-    
+
 #n0 = 4
 #nd = n0
 

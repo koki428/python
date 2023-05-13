@@ -56,7 +56,7 @@ for n in range(n0,nd_tau+1):
     # read time
     d.read_qq_tau(n,silent=True)
 
-    shading = "flat"
+    shading = "auto"
     #shading = "groroud"
     ax1 = fig.add_subplot(131,aspect="equal")
     ax2 = fig.add_subplot(132,aspect="equal")
@@ -85,7 +85,7 @@ for n in range(n0,nd_tau+1):
         ax.tick_params(labelleft=False,left=False)
 
     bbox_props = dict(boxstyle="round,pad=0.3", fc="white", ec="black", lw=2,alpha=0.9)
-    ax1.annotate(s="t="+"{:.2f}".format((t-t0)/3600.)+" [hr]"\
+    ax1.annotate(text="t="+"{:.2f}".format((t-t0)/3600.)+" [hr]"\
                      ,xy=[0.03,0.03],xycoords="axes fraction"\
                      ,fontsize=18,color='black',bbox=bbox_props)
 
